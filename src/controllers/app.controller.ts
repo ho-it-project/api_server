@@ -1,7 +1,7 @@
 import { TypedBody, TypedParam, TypedRoute } from '@nestia/core';
 import { Controller } from '@nestjs/common';
-import { AppService } from './app.service';
-import { TestBody2 } from './types';
+import { AppService } from '../app.service';
+import { TestBody2 } from '../types';
 
 @Controller()
 export class AppController {

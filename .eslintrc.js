@@ -1,25 +1,24 @@
 module.exports = {
+  root: true,
+  plugins: ['@typescript-eslint', 'deprecation'],
+  extends: ['plugin:@typescript-eslint/recommended'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
-    project: 'tsconfig.json',
-    tsconfigRootDir: __dirname,
-    sourceType: 'module',
+    project: ['tsconfig.json', 'test/tsconfig.json'],
   },
-  plugins: ['@typescript-eslint/eslint-plugin'],
-  extends: [
-    'plugin:@typescript-eslint/recommended',
-    'plugin:prettier/recommended',
+  overrides: [
+    {
+      files: ['src/**/*.ts', 'test/**/*.ts'],
+      rules: {
+        '@typescript-eslint/no-duplicate-imports': 'error',
+        '@typescript-eslint/no-explicit-any': 'off',
+        '@typescript-eslint/no-floating-promises': 'error',
+        '@typescript-eslint/no-inferrable-types': 'off',
+        '@typescript-eslint/no-namespace': 'off',
+        '@typescript-eslint/no-non-null-assertion': 'off',
+        '@typescript-eslint/no-var-requires': 'off',
+        'deprecation/deprecation': 'error',
+      },
+    },
   ],
-  root: true,
-  env: {
-    node: true,
-    jest: true,
-  },
-  ignorePatterns: ['.eslintrc.js'],
-  rules: {
-    '@typescript-eslint/interface-name-prefix': 'off',
-    '@typescript-eslint/explicit-function-return-type': 'off',
-    '@typescript-eslint/explicit-module-boundary-types': 'off',
-    '@typescript-eslint/no-explicit-any': 'off',
-  },
 };
