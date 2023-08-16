@@ -4,6 +4,7 @@ export const NESTIA_CONFIG: INestiaConfig = {
   simulate: true,
   input: 'src/controllers',
   output: 'src/api',
+
   swagger: {
     output: 'packages/api/swagger.json',
     servers: [

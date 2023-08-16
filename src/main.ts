@@ -5,9 +5,11 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const docs = require('../packages/api/swagger.json');
-  docs.servers = [{ url: 'http://localhost:3000/docs' }];
+  docs.servers = [{ url: 'http://localhost:8000/docs' }];
 
   SwaggerModule.setup('docs', app, docs);
-  await app.listen(3000);
+  app.setGlobalPrefix('api');
+
+  await app.listen(8000);
 }
 bootstrap();
