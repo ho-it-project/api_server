@@ -6,13 +6,18 @@ import { AppService } from '../app.service';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @TypedRoute.Get('/er')
   getHello(): string {
+    this.appService.getHello();
+    return 'Hello World!';
+  }
+
+  @TypedRoute.Get('/er')
+  connectER(): string {
     this.appService.getHello();
     return 'hello emergency room Service!';
   }
   @TypedRoute.Get('/ems')
-  getNameTest() {
+  connectEMS() {
     return 'hello ems service';
   }
 }
