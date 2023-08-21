@@ -1,6 +1,17 @@
 pipeline{
     agent any
+
     stages{
+        stage('Get Environment Variables TEST') {
+            steps {
+                script {
+                    echo "${params.ENV_PROD}"
+                    sh "echo ${params.ENV_PROD} > .env"
+                    sh "cat .env"
+                }
+                
+            }
+        }
         stage('Build'){
             steps{
                 echo 'Building...'
