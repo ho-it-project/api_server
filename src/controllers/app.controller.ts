@@ -14,7 +14,7 @@ export class AppController {
   @TypedRoute.Get('/er')
   connectER(): string {
     this.appService.getHello();
-    return 'hello emergency room Service!';
+    return 'hello emergency room Service!!';
   }
   @TypedRoute.Get('/ems')
   connectEMS() {
