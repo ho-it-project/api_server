@@ -9,6 +9,7 @@ RUN npm install -g pnpm
 #BUILD FOR PRODUCTION#
 ######################
 FROM development as build
+WORKDIR /app
 COPY ./ ./
 
 

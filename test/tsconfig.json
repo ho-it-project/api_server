@@ -108,6 +108,5 @@
       { "transform": "@nestia/core/lib/transform" }
     ]
   },
-  "include": ["src"],
   "exclude": ["node_modules", "packages"]
 }
