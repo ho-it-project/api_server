@@ -44,7 +44,7 @@ pipeline {
                 script {
                     def clusterName = 'api-server-cluster' // ECS 클러스터의 이름
                     def serviceName = 'api-server' // 업데이트할 ECS 서비스의 이름
-                    def region = "your-region"
+                    def region = "ap-northeast-2"
 
                     sh "aws ecs update-service --cluster ${clusterName} --service ${serviceName} --force-new-deployment --region ${region}"
                 }
