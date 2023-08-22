@@ -1,6 +1,6 @@
 pipeline {
     agent any
-
+    tools {nodejs "node:20.5.1-pnpm"}
     stages {
         stage('set .env') {
             steps {
@@ -11,6 +11,7 @@ pipeline {
                 }
             }
         }
+
         stage('Test docker image build') {
             steps {
                 sh "pnpm docker:build:test"
