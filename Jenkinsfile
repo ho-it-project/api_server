@@ -1,6 +1,10 @@
 pipeline {
     agent any
     tools {nodejs "node:20.5.1-pnpm"}
+    parameters {
+        string(name: 'ENV_PROD', defaultValue: '', description: 'production or staging')
+        string(name: "AWS_ECR_URL", defaultValue: "", description: "AWS ECR URL")
+    }
     stages {
         stage('set .env') {
             steps {
@@ -27,9 +31,16 @@ pipeline {
                 sh "pnpm docker:test:e2e"
             }
         }
-        stage('webhook test') {
+        stage('Build Production docker image') {
             steps {
-                echo 'webhook ...23'
+                sh 'pnpm docker:build'
+            }
+        }
+        stage('Deploy - Production docker image ') {
+            steps {
+                echo 'docker tag hoit/api-server:latest ${params.AWS_ECR_URL}:latest'
+                echo 'docker push ${params.AWS_ECR_URL}:latest'
+
             }
         }
     }
