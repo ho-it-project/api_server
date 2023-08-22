@@ -11,9 +11,9 @@ pipeline {
                 }
             }
         }
-        stage('Build') {
+        stage('ls') {
             steps {
-                echo 'Building...'
+                sh "ls"
             }
         }
         stage('Test') {
