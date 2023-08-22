@@ -21,4 +21,8 @@ export class AppController {
   connectEMS() {
     return 'hello ems service';
   }
+  @TypedRoute.Get('/test')
+  test() {
+    return 'test';
+  }
 }
