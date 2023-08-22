@@ -58,7 +58,7 @@ pipeline {
                 sh "docker rm \$(docker ps -a -q)"
 
                 // 모든 이미지 삭제
-                sh "docker rmi \$(docker images -q)"
+                sh "docker rmi  -f \$(docker images -q)"
 
                 // 모든 네트워크 삭제
                 sh "docker network prune -f"
