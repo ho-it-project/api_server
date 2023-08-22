@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     stages {
-        stage('Get Environment Variables TEST') {
+        stage('set .env') {
             steps {
                 script {
                     echo "${params.ENV_PROD}"
@@ -11,19 +11,19 @@ pipeline {
                 }
             }
         }
-        stage('ls') {
+        stage('Test docker image build') {
             steps {
-                sh "ls"
+                sh "pnpm docker:build:test"
             }
         }
         stage('Test') {
             steps {
-                echo 'Testing...'
+                sh "pnpm docker:test"
             }
         }
-        stage('Deploy') {
+        stage('Test e2e') {
             steps {
-                echo 'Deploying...'
+                sh "pnpm docker:test:e2e"
             }
         }
         stage('webhook test') {
