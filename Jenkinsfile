@@ -32,7 +32,7 @@ pipeline {
                 sh 'pnpm docker:build'
             }
         }
-        stage('Deploy - Production docker image ') {
+        stage('Deploy - Production docker image') {
             steps {
                 sh "docker tag hoit/api-server:latest ${params.AWS_ECR_URL}:latest"
                 sh "docker push ${params.AWS_ECR_URL}:latest"
@@ -48,6 +48,23 @@ pipeline {
                     // 업데이트를 위해 서비스 업데이트 명령 실행
                     sh "aws ecs update-service --cluster ${clusterName} --service ${serviceName} --force-new-deployment"
                 }
+            }
+        }
+
+        stage('Clean up - Docker image') {
+            steps {
+                // 모든 컨테이너 중지 및 삭제
+                sh "docker stop \$(docker ps -a -q)"
+                sh "docker rm \$(docker ps -a -q)"
+
+                // 모든 이미지 삭제
+                sh "docker rmi \$(docker images -q)"
+
+                // 모든 네트워크 삭제
+                sh "docker network prune -f"
+
+                // 모든 볼륨 삭제
+                sh "docker volume prune -f"            
             }
         }
     }
