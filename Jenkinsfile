@@ -1,10 +1,6 @@
 pipeline {
     agent any
     tools {nodejs "node:20.5.1-pnpm"}
-    parameters {
-        string(name: 'ENV_PROD', defaultValue: '', description: 'production or staging')
-        string(name: "AWS_ECR_URL", defaultValue: "", description: "AWS ECR URL")
-    }
     stages {
         stage('set .env') {
             steps {
