@@ -34,8 +34,9 @@ pipeline {
         }
         stage('Deploy - Production docker image ') {
             steps {
-                echo 'docker tag hoit/api-server:latest ${params.AWS_ECR_URL}:latest'
-                echo 'docker push ${params.AWS_ECR_URL}:latest'
+
+                echo "docker tag hoit/api-server:latest ${params.AWS_ECR_URL}:latest"
+                echo "docker push ${params.AWS_ECR_URL}:latest"
 
             }
         }
