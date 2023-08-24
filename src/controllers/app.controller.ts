@@ -23,6 +23,6 @@ export class AppController {
   }
   @TypedRoute.Get('/test')
   test() {
-    return 'test';
+    return 'test123';
   }
 }
