@@ -2,6 +2,8 @@
 node_modules
 docker-compose.yml
 Dockerfile
+dockerfile
+dockerfile.*
 .gitignore
 .prettierrc
 .eslintrc.js

@@ -5,6 +5,7 @@ pipeline {
         stage('set .env') {
             steps {
                 script {
+                    echo "${params.AWS_ECR_URL}"
                     echo "${params.ENV_PROD}"
                     sh "echo '${params.ENV_PROD}' > .env"
                     sh "cat .env"
@@ -50,22 +51,31 @@ pipeline {
                 }
             }
         }
-
-        stage('Clean up - Docker image') {
-            steps {
+    }
+    post {
+        always {
+            script {
                 // 모든 컨테이너 중지 및 삭제
-                sh "docker stop \$(docker ps -a -q)"
-                sh "docker rm \$(docker ps -a -q)"
-
-                // 모든 이미지 삭제
-                sh "docker rmi  -f \$(docker images -q)"
+                sh "docker stop \$(docker ps -a -q) || true" // 에러 발생시 스킵
+                sh "docker rm \$(docker ps -a -q) -f || true" // 에러 발생시 스킵
 
                 // 모든 네트워크 삭제
                 sh "docker network prune -f"
 
                 // 모든 볼륨 삭제
-                sh "docker volume prune -f"            
+                sh "docker volume prune -f"
+
+                // 모든 이미지 삭제 (이미지를 사용하는 컨테이너를 먼저 중지하고 삭제해야 함)
+                def excludeImages = "node:20-alpine" // 제외할 이미지 목록
+                def imagesToDelete = sh(returnStdout: true, script: "docker images -q | grep -vE '${excludeImages}'").trim()
+                
+                if (imagesToDelete) {
+                    imagesToDelete.tokenize().each { imageId ->
+                        sh "docker rmi -f ${imageId} || true" // 이미지가 없으면 에러 발생시 스킵
+                    }
+                }
             }
         }
     }
 }
+
