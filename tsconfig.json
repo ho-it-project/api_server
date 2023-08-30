@@ -31,7 +31,15 @@
     // "baseUrl": "./",                                  /* Specify the base directory to resolve non-relative module names. */
     "paths": {
       "@ORGANIZATION/PROJECT-api/lib/*": ["./src/api/*"],
-      "@ORGANIZATION/PROJECT-api": ["./src/api"]
+      "@ORGANIZATION/PROJECT-api": ["./src/api"],
+      "@common/*": ["./src/common/*"],
+      "@config/*": ["./src/config/*"],
+      "@app/*": ["./src/app/*"],
+      "@src/*": ["./src/*"],
+      "@providers/*": ["./src/providers/*"],
+      "@controllers/*": ["./src/controllers/*"],
+      "@modules/*": ["./src/modules/*"],
+      "@types/*": ["./src/types/*"]
     } /* Specify a set of entries that re-map imports to additional lookup locations. */,
     // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
     // "typeRoots": [],                                  /* Specify multiple folders that act like './node_modules/@types'. */

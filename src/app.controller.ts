@@ -1,6 +1,9 @@
+import { SubscribeTo } from '@common/kafka/kafka.decorator';
+import { KafkaPayload } from '@common/kafka/kafka.message';
 import { TypedRoute } from '@nestia/core';
 import { Controller } from '@nestjs/common';
-import { AppService } from '../app.service';
+import typia from 'typia';
+import { AppService } from './app.service';
 
 @Controller()
 export class AppController {
@@ -24,5 +27,10 @@ export class AppController {
   @TypedRoute.Get('/test')
   test() {
     return 'test - test -- test --';
+  }
+  @SubscribeTo('test_topic')
+  async testTopic(payload: string) {
+    const data = typia.isParse<KafkaPayload<{ data: string }>>(payload);
+    console.log(data);
   }
 }
