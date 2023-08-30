@@ -33,6 +33,10 @@ export interface KafkaPayload<T> {
   // }
 }
 
+export interface KafkaConsumerPayload<T> {
+  key: string | null;
+  value: KafkaPayload<T>;
+}
 export class KafkaConfig {
   public clientId: string;
   public brokers: string[];

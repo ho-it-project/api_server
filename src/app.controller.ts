@@ -1,5 +1,5 @@
-import { SubscribeTo } from '@common/kafka/kafka.decorator';
-import { KafkaPayload } from '@common/kafka/kafka.message';
+import { SubscribeToFixedGroup } from '@common/kafka/kafka.decorator';
+import { KafkaConsumerPayload } from '@common/kafka/kafka.message';
 import { TypedRoute } from '@nestia/core';
 import { Controller } from '@nestjs/common';
 import typia from 'typia';
@@ -28,9 +28,10 @@ export class AppController {
   test() {
     return 'test - test -- test --';
   }
-  @SubscribeTo('test_topic')
-  async testTopic(payload: string) {
-    const data = typia.isParse<KafkaPayload<{ data: string }>>(payload);
-    console.log(data);
+  @SubscribeToFixedGroup('test_topic')
+  async testTopic(payload: KafkaConsumerPayload<{ data: string }>) {
+    // const data = typia.isParse<KafkaConsumerPayload<{ data: string }>>(payload);
+    console.log(typia.is<KafkaConsumerPayload<{ data: string }>>(payload));
+    console.log(payload);
   }
 }
