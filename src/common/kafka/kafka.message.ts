@@ -12,7 +12,7 @@ export interface KafkaPayload<T> {
   /**
    * @type string
    */
-  messageType: string;
+  messageType: string; 
 
   /**
    * @type string

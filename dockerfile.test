@@ -9,6 +9,8 @@ COPY package*.json pnpm-lock.yaml tsconfig.json ./
 ENV NODE_ENV=TEST
 
 RUN pnpm install --frozen-lockfile
+RUN pnpm db:pull
+RUN pnpm db:generate
 RUN npx ts-patch install
 
 COPY ./ ./

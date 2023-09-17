@@ -30,7 +30,10 @@
     "docker:build:dev": "docker build -t hoit/api-server:dev -f ./dockerfile.dev .",
     "docker:dev": "docker run -p 8000:8000 hoit/api-server:dev",
     "decker:build:local": "docker build -t hoit/api-server:local -f ./dockerfile.local .",
-    "decker:local": "docker run -p 8000:8000 hoit/api-server:local"
+    "decker:local": "docker run -p 8000:8000 hoit/api-server:local",
+    "db:push": "npx prisma db push",
+    "db:generate": "npx prisma generate",
+    "db:pull": "npx prisma db pull"
   },
   "dependencies": {
     "@kafkajs/confluent-schema-registry": "^3.3.0",
@@ -42,9 +45,11 @@
     "@nestjs/microservices": "^10.2.2",
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/swagger": "^7.1.8",
+    "@prisma/client": "5.3.1",
     "dotenv": "^16.3.1",
     "kafkajs": "^2.2.4",
     "nest-winston": "^1.9.4",
+    "prisma": "^5.3.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "typescript-transform-paths": "^3.4.6",

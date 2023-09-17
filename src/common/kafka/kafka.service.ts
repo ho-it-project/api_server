@@ -16,6 +16,7 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
   private readonly consumerSuffix = '-' + Math.floor(Math.random() * 100000);
 
   constructor(private kafkaConfig: KafkaConfig) {
+    console.log('kafkaConfig', this.kafkaConfig.brokers);
     this.kafka = new Kafka({
       clientId: this.kafkaConfig.clientId,
       brokers: this.kafkaConfig.brokers,
@@ -92,7 +93,6 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
         const functionRef = map.get(topic);
         if (functionRef) {
           const object = SUBSCRIBER_OBJ_REF_MAP.get(topic);
-          console.log(message);
           if (message.value !== null) {
             await functionRef.apply(object, [
               { key: message.key ? message.key.toString() : null, value: JSON.parse(message.value.toString()) },

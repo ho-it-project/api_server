@@ -1,9 +1,8 @@
-import { SubscribeToFixedGroup } from '@common/kafka/kafka.decorator';
 import { KafkaConsumerPayload } from '@common/kafka/kafka.message';
 import { TypedRoute } from '@nestia/core';
 import { Controller } from '@nestjs/common';
 import typia from 'typia';
-import { AppService } from './app.service';
+import { AppService, TestDTO } from './app.service';
 
 @Controller()
 export class AppController {
@@ -15,7 +14,7 @@ export class AppController {
     return 'Hello World!';
   }
 
-  @TypedRoute.Get('/er')
+  @TypedRoute.Get('/a')
   connectER(): string {
     this.appService.getHello();
     return 'hello emergency room Service!!!';
@@ -28,10 +27,12 @@ export class AppController {
   test() {
     return 'test - test -- test --';
   }
-  @SubscribeToFixedGroup('test_topic')
-  async testTopic(payload: KafkaConsumerPayload<{ data: string }>) {
+
+  // @SubscribeToFixedGroup('ems.request.er')
+  async testTopic(payload: KafkaConsumerPayload<TestDTO>) {
     // const data = typia.isParse<KafkaConsumerPayload<{ data: string }>>(payload);
-    console.log(typia.is<KafkaConsumerPayload<{ data: string }>>(payload));
-    console.log(payload);
+
+    console.log(typia.is<KafkaConsumerPayload<TestDTO>>(payload));
+    console.log(payload.value.body);
   }
 }
