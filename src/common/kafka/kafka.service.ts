@@ -47,7 +47,12 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
   }
 
   async onModuleDestroy(): Promise<void> {
-    await this.disconnect();
+    try {
+      await this.disconnect();
+    } catch (error) {
+      this.logger.error('Failed to disconnect Kafka', error);
+      throw error;
+    }
   }
 
   async connect(): Promise<void> {

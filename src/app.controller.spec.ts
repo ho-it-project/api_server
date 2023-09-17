@@ -4,8 +4,8 @@ import { v4 } from 'uuid';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { KafkaModule } from './common/kafka/kafka.module';
+import { PrismaModule } from './common/prisma/prisma.module';
 import { ErModule } from './modules/er.module';
-import { PrismaModule } from './prisma/prisma.module';
 
 describe('AppController', () => {
   let appController: AppController;

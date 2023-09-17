@@ -1,12 +1,12 @@
 import { KafkaModule } from '@common/kafka/kafka.module';
 import { LoggerMiddleware } from '@common/middlewares/logger.middleware';
+import { PrismaModule } from '@common/prisma/prisma.module';
 import { Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { v4 } from 'uuid';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ErModule } from './modules/er.module';
-import { PrismaModule } from './prisma/prisma.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
