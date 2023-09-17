@@ -4,7 +4,8 @@ WORKDIR /usr/src/app
 
 RUN npm install -g pnpm
 
-COPY package*.json pnpm-lock.yaml tsconfig.json prisma .env ./
+COPY package*.json pnpm-lock.yaml tsconfig.json prisma ./
+COPY .env.test ./.env
 
 ENV NODE_ENV=TEST
 
@@ -20,3 +21,4 @@ RUN pnpm run build
 
 
 
+EXPOSE 8000

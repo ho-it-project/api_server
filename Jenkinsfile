@@ -8,6 +8,7 @@ pipeline {
                     echo "${params.AWS_ECR_URL}"
                     echo "${params.ENV_PROD}"
                     sh "echo '${params.ENV_PROD}' > .env"
+                    sh "echo '${params.ENV_PROD}' > .env.test"
                     sh "cat .env"
                 }
             }
