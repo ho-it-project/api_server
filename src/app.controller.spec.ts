@@ -1,14 +1,40 @@
+import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
+import { v4 } from 'uuid';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { KafkaModule } from './common/kafka/kafka.module';
+import { ErModule } from './modules/er.module';
+import { PrismaModule } from './prisma/prisma.module';
 
 describe('AppController', () => {
   let appController: AppController;
-
+  jest.mock('./common/kafka/kafka.module', () => ({
+    KafkaModule: {
+      register: jest.fn().mockReturnValue({
+        clientId: v4(),
+        brokers: process.env.KAFKA_BOOTSTRAP_SERVERS?.split(',').map((a) => a.trim()) as string[],
+        groupId: 'hoit',
+      }),
+    },
+  }));
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
       providers: [AppService],
+      imports: [
+        ConfigModule.forRoot({
+          isGlobal: true,
+          envFilePath: '.env',
+        }),
+        KafkaModule.register({
+          clientId: v4(),
+          brokers: process.env.KAFKA_BOOTSTRAP_SERVERS?.split(',').map((a) => a.trim()) as string[],
+          groupId: 'hoit',
+        }),
+        PrismaModule,
+        ErModule,
+      ],
     }).compile();
 
     appController = app.get<AppController>(AppController);
