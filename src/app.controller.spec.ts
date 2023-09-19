@@ -1,3 +1,4 @@
+import { DbInit } from '@common/database/db.init';
 import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { v4 } from 'uuid';
@@ -21,7 +22,7 @@ describe('AppController', () => {
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
-      providers: [AppService],
+      providers: [AppService, DbInit],
       imports: [
         ConfigModule.forRoot({
           isGlobal: true,
