@@ -136,3 +136,6 @@ packages/**/*.ts
 packages/**/*.js
 
 src/api
+
+
+*.db.json

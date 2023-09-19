@@ -9,53 +9,69 @@ datasource db {
   schemas  = ["ems", "er", "public"]
 }
 
+/// 
+/// er schema
+///
 model er_Hospital {
-  hospital_id                String                        @id
-  hospital_name              String
-  hospital_address           String
-  hospital_type              String
-  hospital_phone             String
-  hospital_city              String
-  town                       String
-  latitude                   Float
-  longitude                  Float
-  created_at                 DateTime                      @default(now())
-  updated_at                 DateTime                      @updatedAt
-  status                     Status                        @default(ACTIVE)
+  hospital_id       String                 @id @db.VarChar(255)
+  hospital_name     String                 @db.VarChar(50)
+  hospital_address  String                 @db.VarChar(255)
+  hospital_type     er_MedicalFacilityType
+  hospital_phone    String?                 @db.VarChar(20)
+  hospital_city     String                 @db.VarChar(50)
+  hospital_district String                 @db.VarChar(50)
+  latitude          Float?
+  longitude         Float?
+
+  ///
+  /// default 
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+  status     Status   @default(ACTIVE)
+
+  /// relation
   emergency_center           er_EmergencyCenter[]
   employees                  er_Employee[]
   hospital_departments       er_HospitalDepartment[]
   hospital_medical_equipment er_HospitalMedicalEquipment[]
   hospital_servere_illness   er_HospitalServereIllness[]
 
-  @@map("hopital")
+  @@map("hospital")
   @@schema("er")
 }
 
 model er_Employee {
   employee_id   String          @id @default(uuid())
-  employee_name String
-  hopital_id    String
-  id_card       String
-  password      String
+  employee_name String          @db.VarChar(50)
+  hospital_id   String          @db.VarChar(255)
+  id_card       String          @db.VarChar(20)
+  password      String          @db.VarChar(255)
   role          er_EmployeeRole
-  created_at    DateTime        @default(now())
-  updated_at    DateTime        @updatedAt
-  status        Status          @default(ACTIVE)
-  hopital       er_Hospital     @relation(fields: [hopital_id], references: [hospital_id])
 
-  @@unique([id_card, hopital_id])
+  /// default 
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+  status     Status   @default(ACTIVE)
+
+  /// relation
+  hospital er_Hospital @relation(fields: [hospital_id], references: [hospital_id])
+
+  @@unique([id_card, hospital_id])
   @@map("employee")
   @@schema("er")
 }
 
 model er_Department {
-  department_id        String                  @id
-  department_name      String
-  parent_department_id String?
-  created_at           DateTime                @default(now())
-  updated_at           DateTime                @updatedAt
-  status               Status                  @default(ACTIVE)
+  department_id        Int    @id @default(autoincrement())
+  department_name      String @db.VarChar(50)
+  parent_department_id Int?
+
+  /// default 
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+  status     Status   @default(ACTIVE)
+
+  /// relation
   parent_department    er_Department?          @relation("DepartmentToSubDepartment", fields: [parent_department_id], references: [department_id])
   sub_departments      er_Department[]         @relation("DepartmentToSubDepartment")
   hospital_departments er_HospitalDepartment[]
@@ -65,13 +81,17 @@ model er_Department {
 }
 
 model er_HospitalDepartment {
-  hospital_id   String
-  department_id String
-  created_at    DateTime      @default(now())
-  updated_at    DateTime      @updatedAt
-  status        Status        @default(ACTIVE)
-  department    er_Department @relation(fields: [department_id], references: [department_id])
-  hospital      er_Hospital   @relation(fields: [hospital_id], references: [hospital_id])
+  hospital_id   String @db.VarChar(255)
+  department_id Int
+
+  /// default 
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+  status     Status   @default(ACTIVE)
+
+  /// relation
+  department er_Department @relation(fields: [department_id], references: [department_id])
+  hospital   er_Hospital   @relation(fields: [hospital_id], references: [hospital_id])
 
   @@id([hospital_id, department_id])
   @@map("hospital_department")
@@ -79,51 +99,62 @@ model er_HospitalDepartment {
 }
 
 model er_EmergencyCenter {
-  emergency_center_id              String             @id
-  hospital_id                      String
-  emergency_center_code            String
-  emergency_center_name            String
-  emergency_center_address         String
-  emergency_center_primary_phone   String
-  emergency_center_secondary_phone String?
-  emergency_center_city            String
-  emergency_center_town            String
+  emergency_center_id              String                    @id @db.VarChar(50)
+  hospital_id                      String                    @db.VarChar(255)
+  emergency_center_type_code       String                    @db.VarChar(50)
+  emergency_center_type            er_MedicalInstitutionType
+  emergency_center_name            String                    @db.VarChar(50)
+  emergency_center_address         String                    @db.VarChar(255)
+  emergency_center_primary_phone   String                    @db.VarChar(20)
+  emergency_center_secondary_phone String?                   @db.VarChar(20)
   emergency_center_latitude        Float
   emergency_center_longitude       Float
-  created_at                       DateTime           @default(now())
-  updated_at                       DateTime           @updatedAt
-  status                           Status             @default(ACTIVE)
-  hospital                         er_Hospital        @relation(fields: [hospital_id], references: [hospital_id])
-  emergency_rooms                  er_EmergencyRoom[]
+
+  /// default 
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+  status     Status   @default(ACTIVE)
+
+  /// relation
+  hospital        er_Hospital        @relation(fields: [hospital_id], references: [hospital_id])
+  emergency_rooms er_EmergencyRoom[]
 
   @@map("emergency_center")
   @@schema("er")
 }
 
 model er_EmergencyRoom {
-  emergency_room_id   String               @id
-  emergency_center_id String
+  emergency_room_id   String               @id @db.VarChar(50)
+  emergency_center_id String               @db.VarChar(50)
   emergency_room_type er_EmergencyRoomType
-  emergency_room_name String
-  created_at          DateTime             @default(now())
-  updated_at          DateTime             @updatedAt
-  status              Status               @default(ACTIVE)
+  emergency_room_name String               @db.VarChar(50)
+
+  /// default 
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+  status     Status   @default(ACTIVE)
+
+  /// relation
   emergency_center    er_EmergencyCenter   @relation(fields: [emergency_center_id], references: [emergency_center_id])
-  emergency_room_beds er_EmergecyRoomBed[]
+  emergency_room_beds er_EmergencyRoomBed[]
 
   @@map("emergency_room")
   @@schema("er")
 }
 
-model er_EmergecyRoomBed {
-  emergency_room_id         String
+model er_EmergencyRoomBed {
+  emergency_room_id         String                    @db.VarChar(50)
   emergency_room_bed_num    Int
-  emergency_room_bed_status er_EmergencyRoomBedStatus
-  created_at                DateTime                  @default(now())
-  updated_at                DateTime                  @updatedAt
-  status                    Status                    @default(ACTIVE)
-  emergency_room            er_EmergencyRoom          @relation(fields: [emergency_room_id], references: [emergency_room_id])
-  emergency_room_bed_logs   er_EmergencyRoomBedLog[]
+  emergency_room_bed_status er_EmergencyRoomBedStatus @default(AVAILABLE)
+
+  /// default 
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+  status     Status   @default(ACTIVE)
+
+  /// relation
+  emergency_room          er_EmergencyRoom         @relation(fields: [emergency_room_id], references: [emergency_room_id])
+  emergency_room_bed_logs er_EmergencyRoomBedLog[]
 
   @@id([emergency_room_id, emergency_room_bed_num])
   @@map("emergency_room_bed")
@@ -131,16 +162,20 @@ model er_EmergecyRoomBed {
 }
 
 model er_EmergencyRoomBedLog {
-  emergency_room_id         String
+  emergency_room_id         String                    @db.VarChar(50)
   emergency_room_bed_num    Int
   emergency_room_bed_status er_EmergencyRoomBedStatus
   log_date                  DateTime                  @default(now())
   patient_id                String
-  created_at                DateTime                  @default(now())
-  updated_at                DateTime                  @updatedAt
-  status                    Status                    @default(ACTIVE)
-  emergency_room_bed        er_EmergecyRoomBed        @relation(fields: [emergency_room_id, emergency_room_bed_num], references: [emergency_room_id, emergency_room_bed_num])
-  patient                   er_Patient                @relation(fields: [patient_id], references: [patient_id])
+
+  /// default 
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+  status     Status   @default(ACTIVE)
+
+  /// relation
+  emergency_room_bed er_EmergencyRoomBed @relation(fields: [emergency_room_id, emergency_room_bed_num], references: [emergency_room_id, emergency_room_bed_num])
+  patient            er_Patient         @relation(fields: [patient_id], references: [patient_id])
 
   @@id([emergency_room_id, emergency_room_bed_num, log_date])
   @@map("emergency_room_bed_log")
@@ -148,14 +183,18 @@ model er_EmergencyRoomBedLog {
 }
 
 model er_Patient {
-  patient_id              String                   @id @default(uuid())
-  patient_name            String
-  patient_birth           String
-  patient_phone           String
-  patient_address         String
-  created_at              DateTime                 @default(now())
-  updated_at              DateTime                 @updatedAt
-  status                  Status                   @default(ACTIVE)
+  patient_id      String @id @default(uuid())
+  patient_name    String @db.VarChar(50)
+  patient_birth   String @db.VarChar(50)
+  patient_phone   String @db.VarChar(50)
+  patient_address String @db.VarChar(50)
+
+  /// default 
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+  status     Status   @default(ACTIVE)
+
+  /// relation
   emergency_room_bed_logs er_EmergencyRoomBedLog[]
   patient_logs            er_PatientLog[]
 
@@ -164,26 +203,34 @@ model er_Patient {
 }
 
 model er_PatientLog {
-  patient_id String
-  log_date   DateTime   @default(now())
-  log_type   String
-  log_desc   String
-  created_at DateTime   @default(now())
-  updated_at DateTime   @updatedAt
-  status     Status     @default(ACTIVE)
-  patient    er_Patient @relation(fields: [patient_id], references: [patient_id])
+  patient_id String   @db.VarChar(50)
+  log_date   DateTime @default(now())
+  log_type   String   @db.VarChar(50)
+  log_desc   String   @db.VarChar(255)
+
+  /// default 
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+  status     Status   @default(ACTIVE)
+
+  /// relation
+  patient er_Patient @relation(fields: [patient_id], references: [patient_id])
 
   @@id([patient_id, log_date])
   @@map("patient_log")
   @@schema("er")
 }
 
-model er_Servere_illness {
-  servere_illness_id       String                      @id @default(uuid())
-  servere_illness_name     String
-  created_at               DateTime                    @default(now())
-  updated_at               DateTime                    @updatedAt
-  status                   Status                      @default(ACTIVE)
+model er_ServereIllness {
+  servere_illness_id   String @id @default(uuid()) @db.VarChar(50)
+  servere_illness_name String @db.VarChar(50)
+
+  /// default 
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+  status     Status   @default(ACTIVE)
+
+  /// relation
   hospital_servere_illness er_HospitalServereIllness[]
 
   @@map("servere_illness")
@@ -191,13 +238,17 @@ model er_Servere_illness {
 }
 
 model er_HospitalServereIllness {
-  hospital_id        String
-  servere_illness_id String
-  created_at         DateTime           @default(now())
-  updated_at         DateTime           @updatedAt
-  status             Status             @default(ACTIVE)
-  hospital           er_Hospital        @relation(fields: [hospital_id], references: [hospital_id])
-  servere_illness    er_Servere_illness @relation(fields: [servere_illness_id], references: [servere_illness_id])
+  hospital_id        String @db.VarChar(255)
+  servere_illness_id String @db.VarChar(50)
+
+  /// default 
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+  status     Status   @default(ACTIVE)
+
+  /// relation
+  hospital        er_Hospital        @relation(fields: [hospital_id], references: [hospital_id])
+  servere_illness er_ServereIllness @relation(fields: [servere_illness_id], references: [servere_illness_id])
 
   @@id([hospital_id, servere_illness_id])
   @@map("hospital_servere_illness")
@@ -205,13 +256,15 @@ model er_HospitalServereIllness {
 }
 
 model er_MedicalEquipment {
-  medical_equipment_id       String                        @id @default(uuid())
-  medical_equipment_name     String
-  medical_equipment_type     String
-  medical_equipment_desc     String
-  created_at                 DateTime                      @default(now())
-  updated_at                 DateTime                      @updatedAt
-  status                     Status                        @default(ACTIVE)
+  medical_equipment_id   Int    @id
+  medical_equipment_name String @db.VarChar(50)
+
+  /// default 
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+  status     Status   @default(ACTIVE)
+
+  /// relation
   hospital_medical_equipment er_HospitalMedicalEquipment[]
 
   @@map("medical_equipment")
@@ -219,14 +272,18 @@ model er_MedicalEquipment {
 }
 
 model er_HospitalMedicalEquipment {
-  hospital_id              String
-  medical_equipment_id     String
-  medical_equipment_number Int
-  created_at               DateTime            @default(now())
-  updated_at               DateTime            @updatedAt
-  status                   Status              @default(ACTIVE)
-  hospital                 er_Hospital         @relation(fields: [hospital_id], references: [hospital_id])
-  medical_equipment        er_MedicalEquipment @relation(fields: [medical_equipment_id], references: [medical_equipment_id])
+  hospital_id             String @db.VarChar(255)
+  medical_equipment_id    Int
+  medical_equipment_count Int
+
+  /// default 
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+  status     Status   @default(ACTIVE)
+
+  /// relation
+  hospital          er_Hospital         @relation(fields: [hospital_id], references: [hospital_id])
+  medical_equipment er_MedicalEquipment @relation(fields: [medical_equipment_id], references: [medical_equipment_id])
 
   @@id([hospital_id, medical_equipment_id])
   @@map("hospital_medical_equipment")
@@ -234,11 +291,15 @@ model er_HospitalMedicalEquipment {
 }
 
 model ems_Patient {
-  patient_id  String   @id @default(uuid())
-  hospital_id String
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
-  status      Status   @default(ACTIVE)
+  patient_id  String @id @default(uuid())
+  hospital_id String @db.VarChar(255)
+
+  /// default 
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+  status     Status   @default(ACTIVE)
+
+  /// relation
 
   @@map("patient")
   @@schema("ems")
@@ -270,6 +331,35 @@ enum er_EmergencyRoomBedStatus {
   OCCUPIED
   CLEANING
   MAINTENANCE
+
+  @@schema("er")
+}
+
+enum er_MedicalFacilityType {
+  HOSPITAL
+  HEALTH_CENTER
+  HEALTH_MEDICAL_CENTER
+  HEALTH_SUB_CENTER
+  HEALTH_CLINIC
+  ADVANCED_GENERAL
+  NURSING_HOSPITAL
+  CLINIC
+  MENTAL_HOSPITAL
+  MATERNITY_CLINIC
+  GENERAL_HOSPITAL
+  DENTAL_HOSPITAL
+  DENTAL_CLINIC
+  ORIENTAL_HOSPITAL
+  ORIENTAL_CLINIC
+
+  @@schema("er")
+}
+
+enum er_MedicalInstitutionType {
+  NON_EMERGENCY_MEDICAL_INSTITUTION
+  LOCAL_EMERGENCY_MEDICAL_INSTITUTION
+  LOCAL_EMERGENCY_MEDICAL_CENTER
+  REGIONAL_EMERGENCY_MEDICAL_CENTER
 
   @@schema("er")
 }

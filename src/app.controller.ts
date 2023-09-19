@@ -3,10 +3,14 @@ import { TypedRoute } from '@nestia/core';
 import { Controller } from '@nestjs/common';
 import typia from 'typia';
 import { AppService, TestDTO } from './app.service';
+import { DbInit } from './common/database/db.init';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(
+    private readonly appService: AppService,
+    private readonly dbInit: DbInit,
+  ) {}
 
   @TypedRoute.Get('/')
   getHello(): string {
@@ -23,8 +27,9 @@ export class AppController {
   connectEMS() {
     return 'hello ems service';
   }
-  @TypedRoute.Get('/test')
+  @TypedRoute.Post('/db/init')
   test() {
+    this.dbInit.init();
     return 'test - test -- test --';
   }
 

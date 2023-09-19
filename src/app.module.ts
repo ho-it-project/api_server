@@ -1,3 +1,4 @@
+import { DbInit } from '@common/database/db.init';
 import { KafkaModule } from '@common/kafka/kafka.module';
 import { LoggerMiddleware } from '@common/middlewares/logger.middleware';
 import { PrismaModule } from '@common/prisma/prisma.module';
@@ -22,7 +23,7 @@ import { ErModule } from './modules/er.module';
     ErModule,
   ],
   controllers: [AppController],
-  providers: [AppService, Logger],
+  providers: [AppService, Logger, DbInit],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
