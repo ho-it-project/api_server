@@ -1,15 +1,21 @@
-export interface TestBody {
+export interface DefaultData {
   /**
-   * @type int
+   * @type string
    */
-  test_id: number;
+  created_at: string;
 
   /**
    * @type string
    */
-  test_name?: string;
+  updated_at: string;
 }
 
 export interface TestBody2 {
-  test: TestBody;
+  // test: TestBody;
+}
+
+export interface LoginDTO {
+  emergency_center_id: string;
+  id_card: string;
+  password: string;
 }

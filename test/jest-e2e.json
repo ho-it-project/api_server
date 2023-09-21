@@ -16,6 +16,7 @@
     "^@providers/(.*)$": "<rootDir>/../src/providers/$1",
     "^@controllers/(.*)$": "<rootDir>/../src/controllers/$1",
     "^@modules/(.*)$": "<rootDir>/../src/modules/$1",
-    "^@types/(.*)$": "<rootDir>/../src/types/$1"
+    "^@types/(.*)$": "<rootDir>/../src/types/$1",
+    "^@auth/(.*)$": "<rootDir>/../src/auth/$1"
   }
 }
