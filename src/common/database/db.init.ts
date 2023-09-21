@@ -1,9 +1,9 @@
 import { PrismaService } from '@common/prisma/prisma.service';
 import { Injectable, Logger } from '@nestjs/common';
-import { er_Department, er_EmergencyCenter, er_Hospital, er_MedicalEquipment } from '@prisma/client';
+import { er_Department, er_EmergencyCenter, er_EmployeeRole, er_Hospital, er_MedicalEquipment } from '@prisma/client';
+import bcrypt from 'bcrypt';
 import fs from 'fs';
 import path from 'path';
-
 @Injectable()
 export class DbInit {
   constructor(private readonly prismaService: PrismaService) {}
@@ -20,6 +20,7 @@ export class DbInit {
     await this.servereIllnessSetup();
     await this.emergencyRoomSetup();
     await this.emergencyRoomBedSetup();
+    await this.employeeSetup();
   }
   async deleteAll() {
     this.logger.debug('delete all');
@@ -109,6 +110,32 @@ export class DbInit {
     const json = JSON.parse(fs.readFileSync(file_path, 'utf-8'));
     await this.prismaService.er_EmergencyRoomBed.createMany({
       data: json,
+      skipDuplicates: true,
+    });
+  }
+  async employeeSetup() {
+    this.logger.debug('employeeSetup');
+    const file_path = path.join(__dirname, '../../../src/common/database/emergency_center.db.json');
+    const json: er_EmergencyCenter[] = JSON.parse(fs.readFileSync(file_path, 'utf-8'));
+    json;
+
+    const employees = await Promise.all(
+      json.map(async (emergency_center) => {
+        const { hospital_id } = emergency_center;
+        const employee_name = 'admin';
+        const hashedPassword = await bcrypt.hash('1234', Number(process.env.HASH_SALT));
+        return {
+          hospital_id,
+          employee_name,
+          id_card: 'admin',
+          password: hashedPassword,
+          role: 'ADMIN' as er_EmployeeRole,
+        };
+      }),
+    );
+
+    await this.prismaService.er_Employee.createMany({
+      data: employees,
       skipDuplicates: true,
     });
   }

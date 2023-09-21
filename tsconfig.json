@@ -39,8 +39,7 @@
       "@providers/*": ["./src/providers/*"],
       "@controllers/*": ["./src/controllers/*"],
       "@modules/*": ["./src/modules/*"],
-      "@types/*": ["./src/types/*"],
-      "@auth/*": ["./src/auth/*"]
+      "@types/*": ["./src/types/*"]
     } /* Specify a set of entries that re-map imports to additional lookup locations. */,
     // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
     // "typeRoots": [],                                  /* Specify multiple folders that act like './node_modules/@types'. */
@@ -117,6 +116,6 @@
       { "transform": "@nestia/core/lib/transform" }
     ]
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "packages"]
+  "include": ["src/**/*.ts", "./nestia.config.ts", ".eslintrc.js"],
+  "exclude": ["node_modules", "packages", "src/test/e2e/**/*.ts"]
 }

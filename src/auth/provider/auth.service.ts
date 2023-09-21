@@ -1,10 +1,11 @@
 import { PrismaService } from '@common/prisma/prisma.service';
 import { JWT_OPTIONS } from '@config/constant';
 import { JwtOption } from '@config/option/interface';
-import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { LoginDTO } from '@src/types';
+import { AuthRequest } from '@src/types';
+import { AUTH_ERROR } from '@src/types/errors';
 import * as bcrypt from 'bcrypt';
 import { Auth } from '../interface/auth.interface';
 @Injectable()
@@ -13,12 +14,11 @@ export class AuthService {
     private readonly prismaService: PrismaService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-
     @Inject(JWT_OPTIONS)
     private readonly jwtOption: JwtOption,
   ) {}
 
-  async login({ emergency_center_id, id_card, password }: LoginDTO) {
+  async login({ emergency_center_id, id_card, password }: AuthRequest.LoginDTO): Promise<Auth.LoginReturn> {
     const existEmployee = await this.prismaService.er_Employee.findFirst({
       where: {
         id_card,
@@ -32,19 +32,28 @@ export class AuthService {
       },
     });
     if (!existEmployee) {
-      throw new ForbiddenException("Employee doesn't exist");
+      throw new UnauthorizedException({ ...AUTH_ERROR.EMPLOYEE_NOT_FOUND });
     }
-
+    const { employee_id, role } = existEmployee;
     const comparePassword = await this.comparePassword({
       password,
       hash: existEmployee.password,
     });
     if (!comparePassword) {
-      throw new ForbiddenException('Password is incorrect');
+      throw new UnauthorizedException('Password is incorrect');
     }
     const access_token = this.accessTokenSign({ emergency_center_id, ...existEmployee });
     const refresh_token = this.refreshTokenSign({ emergency_center_id, ...existEmployee });
-    return { access_token, refresh_token };
+    return {
+      access_token,
+      refresh_token,
+      employee: {
+        emergency_center_id,
+        employee_id,
+        id_card,
+        role,
+      },
+    };
   }
 
   async logout() {}

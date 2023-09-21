@@ -35,11 +35,11 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
     try {
       await this.connect();
 
-      this.subscribeToTopics(SUBSCRIBER_FN_REF_MAP, this.consumer, this.bindAllTopicToConsumer);
-      this.subscribeToTopics(SUBSCRIBER_FIXED_FN_REF_MAP, this.fixedConsumer, this.bindAllTopicToFixedConsumer);
+      await this.subscribeToTopics(SUBSCRIBER_FN_REF_MAP, this.consumer, this.bindAllTopicToConsumer);
+      await this.subscribeToTopics(SUBSCRIBER_FIXED_FN_REF_MAP, this.fixedConsumer, this.bindAllTopicToFixedConsumer);
 
-      this.runConsumer(this.fixedConsumer, SUBSCRIBER_FIXED_FN_REF_MAP);
-      this.runConsumer(this.consumer, SUBSCRIBER_FN_REF_MAP);
+      await this.runConsumer(this.fixedConsumer, SUBSCRIBER_FIXED_FN_REF_MAP);
+      await this.runConsumer(this.consumer, SUBSCRIBER_FN_REF_MAP);
     } catch (error) {
       this.logger.error('Failed to initialize Kafka', error);
       throw error;
@@ -73,12 +73,12 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
   }
 
   private async subscribeToTopics(
-    map: Map<string, Function>,
+    map: Map<string, (...args: any[]) => any>,
     consumer: Consumer,
-    bindFunction: Function,
+    bindFunction: (...args: any[]) => any,
   ): Promise<void> {
     for (const [topic, functionRef] of map.entries()) {
-      if (functionRef) {
+      if (!!functionRef) {
         await bindFunction.call(this, consumer, topic);
       }
     }
@@ -92,7 +92,7 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
     await consumer.subscribe({ topic, fromBeginning: CONSUMER_FROM_BEGINNING });
   }
 
-  private async runConsumer(consumer: Consumer, map: Map<string, Function>): Promise<void> {
+  private async runConsumer(consumer: Consumer, map: Map<string, (...args: any[]) => any>): Promise<void> {
     await consumer.run({
       eachMessage: async ({ topic, message }: EachMessagePayload) => {
         const functionRef = map.get(topic);

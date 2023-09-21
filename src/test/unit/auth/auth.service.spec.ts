@@ -3,16 +3,20 @@ import { JwtOption } from '@config/option/interface';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { er_Employee } from '@prisma/client';
-import { DefaultData, LoginDTO } from '@src/types';
+import { AuthRequest } from '@src/types';
 import typia from 'typia';
-import { Auth } from '../interface/auth.interface';
-import { AuthService } from './auth.service';
+import { Auth } from '../../../auth/interface/auth.interface';
+import { AuthService } from '../../../auth/provider/auth.service';
+interface DateString {
+  created_at: string;
+  updated_at: string;
+}
 
 describe('AuthService', () => {
   //prisma mock
   let authService: AuthService;
   let mockPrismaService: jest.MockedObjectDeep<PrismaService>;
-  let jwtOption: JwtOption = {
+  const jwtOption: JwtOption = {
     access_secret: 'access_secret',
     access_expires_in: '7200',
     refresh_expires_in: '60000',
@@ -34,11 +38,11 @@ describe('AuthService', () => {
   });
 
   describe('login', () => {
-    let mockEmployee: er_Employee | DefaultData;
-    let mockLoginDTO: LoginDTO;
+    let mockEmployee: er_Employee | DateString;
+    let mockLoginDTO: AuthRequest.LoginDTO;
     beforeAll(async () => {
       mockEmployee = typia.random<er_Employee>();
-      mockLoginDTO = typia.random<LoginDTO>();
+      mockLoginDTO = typia.random<AuthRequest.LoginDTO>();
       mockPrismaService.er_Employee.findFirst = jest.fn().mockResolvedValue({
         ...mockEmployee,
         password: await authService.hashPassword({

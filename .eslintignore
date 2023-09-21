@@ -1,0 +1,2 @@
+ignorePatterns: ['nestia.config.ts'],
+.eslintrc.js

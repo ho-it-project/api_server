@@ -30,17 +30,17 @@
     // "moduleResolution": "node",                       /* Specify how TypeScript looks up a file from a given module specifier. */
     // "baseUrl": "./",                                  /* Specify the base directory to resolve non-relative module names. */
     "paths": {
-      "@ORGANIZATION/PROJECT-api/lib/*": ["../src/api/*"],
-      "@ORGANIZATION/PROJECT-api": ["../src/api"],
-      "@common/*": ["../src/common/*"],
-      "@config/*": ["../src/config/*"],
-      "@app/*": ["../src/app/*"],
-      "@src/*": ["../src/*"],
-      "@providers/*": ["../src/providers/*"],
-      "@controllers/*": ["../src/controllers/*"],
-      "@modules/*": ["../src/modules/*"],
-      "@types/*": ["../src/types/*"],
-      "@auth/*": ["../src/auth/*"]
+      "@ORGANIZATION/PROJECT-api/lib/*": ["../../api/*"],
+      "@ORGANIZATION/PROJECT-api": ["../../api"],
+      "@common/*": ["../../common/*"],
+      "@config/*": ["../../config/*"],
+      "@app/*": ["../../app/*"],
+      "@src/*": ["../../*"],
+      "@providers/*": ["../../providers/*"],
+      "@controllers/*": ["../../controllers/*"],
+      "@modules/*": ["../../modules/*"],
+      "@types/*": ["../../types/*"],
+      "@auth/*": ["../../auth/*"]
     } /* Specify a set of entries that re-map imports to additional lookup locations. */,
     // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
     // "typeRoots": [],                                  /* Specify multiple folders that act like './node_modules/@types'. */
@@ -117,5 +117,6 @@
       { "transform": "@nestia/core/lib/transform" }
     ]
   },
+  "include": ["./**/*.ts"],
   "exclude": ["node_modules", "packages"]
 }

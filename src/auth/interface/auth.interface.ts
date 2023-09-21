@@ -30,4 +30,9 @@ export namespace Auth {
   export interface RefreshTokenVerify {
     refresh_token: string;
   }
+  export interface LoginReturn {
+    access_token: string;
+    refresh_token: string;
+    employee: Auth.AccessTokenSignPayload;
+  }
 }

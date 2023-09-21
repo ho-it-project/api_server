@@ -15,7 +15,7 @@
     }
   },
   "paths": {
-    "/": {
+    "/er": {
       "get": {
         "tags": [],
         "parameters": [],
@@ -32,19 +32,42 @@
             "x-nestia-encrypted": false
           }
         },
-        "x-nestia-namespace": "getHello",
+        "x-nestia-namespace": "er.getHello",
         "x-nestia-jsDocTags": [],
         "x-nestia-method": "GET"
-      },
+      }
+    },
+    "/auth": {
+      "get": {
+        "tags": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "x-nestia-encrypted": false
+          }
+        },
+        "x-nestia-namespace": "auth.checkAuthStatus",
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
+      }
+    },
+    "/auth/login": {
       "post": {
         "tags": [],
         "parameters": [],
         "requestBody": {
-          "description": "",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/TestBody2"
+                "$ref": "#/components/schemas/AuthRequest.LoginDTO"
               }
             }
           },
@@ -57,124 +80,60 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TestBody2"
+                  "$ref": "#/components/schemas/Try_lt_AuthResponse.Login_gt_"
                 }
               }
             },
             "x-nestia-encrypted": false
+          },
+          "400": {
+            "description": "AUTH_ERROR.PASSWORD_INCORRECT",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AUTH_ERROR.PASSWORD_INCORRECT"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "AUTH_ERROR.EMPLOYEE_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AUTH_ERROR.EMPLOYEE_NOT_FOUND"
+                }
+              }
+            }
           }
         },
-        "x-nestia-namespace": "postHello",
+        "x-nestia-namespace": "auth.login.login",
         "x-nestia-jsDocTags": [],
         "x-nestia-method": "POST"
       }
     },
-    "/string/{name}": {
-      "get": {
+    "/auth/logout": {
+      "post": {
         "tags": [],
-        "parameters": [
-          {
-            "name": "name",
-            "in": "path",
-            "description": "",
-            "schema": {
-              "type": "string"
-            },
-            "required": true
-          }
-        ],
+        "parameters": [],
         "responses": {
-          "200": {
+          "201": {
             "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
             "x-nestia-encrypted": false
           }
         },
-        "x-nestia-namespace": "string.getNameTest",
+        "x-nestia-namespace": "auth.logout.logout",
         "x-nestia-jsDocTags": [],
-        "x-nestia-method": "GET"
-      }
-    },
-    "/number/{name}": {
-      "get": {
-        "tags": [],
-        "parameters": [
-          {
-            "name": "name",
-            "in": "path",
-            "description": "",
-            "schema": {
-              "type": "number"
-            },
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "number"
-                }
-              }
-            },
-            "x-nestia-encrypted": false
-          }
-        },
-        "x-nestia-namespace": "number.getNumberTest",
-        "x-nestia-jsDocTags": [],
-        "x-nestia-method": "GET"
+        "x-nestia-method": "POST"
       }
     }
   },
   "components": {
     "schemas": {
-      "TestBody2": {
+      "AuthRequest.LoginDTO": {
         "type": "object",
         "properties": {
-          "test": {
-            "$ref": "#/components/schemas/TestBody"
-          }
-        },
-        "nullable": false,
-        "required": [
-          "test"
-        ],
-        "x-typia-jsDocTags": []
-      },
-      "TestBody": {
-        "type": "object",
-        "properties": {
-          "test_id": {
-            "x-typia-metaTags": [
-              {
-                "kind": "type",
-                "value": "int"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "type",
-                "text": [
-                  {
-                    "text": "int",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
-            "x-typia-required": true,
-            "x-typia-optional": false,
-            "type": "integer"
-          },
-          "test_name": {
+          "emergency_center_id": {
             "x-typia-jsDocTags": [
               {
                 "name": "type",
@@ -184,18 +143,365 @@
                     "kind": "text"
                   }
                 ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "응급센터 아이디",
+                    "kind": "text"
+                  }
+                ]
               }
             ],
-            "x-typia-required": false,
-            "x-typia-optional": true,
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "id_card": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "string",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "직원 고유아이디",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "password": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "string",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "직원 비밀번호",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
             "type": "string"
           }
         },
         "nullable": false,
         "required": [
-          "test_id"
+          "emergency_center_id",
+          "id_card",
+          "password"
         ],
         "x-typia-jsDocTags": []
+      },
+      "AUTH_ERROR.PASSWORD_INCORRECT": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "string",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "에러 메시지",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "enum": [
+              "Password is incorrect"
+            ]
+          },
+          "is_success": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "false",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "에러 여부",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "boolean",
+            "enum": [
+              false
+            ]
+          }
+        },
+        "nullable": false,
+        "required": [
+          "message",
+          "is_success"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "AUTH_ERROR.EMPLOYEE_NOT_FOUND": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "string",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "에러 메시지",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "enum": [
+              "Employee doesn't exist"
+            ]
+          },
+          "is_success": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "false",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "에러 여부",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "boolean",
+            "enum": [
+              false
+            ]
+          }
+        },
+        "nullable": false,
+        "required": [
+          "message",
+          "is_success"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "Try_lt_AuthResponse.Login_gt_": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "$ref": "#/components/schemas/AuthResponse.Login"
+          },
+          "is_success": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "true",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "요청이 성공했는지 여부",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "requestToResponse": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "number",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "요청부터 응답까지 걸린 시간",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": false,
+            "x-typia-optional": true,
+            "type": "number"
+          },
+          "message": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "string",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "요청에 대한 메시지",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "result",
+          "is_success",
+          "message"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "AuthResponse.Login": {
+        "type": "object",
+        "properties": {
+          "is_login": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "boolean"
+          },
+          "employee": {
+            "$ref": "#/components/schemas/Auth.AccessTokenSignPayload"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "is_login",
+          "employee"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "Auth.AccessTokenSignPayload": {
+        "type": "object",
+        "properties": {
+          "emergency_center_id": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "employee_id": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "id_card": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/er_EmployeeRole"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "emergency_center_id",
+          "employee_id",
+          "id_card",
+          "role"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "er_EmployeeRole": {
+        "type": "string",
+        "enum": [
+          "ADMIN",
+          "DOCTOR",
+          "NURSE",
+          "RECEPTIONIST"
+        ]
       }
     }
   }

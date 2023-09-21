@@ -1,9 +1,9 @@
+import { DbInit } from '@common/database/db.init';
 import { KafkaConsumerPayload } from '@common/kafka/kafka.message';
 import { TypedRoute } from '@nestia/core';
 import { Controller } from '@nestjs/common';
 import typia from 'typia';
 import { AppService, TestDTO } from './app.service';
-import { DbInit } from './common/database/db.init';
 
 @Controller()
 export class AppController {
@@ -28,8 +28,8 @@ export class AppController {
     return 'hello ems service';
   }
   @TypedRoute.Post('/db/init')
-  test() {
-    this.dbInit.init();
+  async test() {
+    await this.dbInit.init();
     return 'test - test -- test --';
   }
 
