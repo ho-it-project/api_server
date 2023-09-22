@@ -2,7 +2,7 @@ import { INestiaConfig } from '@nestia/sdk';
 
 export const NESTIA_CONFIG: INestiaConfig = {
   simulate: true,
-  input: 'src/controllers',
+  input: ['src/controllers', 'src/auth'],
   output: 'src/api',
 
   swagger: {

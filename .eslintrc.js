@@ -4,13 +4,16 @@ module.exports = {
   extends: ['plugin:@typescript-eslint/recommended'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
-    project: ['tsconfig.json', 'test/tsconfig.json'],
+    project: ['tsconfig.json', 'src/test/e2e/tsconfig.json'],
+    tsconfigRootDir: __dirname,
+    sourceType: 'module',
   },
+  ignorePatterns: ['.eslintrc.cjs', 'nestia.config.ts'],
   overrides: [
     {
-      files: ['src/**/*.ts', 'test/**/*.ts'],
+      files: ['src/**/*.ts'],
       rules: {
-        '@typescript-eslint/no-duplicate-imports': 'error',
+        'no-duplicate-imports': 'error',
         '@typescript-eslint/no-explicit-any': 'off',
         '@typescript-eslint/no-floating-promises': 'error',
         '@typescript-eslint/no-inferrable-types': 'off',
