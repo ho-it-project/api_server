@@ -15,20 +15,10 @@ export class ErEmployeeService {
 
   async createManyEmployee({ employees, user }: ErEmployee.CreateManyEmployee) {
     this.logger.debug('createManyEmployee');
-
-    const { emergency_center_id } = user;
-    const emergencyCenter = await this.prismaService.er_EmergencyCenter.findFirst({ where: { emergency_center_id } });
-    if (!emergencyCenter) {
-      throw new BadRequestException(EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND_IN_EMERGENCY_CENTER);
-    }
-    const { hospital_id } = emergencyCenter;
-    const existEmployeeIdCards = await this.prismaService.er_Employee.findMany({
-      where: {
-        id_card: {
-          in: employees.map((employee) => employee.id_card),
-        },
-        hospital_id,
-      },
+    const { hospital_id } = user;
+    const existEmployeeIdCards = await this.checkManyEmployeeExist({
+      id_cards: employees.map((employee) => employee.id_card),
+      hospital_id,
     });
     if (existEmployeeIdCards.length > 0) {
       throw new BadRequestException(
@@ -45,10 +35,61 @@ export class ErEmployeeService {
         };
       }),
     );
-    console.log(employeeInfos);
     const newEmployees = await this.prismaService.er_Employee.createMany({
       data: employeeInfos,
     });
     return newEmployees;
+  }
+
+  async checkManyEmployeeExist({ id_cards, hospital_id }: ErEmployee.CheckManyEmployeeExist) {
+    this.logger.debug('checkManyEmployeeExist');
+    const existEmployeeIdCards = await this.prismaService.er_Employee.findMany({
+      select: {
+        id_card: true,
+
+        password: false,
+      },
+      where: {
+        id_card: {
+          in: id_cards,
+        },
+        hospital_id,
+      },
+      distinct: 'password',
+    });
+    return existEmployeeIdCards;
+  }
+
+  async updatePassword({ id_card, password, hospital_id, now_password }: ErEmployee.UpdatePassword) {
+    this.logger.debug('updatePassword');
+    const existEmployee = await this.prismaService.er_Employee.findFirst({
+      where: {
+        id_card,
+        hospital_id,
+      },
+    });
+    if (!existEmployee) {
+      throw new BadRequestException(EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND);
+    }
+    const comparePassword = await this.authService.comparePassword({
+      password: now_password,
+      hash: existEmployee.password,
+    });
+    if (!comparePassword) {
+      throw new BadRequestException(EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_INVALID);
+    }
+    const updatedEmployee = await this.prismaService.er_Employee.update({
+      where: {
+        id_card_hospital_id: {
+          id_card,
+          hospital_id,
+        },
+      },
+      data: {
+        password: await this.authService.hashPassword({ password }),
+      },
+    });
+
+    return updatedEmployee;
   }
 }

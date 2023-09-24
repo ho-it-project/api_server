@@ -26,4 +26,10 @@ export namespace EMPLOYEE_ERROR {
     message: `Employee already exists with id_card: ${id_cards.join(', ')}`,
     is_success: false,
   });
+
+  export type EMPLOYEE_PASSWORD_INVALID = ERROR<'Employee password invalid'>;
+  export const EMPLOYEE_PASSWORD_INVALID: EMPLOYEE_PASSWORD_INVALID = {
+    message: 'Employee password invalid',
+    is_success: false,
+  } as const;
 }
