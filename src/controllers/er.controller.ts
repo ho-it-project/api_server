@@ -1,6 +1,6 @@
 import { TypedRoute } from '@nestia/core';
 import { Controller } from '@nestjs/common';
-import { HospitalService } from './../providers/hospital.service';
+import { HospitalService } from '../providers/hospital.service';
 
 @Controller('er')
 export class ErController {

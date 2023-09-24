@@ -32,14 +32,15 @@ export class DbInit {
     await this.prismaService.er_HospitalDepartment.deleteMany({ where: {} });
     await this.prismaService.er_HospitalMedicalEquipment.deleteMany({ where: {} });
     await this.prismaService.er_HospitalServereIllness.deleteMany({ where: {} });
+    await this.prismaService.er_Employee.deleteMany({ where: {} });
     await this.prismaService.er_Hospital.deleteMany({ where: {} });
-    await this.prismaService.er_Department.deleteMany({ where: {} });
     await this.prismaService.er_MedicalEquipment.deleteMany({ where: {} });
+    await this.prismaService.er_Department.deleteMany({ where: {} });
   }
   async hospitalSetup() {
     this.logger.debug('hospitalSetup');
 
-    const file_path = path.join(__dirname, '../../../src/common/database/hospital.db.json');
+    const file_path = path.join(__dirname, '../../../../src/common/database/hospital.db.json');
     const json: er_Hospital[] = JSON.parse(fs.readFileSync(file_path, 'utf-8'));
     const data = json.map((a: er_Hospital) =>
       typeof a.hospital_phone === 'string' ? a : { ...a, hospital_phone: '' },
@@ -51,7 +52,7 @@ export class DbInit {
   }
   async emergencyCenterSetup() {
     this.logger.debug('emergencyCenterSetup');
-    const file_path = path.join(__dirname, '../../../src/common/database/emergency_center.db.json');
+    const file_path = path.join(__dirname, '../../../../src/common/database/emergency_center.db.json');
     const json: er_EmergencyCenter[] = JSON.parse(fs.readFileSync(file_path, 'utf-8'));
     const data = json.map((info: er_EmergencyCenter) => ({
       ...info,
@@ -66,7 +67,7 @@ export class DbInit {
   }
   async departmentSetup() {
     this.logger.debug('departmentSetup');
-    const file_path = path.join(__dirname, '../../../src/common/database/department.db.json');
+    const file_path = path.join(__dirname, '../../../../src/common/database/department.db.json');
     const json: er_Department[] = JSON.parse(fs.readFileSync(file_path, 'utf-8'));
     await this.prismaService.er_Department.createMany({
       data: json,
@@ -75,7 +76,7 @@ export class DbInit {
   }
   async medicalEquipmentSetup() {
     this.logger.debug('medicalEquipmentSetup');
-    const file_path = path.join(__dirname, '../../../src/common/database/medical_equipment.db.json');
+    const file_path = path.join(__dirname, '../../../../src/common/database/medical_equipment.db.json');
     const json = JSON.parse(fs.readFileSync(file_path, 'utf-8'));
     const data: er_MedicalEquipment[] = json.map((info: er_MedicalEquipment) => ({
       medical_equipment_id: info.medical_equipment_id,
@@ -88,7 +89,7 @@ export class DbInit {
   }
   async servereIllnessSetup() {
     this.logger.debug('servereIllnessSetup');
-    const file_path = path.join(__dirname, '../../../src/common/database/severe_illness.db.json');
+    const file_path = path.join(__dirname, '../../../../src/common/database/severe_illness.db.json');
     const json = JSON.parse(fs.readFileSync(file_path, 'utf-8'));
     await this.prismaService.er_ServereIllness.createMany({
       data: json,
@@ -97,7 +98,7 @@ export class DbInit {
   }
   async emergencyRoomSetup() {
     this.logger.debug('emergencyRoomSetup');
-    const file_path = path.join(__dirname, '../../../src/common/database/emergency_room.db.json');
+    const file_path = path.join(__dirname, '../../../../src/common/database/emergency_room.db.json');
     const json = JSON.parse(fs.readFileSync(file_path, 'utf-8'));
     await this.prismaService.er_EmergencyRoom.createMany({
       data: json,
@@ -106,7 +107,7 @@ export class DbInit {
   }
   async emergencyRoomBedSetup() {
     this.logger.debug('emergencyRoomBedSetup');
-    const file_path = path.join(__dirname, '../../../src/common/database/emergency_room_bed.db.json');
+    const file_path = path.join(__dirname, '../../../../src/common/database/emergency_room_bed.db.json');
     const json = JSON.parse(fs.readFileSync(file_path, 'utf-8'));
     await this.prismaService.er_EmergencyRoomBed.createMany({
       data: json,
@@ -115,7 +116,7 @@ export class DbInit {
   }
   async employeeSetup() {
     this.logger.debug('employeeSetup');
-    const file_path = path.join(__dirname, '../../../src/common/database/emergency_center.db.json');
+    const file_path = path.join(__dirname, '../../../../src/common/database/emergency_center.db.json');
     const json: er_EmergencyCenter[] = JSON.parse(fs.readFileSync(file_path, 'utf-8'));
     json;
 

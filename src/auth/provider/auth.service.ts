@@ -42,8 +42,7 @@ export class AuthService {
     if (!comparePassword) {
       throw new UnauthorizedException('Password is incorrect');
     }
-    const access_token = this.accessTokenSign({ emergency_center_id, ...existEmployee });
-    const refresh_token = this.refreshTokenSign({ emergency_center_id, ...existEmployee });
+    const { access_token, refresh_token } = this.tokenSign({ emergency_center_id, ...existEmployee });
     return {
       access_token,
       refresh_token,
@@ -120,5 +119,11 @@ export class AuthService {
     } catch (error) {
       return error;
     }
+  }
+
+  tokenSign(payload: Auth.AccessTokenSignPayload) {
+    const access_token = this.accessTokenSign(payload);
+    const refresh_token = this.refreshTokenSign(payload);
+    return { access_token, refresh_token };
   }
 }
