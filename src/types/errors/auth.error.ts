@@ -31,5 +31,3 @@ export namespace AUTH_ERROR {
     is_success: false,
   };
 }
-
-export namespace USER_ERROR {}

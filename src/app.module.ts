@@ -8,6 +8,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { ErModule } from './modules/er.module';
+import { ErEmployeeModule } from './modules/er/employee.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -36,6 +37,7 @@ import { ErModule } from './modules/er.module';
     PrismaModule,
     ErModule,
     AuthModule,
+    ErEmployeeModule,
   ],
   controllers: [AppController],
   providers: [AppService, Logger, DbInit],
