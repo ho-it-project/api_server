@@ -2,7 +2,7 @@ import { PrismaService } from '@common/prisma/prisma.service';
 import { BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { Prisma, PrismaPromise, er_Employee } from '@prisma/client';
+import { Prisma, PrismaPromise, er_Employee, er_EmployeeRole } from '@prisma/client';
 import { Auth } from '@src/auth/interface/auth.interface';
 import { AuthService } from '@src/auth/provider/auth.service';
 import { ErEmployeeService } from '@src/providers/er/er.employee.service';
@@ -14,8 +14,14 @@ describe('ErEmployeeService', () => {
   let erEmployeeService: ErEmployeeService;
   let mockPrismaService: jest.MockedObjectDeep<PrismaService>;
   let mockAuthService: AuthService;
-  beforeEach(() => {
+  beforeAll(() => {
     mockPrismaService = jest.mocked(new PrismaService());
+  });
+  afterAll(() => {
+    jest.clearAllMocks();
+  });
+
+  beforeEach(() => {
     mockAuthService = new AuthService(mockPrismaService, new JwtService(), new ConfigService(), {
       refresh_expires_in: '1d',
       refresh_secret: 'refresh_secret',
@@ -33,7 +39,7 @@ describe('ErEmployeeService', () => {
     beforeEach(() => {
       jest.spyOn(mockPrismaService.er_Employee, 'findMany').mockImplementation(async () => []);
     });
-    afterEach(() => {
+    afterEach(async () => {
       jest.clearAllMocks();
     });
 
@@ -234,6 +240,85 @@ describe('ErEmployeeService', () => {
       });
       await expect(result).rejects.toThrowError(BadRequestException);
       await expect(result).rejects.toThrowError(new BadRequestException(EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_INVALID));
+    });
+  });
+
+  describe('getEmployeeListByQuery', () => {
+    beforeEach(() => {
+      jest.spyOn(mockPrismaService.er_Employee, 'findMany').mockImplementation(async () => []);
+    });
+
+    afterAll(() => {
+      jest.clearAllMocks();
+    });
+
+    it('should be defined', () => {
+      expect(erEmployeeService.getEmployeeListByQuery).toBeDefined();
+    });
+
+    it('should be call er_Employee.findMany with where', async () => {
+      const mockQuery = {
+        page: 1,
+        limit: 10,
+        search: typia.random<string>(),
+        search_type: typia.random<'id_card' | 'employee_name'>(),
+        role: typia.random<er_EmployeeRole>(),
+      };
+      const { page, limit, search, search_type, role } = mockQuery;
+      const user = typia.random<Auth.AccessTokenSignPayload>();
+      const skip = (page - 1) * limit;
+      const { hospital_id } = user;
+      await erEmployeeService.getEmployeeListByQuery({ query: mockQuery, user });
+      const arg: Prisma.er_EmployeeFindManyArgs = {
+        skip,
+        take: limit,
+        where: {
+          hospital_id,
+          id_card:
+            search_type === 'id_card'
+              ? {
+                  contains: search,
+                }
+              : undefined,
+          employee_name:
+            search_type === 'employee_name'
+              ? {
+                  contains: search,
+                }
+              : undefined,
+          role: role,
+        },
+        orderBy: {
+          created_at: 'desc',
+        },
+        select: {
+          employee_id: true,
+          id_card: true,
+          employee_name: true,
+          role: true,
+          created_at: true,
+          updated_at: true,
+        },
+      };
+      expect(mockPrismaService.er_Employee.findMany).toBeCalled();
+      expect(mockPrismaService.er_Employee.findMany).toBeCalledWith(arg);
+    });
+
+    it('should be return employees', async () => {
+      const mockQuery = {
+        page: 1,
+        limit: 10,
+        search: typia.random<string>(),
+        search_type: typia.random<'id_card' | 'employee_name'>(),
+        role: typia.random<er_EmployeeRole>(),
+      };
+      const user = typia.random<Auth.AccessTokenSignPayload>();
+      const mockEmployees = typia.random<Omit<er_Employee, 'password'>[]>();
+      jest.spyOn(mockPrismaService.er_Employee, 'findMany').mockImplementation(async () => mockEmployees);
+      jest.spyOn(mockPrismaService.er_Employee, 'count').mockImplementation(async () => mockEmployees.length);
+      const result = await erEmployeeService.getEmployeeListByQuery({ query: mockQuery, user });
+      expect(result).toBeDefined();
+      expect(result).toEqual({ employees: mockEmployees, count: mockEmployees.length });
     });
   });
 });

@@ -37,7 +37,7 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, JWT_AUTH_REFR
       },
     });
     if (user) {
-      return { ...user, emergency_center_id };
+      return payload;
     } else {
       throw new UnauthorizedException(AUTH_ERROR.REFRESH_TOKEN_FAILURE);
     }

@@ -37,7 +37,7 @@ export class JwtAccessStrategy extends PassportStrategy(Strategy, JWT_AUTH_ACCES
       },
     });
     if (user) {
-      return { ...user, emergency_center_id };
+      return payload;
     } else {
       throw new UnauthorizedException(AUTH_ERROR.ACCESS_TOKEN_FAILURE);
     }

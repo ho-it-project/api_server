@@ -1,5 +1,6 @@
 import { PrismaService } from '@common/prisma/prisma.service';
 import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { AuthService } from '@src/auth/provider/auth.service';
 import { EMPLOYEE_ERROR } from '@src/types/errors';
 import { ErEmployee } from '../interface/er/er.employee.interface';
@@ -91,5 +92,50 @@ export class ErEmployeeService {
     });
 
     return updatedEmployee;
+  }
+
+  async getEmployeeListByQuery({ user, query }: ErEmployee.GetEmployeeList) {
+    const { hospital_id } = user;
+    const { page = 1, limit = 10, search = '', role, search_type } = query;
+
+    const skip = (page - 1) * limit;
+
+    const arg: Prisma.er_EmployeeFindManyArgs = {
+      skip,
+      take: limit,
+      where: {
+        hospital_id,
+        id_card:
+          search_type === 'id_card'
+            ? {
+                contains: search,
+              }
+            : undefined,
+        employee_name:
+          search_type === 'employee_name'
+            ? {
+                contains: search,
+              }
+            : undefined,
+        role: role,
+      },
+      orderBy: {
+        created_at: 'desc',
+      },
+      select: {
+        employee_id: true,
+        id_card: true,
+        employee_name: true,
+        role: true,
+        created_at: true,
+        updated_at: true,
+      },
+    };
+    const employees = await this.prismaService.er_Employee.findMany(arg);
+    const employee_count = await this.prismaService.er_Employee.count({
+      where: arg.where,
+    });
+
+    return { employees, count: employee_count };
   }
 }

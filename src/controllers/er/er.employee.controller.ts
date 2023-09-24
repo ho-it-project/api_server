@@ -1,6 +1,6 @@
 import { CurrentUser } from '@common/decorators/CurrentUser';
 import { createResponse } from '@common/interceptor/createResponse';
-import { TypedBody, TypedRoute } from '@nestia/core';
+import { TypedBody, TypedQuery, TypedRoute } from '@nestia/core';
 import { Controller, UseGuards } from '@nestjs/common';
 import { JwtAccessAuthGuard } from '@src/auth/guard/jwt.access.guard';
 import { Auth } from '@src/auth/interface/auth.interface';
@@ -46,5 +46,19 @@ export class ErEmployeeController {
     });
 
     return createResponse(result);
+  }
+
+  @TypedRoute.Get('/')
+  @UseGuards(JwtAccessAuthGuard)
+  async getEmployeeList(
+    @TypedQuery()
+    query: EmployeeRequest.GetEmployeeListQuery,
+    @CurrentUser() user: Auth.AccessTokenSignPayload,
+  ) {
+    const result = await this.erEmployeeService.getEmployeeListByQuery({
+      query,
+      user,
+    });
+    console.log(result);
   }
 }

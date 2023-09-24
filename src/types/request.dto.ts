@@ -77,4 +77,39 @@ export namespace EmployeeRequest {
      */
     now_password: string;
   }
+
+  export interface GetEmployeeListQuery {
+    /**
+     * @type number
+     * @description page
+     * @default 1
+     */
+    page?: number;
+    /**
+     * @type number
+     * @description  limit
+     * @default 10
+     */
+    limit?: number;
+
+    /**
+     * @type string
+     * @description  search
+     * @default ''
+     */
+    search?: string;
+
+    /**
+     * @type string
+     * @description  employee_role
+     * @default ''
+     */
+    role?: er_EmployeeRole;
+
+    /**
+     * @type string
+     * @description search_type
+     */
+    search_type?: 'id_card' | 'employee_name';
+  }
 }
