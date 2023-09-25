@@ -20,7 +20,7 @@ export interface ResponseDTO<T> {
    * @type number
    * @description 요청부터 응답까지 걸린 시간
    */
-  requestToResponse?: number;
+  request_to_response?: number;
 
   /**
    * @type string

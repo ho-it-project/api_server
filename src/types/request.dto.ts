@@ -1,4 +1,4 @@
-import { er_Employee, er_EmployeeRole } from '@prisma/client';
+import { er_EmergencyRoomType, er_Employee, er_EmployeeRole, er_MedicalInstitutionType } from '@prisma/client';
 import { tags } from 'typia';
 
 export namespace AuthRequest {
@@ -23,7 +23,7 @@ export namespace AuthRequest {
   }
 }
 
-export namespace EmployeeRequest {
+export namespace ErEmployeeRequest {
   export interface CreateDTO extends Partial<er_Employee> {
     /**
      * @type string
@@ -112,4 +112,69 @@ export namespace EmployeeRequest {
      */
     search_type?: 'id_card' | 'employee_name';
   }
+}
+
+export namespace ErEmergencyCenterRequest {
+  export interface GetEmergencyCenterListByCityQuery {
+    /**
+     * @type string
+     * @description 도시
+     */
+    city?: string;
+  }
+  export interface GetEmergencyCenterListByLocationQuery {
+    /**
+     * @type number
+     * @description 위도 - 경도와 함께 사용
+     * @min -90
+     * @max 90
+     */
+    latitude: number & tags.Minimum<-90> & tags.Maximum<90>;
+
+    /**
+     * @type number
+     * @description 경도 - 위도와 함께 사용
+     * @min -180
+     * @max 180
+     */
+    longitude: number & tags.Minimum<-180> & tags.Maximum<180>;
+  }
+  export interface GetEmergencyCenterListQueryDefault {
+    /**
+     * @type number
+     * @description page
+     * @default 1
+     * @minimum 1
+     */
+    page?: number;
+
+    /**
+     * @type number
+     * @description limit
+     * @default 10
+     */
+    limit?: number;
+
+    /**
+     * @type string
+     * @description search - 병원이름
+     * @default ''
+     * @example '서울'
+     */
+    search?: string;
+
+    /**
+     * @type stirng
+     * @description emergency_center_type_filter
+     */
+    emergency_center_type?: er_MedicalInstitutionType[];
+
+    /**
+     * @type string[]
+     */
+    emergency_room_available?: er_EmergencyRoomType[];
+  }
+  export type GetEmergencyCenterListQuery = GetEmergencyCenterListQueryDefault &
+    GetEmergencyCenterListByCityQuery &
+    GetEmergencyCenterListByLocationQuery;
 }

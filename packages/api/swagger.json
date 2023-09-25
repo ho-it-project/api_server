@@ -15,6 +15,225 @@
     }
   },
   "paths": {
+    "/er/emergency-center": {
+      "get": {
+        "tags": [],
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/ErEmergencyCenterRequest.GetEmergencyCenterListQuery"
+            },
+            "description": "",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Try_lt_ErEmergencyCenter.GetEmergencyCenterListQueryReturn_gt_"
+                }
+              }
+            },
+            "x-nestia-encrypted": false
+          }
+        },
+        "x-nestia-namespace": "er.emergency-center.getEmergencyCenterList",
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
+      }
+    },
+    "/er/employee": {
+      "post": {
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErEmployeeRequest.CreateManyDTO"
+              }
+            }
+          },
+          "required": true,
+          "x-nestia-encrypted": false
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Try_lt_Prisma.BatchPayload_gt_"
+                }
+              }
+            },
+            "x-nestia-encrypted": false
+          },
+          "400": {
+            "description": "ER_EMPLOYEE_ERROR.EMPLOYEE_MULTIPLE_ALREADY_EXIST_RETURN",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ER_EMPLOYEE_ERROR.EMPLOYEE_MULTIPLE_ALREADY_EXIST_SWAGGER"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "AUTH_ERROR.FORBIDDEN",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AUTH_ERROR.FORBIDDEN"
+                }
+              }
+            }
+          }
+        },
+        "x-nestia-namespace": "er.employee.createManyEmployee",
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "POST"
+      },
+      "patch": {
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErEmployeeRequest.UpdatePasswordDTO"
+              }
+            }
+          },
+          "required": true,
+          "x-nestia-encrypted": false
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Try_lt_ErEmployeeResponse.UpdatePassword_gt_"
+                }
+              }
+            },
+            "x-nestia-encrypted": false
+          },
+          "400": {
+            "description": "ER_EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND_RETURN",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ER_EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "AUTH_ERROR.FORBIDDEN",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AUTH_ERROR.FORBIDDEN"
+                }
+              }
+            }
+          }
+        },
+        "x-nestia-namespace": "er.employee.updatePassword",
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "PATCH"
+      },
+      "get": {
+        "tags": [],
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/ErEmployeeRequest.GetEmployeeListQuery"
+            },
+            "description": "",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Try_lt_ErEmployee.GetEmployeeListQueryReturn_gt_"
+                }
+              }
+            },
+            "x-nestia-encrypted": false
+          },
+          "403": {
+            "description": "AUTH_ERROR.FORBIDDEN",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AUTH_ERROR.FORBIDDEN"
+                }
+              }
+            }
+          }
+        },
+        "x-nestia-namespace": "er.employee.getEmployeeList",
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
+      }
+    },
+    "/er/employee/exists": {
+      "post": {
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErEmployeeRequest.CheckManyExistDTO"
+              }
+            }
+          },
+          "required": true,
+          "x-nestia-encrypted": false
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Try_lt_ErEmployeeResponse.CheckManyEmployeeExist_gt_"
+                }
+              }
+            },
+            "x-nestia-encrypted": false
+          },
+          "403": {
+            "description": "AUTH_ERROR.FORBIDDEN",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AUTH_ERROR.FORBIDDEN"
+                }
+              }
+            }
+          }
+        },
+        "x-nestia-namespace": "er.employee.exists.checkManyEmployeeExist",
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "POST"
+      }
+    },
     "/er": {
       "get": {
         "tags": [],
@@ -47,11 +266,21 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "string"
+                  "$ref": "#/components/schemas/Try_lt_AuthResponse.CheckAuthStatus_gt_"
                 }
               }
             },
             "x-nestia-encrypted": false
+          },
+          "401": {
+            "description": "AUTH_ERROR.REFRESH_TOKEN_FAILURE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AUTH_ERROR.REFRESH_TOKEN_FAILURE"
+                }
+              }
+            }
           }
         },
         "x-nestia-namespace": "auth.checkAuthStatus",
@@ -119,6 +348,13 @@
         "responses": {
           "201": {
             "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Try_lt_AuthResponse.Logout_gt_"
+                }
+              }
+            },
             "x-nestia-encrypted": false
           }
         },
@@ -130,6 +366,2356 @@
   },
   "components": {
     "schemas": {
+      "ErEmergencyCenterRequest.GetEmergencyCenterListQuery": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "number",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "page",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "default",
+                "text": [
+                  {
+                    "text": "1",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "minimum",
+                "text": [
+                  {
+                    "text": "1",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": false,
+            "x-typia-optional": true,
+            "type": "number",
+            "minimum": 1,
+            "x-typia-typeTags": [
+              {
+                "name": "Minimum<1>",
+                "target": "number",
+                "kind": "minimum",
+                "value": 1,
+                "validate": "1 <= $input",
+                "exclusive": [
+                  "minimum",
+                  "exclusiveMinimum"
+                ]
+              }
+            ],
+            "default": 1
+          },
+          "limit": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "number",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "limit",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "default",
+                "text": [
+                  {
+                    "text": "10",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": false,
+            "x-typia-optional": true,
+            "type": "number",
+            "default": 10
+          },
+          "search": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "string",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "search - 병원이름",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "default",
+                "text": [
+                  {
+                    "text": "''",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "example",
+                "text": [
+                  {
+                    "text": "'서울'",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": false,
+            "x-typia-optional": true,
+            "type": "string",
+            "default": "''"
+          },
+          "emergency_center_type": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "stirng",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "emergency_center_type_filter",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": false,
+            "x-typia-optional": true,
+            "type": "array",
+            "items": {
+              "x-typia-jsDocTags": [
+                {
+                  "name": "type",
+                  "text": [
+                    {
+                      "text": "stirng",
+                      "kind": "text"
+                    }
+                  ]
+                },
+                {
+                  "name": "description",
+                  "text": [
+                    {
+                      "text": "emergency_center_type_filter",
+                      "kind": "text"
+                    }
+                  ]
+                }
+              ],
+              "x-typia-required": false,
+              "x-typia-optional": true,
+              "type": "string",
+              "enum": [
+                "NON_EMERGENCY_MEDICAL_INSTITUTION",
+                "LOCAL_EMERGENCY_MEDICAL_INSTITUTION",
+                "LOCAL_EMERGENCY_MEDICAL_CENTER",
+                "REGIONAL_EMERGENCY_MEDICAL_CENTER"
+              ]
+            }
+          },
+          "emergency_room_available": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "string[]",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": false,
+            "x-typia-optional": true,
+            "type": "array",
+            "items": {
+              "x-typia-jsDocTags": [
+                {
+                  "name": "type",
+                  "text": [
+                    {
+                      "text": "string[]",
+                      "kind": "text"
+                    }
+                  ]
+                }
+              ],
+              "x-typia-required": false,
+              "x-typia-optional": true,
+              "type": "string",
+              "enum": [
+                "GENERAL",
+                "COHORT_ISOLATION",
+                "NEGATIVE_PRESSURE_ISOLATION",
+                "STANDARD_ISOLATION",
+                "PEDIATRIC",
+                "PEDIATRIC_NEGATIVE_PRESSURE_ISOLATION",
+                "PEDIATRIC_STANDARD_ISOLATION"
+              ]
+            }
+          },
+          "city": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "string",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "도시",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": false,
+            "x-typia-optional": true,
+            "type": "string"
+          },
+          "latitude": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "number",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "위도 - 경도와 함께 사용",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "min",
+                "text": [
+                  {
+                    "text": "-90",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "max",
+                "text": [
+                  {
+                    "text": "90",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "number",
+            "maximum": 90,
+            "minimum": -90,
+            "x-typia-typeTags": [
+              {
+                "target": "number",
+                "name": "Minimum<-90>",
+                "kind": "minimum",
+                "value": -90,
+                "validate": "-90 <= $input",
+                "exclusive": [
+                  "minimum",
+                  "exclusiveMinimum"
+                ]
+              },
+              {
+                "target": "number",
+                "name": "Maximum<90>",
+                "kind": "maximum",
+                "value": 90,
+                "validate": "$input <= 90",
+                "exclusive": [
+                  "maximum",
+                  "exclusiveMaximum"
+                ]
+              }
+            ]
+          },
+          "longitude": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "number",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "경도 - 위도와 함께 사용",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "min",
+                "text": [
+                  {
+                    "text": "-180",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "max",
+                "text": [
+                  {
+                    "text": "180",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "number",
+            "maximum": 180,
+            "minimum": -180,
+            "x-typia-typeTags": [
+              {
+                "target": "number",
+                "name": "Minimum<-180>",
+                "kind": "minimum",
+                "value": -180,
+                "validate": "-180 <= $input",
+                "exclusive": [
+                  "minimum",
+                  "exclusiveMinimum"
+                ]
+              },
+              {
+                "target": "number",
+                "name": "Maximum<180>",
+                "kind": "maximum",
+                "value": 180,
+                "validate": "$input <= 180",
+                "exclusive": [
+                  "maximum",
+                  "exclusiveMaximum"
+                ]
+              }
+            ]
+          }
+        },
+        "nullable": false,
+        "required": [
+          "latitude",
+          "longitude"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "Try_lt_ErEmergencyCenter.GetEmergencyCenterListQueryReturn_gt_": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "$ref": "#/components/schemas/ErEmergencyCenter.GetEmergencyCenterListQueryReturn"
+          },
+          "is_success": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "true",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "요청이 성공했는지 여부",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "request_to_response": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "number",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "요청부터 응답까지 걸린 시간",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": false,
+            "x-typia-optional": true,
+            "type": "number"
+          },
+          "message": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "string",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "요청에 대한 메시지",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "result",
+          "is_success",
+          "message"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "ErEmergencyCenter.GetEmergencyCenterListQueryReturn": {
+        "type": "object",
+        "properties": {
+          "emergency_center_list": {
+            "$ref": "#/components/schemas/ErEmergencyCenter.SortEmergencyCenterByDistanceRetrun"
+          },
+          "count": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "number"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "emergency_center_list",
+          "count"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "ErEmergencyCenter.SortEmergencyCenterByDistanceRetrun": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ErEmergencyCenter.EmergencyCenterWithDistance"
+        }
+      },
+      "ErEmergencyCenter.EmergencyCenterWithDistance": {
+        "type": "object",
+        "properties": {
+          "distance": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "number",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "거리",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "number"
+          },
+          "hospital": {
+            "$ref": "#/components/schemas/__type"
+          },
+          "emergency_rooms": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/_blt__space_emergency_room_id:_space_string;_space_emergency_center_id:_space_string;_space_emergency_room_type:_space_er_EmergencyRoomType;_space_emergency_room_name:_space_string;_space_created_at:_space_Date;_space_updated_at:_space_Date;_space_status:_space_Status;_space__bgt__space__and__space__blt__space_...;_space__bgt_"
+            }
+          },
+          "emergency_center_id": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "hospital_id": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "emergency_center_type_code": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "emergency_center_type": {
+            "$ref": "#/components/schemas/er_MedicalInstitutionType"
+          },
+          "emergency_center_name": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "emergency_center_address": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "emergency_center_primary_phone": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "emergency_center_secondary_phone": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "nullable": true
+          },
+          "emergency_center_latitude": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "number"
+          },
+          "emergency_center_longitude": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "number"
+          },
+          "created_at": {
+            "description": "default",
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Status"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "distance",
+          "hospital",
+          "emergency_rooms",
+          "emergency_center_id",
+          "hospital_id",
+          "emergency_center_type_code",
+          "emergency_center_type",
+          "emergency_center_name",
+          "emergency_center_address",
+          "emergency_center_primary_phone",
+          "emergency_center_secondary_phone",
+          "emergency_center_latitude",
+          "emergency_center_longitude",
+          "created_at",
+          "updated_at",
+          "status"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "__type": {
+        "type": "object",
+        "properties": {
+          "hospital_id": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "hospital_name": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "hospital_address": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "hospital_type": {
+            "$ref": "#/components/schemas/er_MedicalFacilityType"
+          },
+          "hospital_phone": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "nullable": true
+          },
+          "hospital_city": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "hospital_district": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "latitude": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "number",
+            "nullable": true
+          },
+          "longitude": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "number",
+            "nullable": true
+          },
+          "created_at": {
+            "description": "\ndefault",
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Status"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "hospital_id",
+          "hospital_name",
+          "hospital_address",
+          "hospital_type",
+          "hospital_phone",
+          "hospital_city",
+          "hospital_district",
+          "latitude",
+          "longitude",
+          "created_at",
+          "updated_at",
+          "status"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "er_MedicalFacilityType": {
+        "type": "string",
+        "enum": [
+          "HOSPITAL",
+          "HEALTH_CENTER",
+          "HEALTH_MEDICAL_CENTER",
+          "HEALTH_SUB_CENTER",
+          "HEALTH_CLINIC",
+          "ADVANCED_GENERAL",
+          "NURSING_HOSPITAL",
+          "CLINIC",
+          "MENTAL_HOSPITAL",
+          "MATERNITY_CLINIC",
+          "GENERAL_HOSPITAL",
+          "DENTAL_HOSPITAL",
+          "DENTAL_CLINIC",
+          "ORIENTAL_HOSPITAL",
+          "ORIENTAL_CLINIC"
+        ]
+      },
+      "Status": {
+        "type": "string",
+        "enum": [
+          "ACTIVE",
+          "INACTIVE",
+          "DELETED"
+        ]
+      },
+      "_blt__space_emergency_room_id:_space_string;_space_emergency_center_id:_space_string;_space_emergency_room_type:_space_er_EmergencyRoomType;_space_emergency_room_name:_space_string;_space_created_at:_space_Date;_space_updated_at:_space_Date;_space_status:_space_Status;_space__bgt__space__and__space__blt__space_...;_space__bgt_": {
+        "type": "object",
+        "properties": {
+          "emergency_room_id": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "emergency_center_id": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "emergency_room_type": {
+            "$ref": "#/components/schemas/er_EmergencyRoomType"
+          },
+          "emergency_room_name": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "created_at": {
+            "description": "default",
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Status"
+          },
+          "emergency_room_beds": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/__type.o1"
+            }
+          },
+          "_count": {
+            "$ref": "#/components/schemas/__type.o2"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "emergency_room_id",
+          "emergency_center_id",
+          "emergency_room_type",
+          "emergency_room_name",
+          "created_at",
+          "updated_at",
+          "status",
+          "emergency_room_beds",
+          "_count"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "er_EmergencyRoomType": {
+        "type": "string",
+        "enum": [
+          "GENERAL",
+          "COHORT_ISOLATION",
+          "NEGATIVE_PRESSURE_ISOLATION",
+          "STANDARD_ISOLATION",
+          "PEDIATRIC",
+          "PEDIATRIC_NEGATIVE_PRESSURE_ISOLATION",
+          "PEDIATRIC_STANDARD_ISOLATION"
+        ]
+      },
+      "__type.o1": {
+        "type": "object",
+        "properties": {
+          "emergency_room_id": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "emergency_room_bed_num": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "number"
+          },
+          "emergency_room_bed_status": {
+            "$ref": "#/components/schemas/er_EmergencyRoomBedStatus"
+          },
+          "created_at": {
+            "description": "default",
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Status"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "emergency_room_id",
+          "emergency_room_bed_num",
+          "emergency_room_bed_status",
+          "created_at",
+          "updated_at",
+          "status"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "er_EmergencyRoomBedStatus": {
+        "type": "string",
+        "enum": [
+          "AVAILABLE",
+          "OCCUPIED",
+          "CLEANING",
+          "MAINTENANCE"
+        ]
+      },
+      "__type.o2": {
+        "type": "object",
+        "properties": {
+          "emergency_room_beds": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "number"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "emergency_room_beds"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "er_MedicalInstitutionType": {
+        "type": "string",
+        "enum": [
+          "NON_EMERGENCY_MEDICAL_INSTITUTION",
+          "LOCAL_EMERGENCY_MEDICAL_INSTITUTION",
+          "LOCAL_EMERGENCY_MEDICAL_CENTER",
+          "REGIONAL_EMERGENCY_MEDICAL_CENTER"
+        ]
+      },
+      "ErEmployeeRequest.CreateManyDTO": {
+        "type": "object",
+        "properties": {
+          "employees": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "CreateDTO[]",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "직원들",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ErEmployeeRequest.CreateDTO"
+            },
+            "minItems": 1
+          }
+        },
+        "nullable": false,
+        "required": [
+          "employees"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "ErEmployeeRequest.CreateDTO": {
+        "type": "object",
+        "properties": {
+          "employee_name": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "string",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "직원 이름",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "id_card": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "string",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "직원 고유아이디",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "password": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "string",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "직원 비밀번호",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "role": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "er_EmployeeRole",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "직원 역할",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "enum": [
+              "ADMIN",
+              "DOCTOR",
+              "NURSE",
+              "RECEPTIONIST"
+            ]
+          },
+          "employee_id": {
+            "x-typia-required": false,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "hospital_id": {
+            "x-typia-required": false,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "created_at": {
+            "description": "default",
+            "x-typia-required": false,
+            "x-typia-optional": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "x-typia-required": false,
+            "x-typia-optional": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "x-typia-required": false,
+            "x-typia-optional": false,
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "INACTIVE",
+              "DELETED"
+            ]
+          }
+        },
+        "nullable": false,
+        "required": [
+          "employee_name",
+          "id_card",
+          "password",
+          "role"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "ER_EMPLOYEE_ERROR.EMPLOYEE_MULTIPLE_ALREADY_EXIST_SWAGGER": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "string",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "에러 메시지",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "enum": [
+              "Employee already exists with id_card: {ID_CARDS}"
+            ]
+          },
+          "is_success": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "false",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "에러 여부",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "boolean",
+            "enum": [
+              false
+            ]
+          }
+        },
+        "nullable": false,
+        "required": [
+          "message",
+          "is_success"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "AUTH_ERROR.FORBIDDEN": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "string",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "에러 메시지",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "enum": [
+              "Forbidden"
+            ]
+          },
+          "is_success": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "false",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "에러 여부",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "boolean",
+            "enum": [
+              false
+            ]
+          }
+        },
+        "nullable": false,
+        "required": [
+          "message",
+          "is_success"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "Try_lt_Prisma.BatchPayload_gt_": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "$ref": "#/components/schemas/Prisma.BatchPayload"
+          },
+          "is_success": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "true",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "요청이 성공했는지 여부",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "request_to_response": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "number",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "요청부터 응답까지 걸린 시간",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": false,
+            "x-typia-optional": true,
+            "type": "number"
+          },
+          "message": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "string",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "요청에 대한 메시지",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "result",
+          "is_success",
+          "message"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "Prisma.BatchPayload": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "number"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "count"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "ErEmployeeRequest.CheckManyExistDTO": {
+        "type": "object",
+        "properties": {
+          "id_cards": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "string[]",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "직원 고유아이디들",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "array",
+            "items": {
+              "x-typia-jsDocTags": [
+                {
+                  "name": "type",
+                  "text": [
+                    {
+                      "text": "string[]",
+                      "kind": "text"
+                    }
+                  ]
+                },
+                {
+                  "name": "description",
+                  "text": [
+                    {
+                      "text": "직원 고유아이디들",
+                      "kind": "text"
+                    }
+                  ]
+                }
+              ],
+              "x-typia-required": true,
+              "x-typia-optional": false,
+              "type": "string"
+            },
+            "minItems": 1
+          }
+        },
+        "nullable": false,
+        "required": [
+          "id_cards"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "Try_lt_ErEmployeeResponse.CheckManyEmployeeExist_gt_": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "$ref": "#/components/schemas/ErEmployeeResponse.CheckManyEmployeeExist"
+          },
+          "is_success": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "true",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "요청이 성공했는지 여부",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "request_to_response": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "number",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "요청부터 응답까지 걸린 시간",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": false,
+            "x-typia-optional": true,
+            "type": "number"
+          },
+          "message": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "string",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "요청에 대한 메시지",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "result",
+          "is_success",
+          "message"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "ErEmployeeResponse.CheckManyEmployeeExist": {
+        "type": "object",
+        "properties": {
+          "exists": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Pick_lt___type_comma__space__doublequote_id_card_doublequote__gt_"
+            }
+          }
+        },
+        "nullable": false,
+        "required": [
+          "exists"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "Pick_lt___type_comma__space__doublequote_id_card_doublequote__gt_": {
+        "type": "object",
+        "properties": {
+          "id_card": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "id_card"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "ErEmployeeRequest.UpdatePasswordDTO": {
+        "type": "object",
+        "properties": {
+          "password": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "string",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "직원 비밀번호",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "now_password": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "string",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "현재 직원 비밀번호",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "password",
+          "now_password"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "ER_EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "string",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "에러 메시지",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "enum": [
+              "Employee doesn't exist"
+            ]
+          },
+          "is_success": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "false",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "에러 여부",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "boolean",
+            "enum": [
+              false
+            ]
+          }
+        },
+        "nullable": false,
+        "required": [
+          "message",
+          "is_success"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "Try_lt_ErEmployeeResponse.UpdatePassword_gt_": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "$ref": "#/components/schemas/ErEmployeeResponse.UpdatePassword"
+          },
+          "is_success": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "true",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "요청이 성공했는지 여부",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "request_to_response": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "number",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "요청부터 응답까지 걸린 시간",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": false,
+            "x-typia-optional": true,
+            "type": "number"
+          },
+          "message": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "string",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "요청에 대한 메시지",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "result",
+          "is_success",
+          "message"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "ErEmployeeResponse.UpdatePassword": {
+        "type": "object",
+        "properties": {
+          "update_success": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "boolean"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "update_success"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "ErEmployeeRequest.GetEmployeeListQuery": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "number",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "page",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "default",
+                "text": [
+                  {
+                    "text": "1",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": false,
+            "x-typia-optional": true,
+            "type": "number",
+            "default": 1
+          },
+          "limit": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "number",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "limit",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "default",
+                "text": [
+                  {
+                    "text": "10",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": false,
+            "x-typia-optional": true,
+            "type": "number",
+            "default": 10
+          },
+          "search": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "string",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "search",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "default",
+                "text": [
+                  {
+                    "text": "''",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": false,
+            "x-typia-optional": true,
+            "type": "string",
+            "default": "''"
+          },
+          "role": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "string",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "employee_role",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "default",
+                "text": [
+                  {
+                    "text": "''",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": false,
+            "x-typia-optional": true,
+            "type": "string",
+            "enum": [
+              "ADMIN",
+              "DOCTOR",
+              "NURSE",
+              "RECEPTIONIST"
+            ]
+          },
+          "search_type": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "string",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "search_type",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": false,
+            "x-typia-optional": true,
+            "type": "string",
+            "enum": [
+              "employee_name",
+              "id_card"
+            ]
+          }
+        },
+        "nullable": false,
+        "x-typia-jsDocTags": []
+      },
+      "Try_lt_ErEmployee.GetEmployeeListQueryReturn_gt_": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "$ref": "#/components/schemas/ErEmployee.GetEmployeeListQueryReturn"
+          },
+          "is_success": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "true",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "요청이 성공했는지 여부",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "request_to_response": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "number",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "요청부터 응답까지 걸린 시간",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": false,
+            "x-typia-optional": true,
+            "type": "number"
+          },
+          "message": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "string",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "요청에 대한 메시지",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "result",
+          "is_success",
+          "message"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "ErEmployee.GetEmployeeListQueryReturn": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "number"
+          },
+          "employee_list": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ErEmployee.GetEmpoyeeWithoutPassword"
+            }
+          }
+        },
+        "nullable": false,
+        "required": [
+          "count",
+          "employee_list"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "ErEmployee.GetEmpoyeeWithoutPassword": {
+        "type": "object",
+        "properties": {
+          "employee_id": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "employee_name": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "hospital_id": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "id_card": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/er_EmployeeRole"
+          },
+          "created_at": {
+            "description": "default",
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Status"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "employee_id",
+          "employee_name",
+          "hospital_id",
+          "id_card",
+          "role",
+          "created_at",
+          "updated_at",
+          "status"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "er_EmployeeRole": {
+        "type": "string",
+        "enum": [
+          "ADMIN",
+          "DOCTOR",
+          "NURSE",
+          "RECEPTIONIST"
+        ]
+      },
+      "AUTH_ERROR.REFRESH_TOKEN_FAILURE": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "string",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "에러 메시지",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "enum": [
+              "REFRESH_TOKEN_FAILURE"
+            ]
+          },
+          "is_success": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "false",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "에러 여부",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "boolean",
+            "enum": [
+              false
+            ]
+          }
+        },
+        "nullable": false,
+        "required": [
+          "message",
+          "is_success"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "Try_lt_AuthResponse.CheckAuthStatus_gt_": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "$ref": "#/components/schemas/AuthResponse.CheckAuthStatus"
+          },
+          "is_success": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "true",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "요청이 성공했는지 여부",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "request_to_response": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "number",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "요청부터 응답까지 걸린 시간",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": false,
+            "x-typia-optional": true,
+            "type": "number"
+          },
+          "message": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "string",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "요청에 대한 메시지",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "result",
+          "is_success",
+          "message"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "AuthResponse.CheckAuthStatus": {
+        "type": "object",
+        "properties": {
+          "is_login": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "boolean"
+          },
+          "employee": {
+            "$ref": "#/components/schemas/Auth.AccessTokenSignPayload.Nullable"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "is_login",
+          "employee"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "Auth.AccessTokenSignPayload.Nullable": {
+        "type": "object",
+        "properties": {
+          "hospital_id": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "emergency_center_id": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "employee_id": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "id_card": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/er_EmployeeRole"
+          }
+        },
+        "nullable": true,
+        "required": [
+          "hospital_id",
+          "emergency_center_id",
+          "employee_id",
+          "id_card",
+          "role"
+        ],
+        "x-typia-jsDocTags": []
+      },
       "AuthRequest.LoginDTO": {
         "type": "object",
         "properties": {
@@ -385,7 +2971,7 @@
               true
             ]
           },
-          "requestToResponse": {
+          "request_to_response": {
             "x-typia-jsDocTags": [
               {
                 "name": "type",
@@ -466,6 +3052,11 @@
       "Auth.AccessTokenSignPayload": {
         "type": "object",
         "properties": {
+          "hospital_id": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
           "emergency_center_id": {
             "x-typia-required": true,
             "x-typia-optional": false,
@@ -487,6 +3078,7 @@
         },
         "nullable": false,
         "required": [
+          "hospital_id",
           "emergency_center_id",
           "employee_id",
           "id_card",
@@ -494,14 +3086,116 @@
         ],
         "x-typia-jsDocTags": []
       },
-      "er_EmployeeRole": {
-        "type": "string",
-        "enum": [
-          "ADMIN",
-          "DOCTOR",
-          "NURSE",
-          "RECEPTIONIST"
-        ]
+      "Try_lt_AuthResponse.Logout_gt_": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "$ref": "#/components/schemas/AuthResponse.Logout"
+          },
+          "is_success": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "true",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "요청이 성공했는지 여부",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "request_to_response": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "number",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "요청부터 응답까지 걸린 시간",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": false,
+            "x-typia-optional": true,
+            "type": "number"
+          },
+          "message": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "type",
+                "text": [
+                  {
+                    "text": "string",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "description",
+                "text": [
+                  {
+                    "text": "요청에 대한 메시지",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "result",
+          "is_success",
+          "message"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "AuthResponse.Logout": {
+        "type": "object",
+        "properties": {
+          "is_login": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "boolean",
+            "enum": [
+              false
+            ]
+          }
+        },
+        "nullable": false,
+        "required": [
+          "is_login"
+        ],
+        "x-typia-jsDocTags": []
       }
     }
   }

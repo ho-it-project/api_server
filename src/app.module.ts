@@ -8,6 +8,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { ErModule } from './modules/er.module';
+import { ErEmergencyCenterModule } from './modules/er/emergencyCenter.module';
 import { ErEmployeeModule } from './modules/er/employee.module';
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { ErEmployeeModule } from './modules/er/employee.module';
     ErModule,
     AuthModule,
     ErEmployeeModule,
+    ErEmergencyCenterModule,
   ],
   controllers: [AppController],
   providers: [AppService, Logger, DbInit],
