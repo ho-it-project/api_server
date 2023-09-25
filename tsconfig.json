@@ -116,6 +116,6 @@
       { "transform": "@nestia/core/lib/transform" }
     ]
   },
-  "include": ["src/**/*.ts", "./nestia.config.ts", ".eslintrc.js"],
+  "include": ["src/**/*.ts", ".eslintrc.js"],
   "exclude": ["node_modules", "packages", "src/test/e2e/**/*.ts"]
 }

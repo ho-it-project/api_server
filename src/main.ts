@@ -11,7 +11,7 @@ async function bootstrap() {
   const port = process.env.PORT || 8000;
   console.log(process.env.NODE_ENV);
   const app = await NestFactory.create(AppModule, { logger: winstonLogger });
-  const docs = require('../../packages/api/swagger.json');
+  const docs = require('../packages/api/swagger.json');
   docs.servers = [{ url: 'http://localhost:8000/docs' }];
   SwaggerModule.setup('docs', app, docs);
   console.log(process.env.KAFKA_BOOTSTRAP_SERVERS?.split(',').map((a) => a.trim()));
