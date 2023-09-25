@@ -36,7 +36,6 @@ export class AppController {
   // @SubscribeToFixedGroup('ems.request.er')
   async testTopic(payload: KafkaConsumerPayload<TestDTO>) {
     // const data = typia.isParse<KafkaConsumerPayload<{ data: string }>>(payload);
-
     console.log(typia.is<KafkaConsumerPayload<TestDTO>>(payload));
     console.log(payload.value.body);
   }

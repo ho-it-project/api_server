@@ -153,4 +153,19 @@ describe('AuthService', () => {
       expect(refresh_token_verify).toHaveProperty('message');
     });
   });
+
+  describe('tokenSign', () => {
+    it('should be defined', () => {
+      expect(authService.tokenSign).toBeDefined();
+      expect(authService.tokenSign).toBeInstanceOf(Function);
+    });
+
+    it('should be return access_token and refresh_token', () => {
+      const tokenSign = authService.tokenSign(typia.random<Auth.AccessTokenSignPayload>());
+      expect(tokenSign).toBeDefined();
+      expect(tokenSign).toHaveProperty('access_token');
+      expect(tokenSign).toHaveProperty('refresh_token');
+    });
+  }
+)
 });

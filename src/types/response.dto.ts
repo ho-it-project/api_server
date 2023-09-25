@@ -4,4 +4,9 @@ export namespace AuthResponse {
     is_login: boolean;
     employee: Auth.AccessTokenSignPayload;
   }
+
+  export interface CheckAuthStatus {
+    is_login: boolean;
+    employee: Auth.AccessTokenSignPayload | null;
+  }
 }

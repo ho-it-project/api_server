@@ -8,6 +8,7 @@ import { AuthRequest } from '@src/types';
 import { AUTH_ERROR } from '@src/types/errors';
 import * as bcrypt from 'bcrypt';
 import { Auth } from '../interface/auth.interface';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -34,7 +35,7 @@ export class AuthService {
     if (!existEmployee) {
       throw new UnauthorizedException({ ...AUTH_ERROR.EMPLOYEE_NOT_FOUND });
     }
-    const { employee_id, role } = existEmployee;
+    const { employee_id, role, hospital_id } = existEmployee;
     const comparePassword = await this.comparePassword({
       password,
       hash: existEmployee.password,
@@ -42,12 +43,12 @@ export class AuthService {
     if (!comparePassword) {
       throw new UnauthorizedException('Password is incorrect');
     }
-    const access_token = this.accessTokenSign({ emergency_center_id, ...existEmployee });
-    const refresh_token = this.refreshTokenSign({ emergency_center_id, ...existEmployee });
+    const { access_token, refresh_token } = this.tokenSign({ emergency_center_id, ...existEmployee });
     return {
       access_token,
       refresh_token,
       employee: {
+        hospital_id,
         emergency_center_id,
         employee_id,
         id_card,
@@ -67,9 +68,10 @@ export class AuthService {
     return await bcrypt.compare(password, hash);
   }
 
-  accessTokenSign({ emergency_center_id, employee_id, id_card, role }: Auth.AccessTokenSignPayload) {
+  accessTokenSign({ hospital_id, emergency_center_id, employee_id, id_card, role }: Auth.AccessTokenSignPayload) {
     const access_token = this.jwtService.sign(
       {
+        hospital_id,
         emergency_center_id,
         employee_id,
         id_card,
@@ -95,9 +97,10 @@ export class AuthService {
     }
   }
 
-  refreshTokenSign({ emergency_center_id, employee_id, id_card }: Auth.RefreshTokenSignPayload) {
+  refreshTokenSign({ hospital_id, emergency_center_id, employee_id, id_card }: Auth.RefreshTokenSignPayload) {
     const refresh_token = this.jwtService.sign(
       {
+        hospital_id,
         emergency_center_id,
         employee_id,
         id_card,
@@ -120,5 +123,11 @@ export class AuthService {
     } catch (error) {
       return error;
     }
+  }
+
+  tokenSign(payload: Auth.AccessTokenSignPayload) {
+    const access_token = this.accessTokenSign(payload);
+    const refresh_token = this.refreshTokenSign(payload);
+    return { access_token, refresh_token };
   }
 }
