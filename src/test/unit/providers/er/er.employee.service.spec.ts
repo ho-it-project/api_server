@@ -6,8 +6,8 @@ import { Prisma, PrismaPromise, er_Employee, er_EmployeeRole } from '@prisma/cli
 import { Auth } from '@src/auth/interface/auth.interface';
 import { AuthService } from '@src/auth/provider/auth.service';
 import { ErEmployeeService } from '@src/providers/er/er.employee.service';
-import { EmployeeRequest } from '@src/types';
-import { EMPLOYEE_ERROR } from '@src/types/errors';
+import { ErEmployeeRequest } from '@src/types';
+import { ER_EMPLOYEE_ERROR } from '@src/types/errors';
 import typia, { tags } from 'typia';
 
 describe('ErEmployeeService', () => {
@@ -88,9 +88,9 @@ describe('ErEmployeeService', () => {
   });
 
   describe('createManyEmployee', () => {
-    let createManyEmployee: EmployeeRequest.CreateManyDTO;
+    let createManyEmployee: ErEmployeeRequest.CreateManyDTO;
     beforeEach(() => {
-      createManyEmployee = typia.random<EmployeeRequest.CreateManyDTO>();
+      createManyEmployee = typia.random<ErEmployeeRequest.CreateManyDTO>();
       jest
         .spyOn(mockPrismaService.er_Employee, 'createMany')
         .mockImplementation(async (info: Prisma.er_EmployeeCreateManyArgs) => {
@@ -141,8 +141,8 @@ describe('ErEmployeeService', () => {
       await expect(result).rejects.toThrowError();
       await expect(result).rejects.toThrowError(
         new BadRequestException(
-          EMPLOYEE_ERROR.EMPLOYEE_MULTIPLE_ALREADY_EXIST(
-            createManyEmployee.employees.map((employee) => employee.id_card),
+          ER_EMPLOYEE_ERROR.EMPLOYEE_MULTIPLE_ALREADY_EXIST(
+            createManyEmployee.employees.map((employee) => employee.id_card).join(', '),
           ),
         ),
       );
@@ -226,7 +226,7 @@ describe('ErEmployeeService', () => {
         now_password: typia.random<string>(),
       });
       await expect(result).rejects.toThrowError(BadRequestException);
-      await expect(result).rejects.toThrowError(new BadRequestException(EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND));
+      await expect(result).rejects.toThrowError(new BadRequestException(ER_EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND));
     });
 
     it('should be throw BadRequestionExtion when now_password is invalid', async () => {
@@ -239,7 +239,7 @@ describe('ErEmployeeService', () => {
         now_password: typia.random<string>(),
       });
       await expect(result).rejects.toThrowError(BadRequestException);
-      await expect(result).rejects.toThrowError(new BadRequestException(EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_INVALID));
+      await expect(result).rejects.toThrowError(new BadRequestException(ER_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_INVALID));
     });
   });
 
@@ -318,7 +318,7 @@ describe('ErEmployeeService', () => {
       jest.spyOn(mockPrismaService.er_Employee, 'count').mockImplementation(async () => mockEmployees.length);
       const result = await erEmployeeService.getEmployeeListByQuery({ query: mockQuery, user });
       expect(result).toBeDefined();
-      expect(result).toEqual({ employees: mockEmployees, count: mockEmployees.length });
+      expect(result).toEqual({ employee_list: mockEmployees, count: mockEmployees.length });
     });
   });
 });

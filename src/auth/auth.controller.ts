@@ -78,7 +78,7 @@ export class AuthController {
   }
 
   @TypedRoute.Post('/logout')
-  async logout(@Res({ passthrough: true }) response: Response) {
+  async logout(@Res({ passthrough: true }) response: Response): Promise<Try<AuthResponse.Logout>> {
     response.clearCookie('refresh_token');
     response.clearCookie('access_token');
     return createResponse({

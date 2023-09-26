@@ -2,7 +2,7 @@ import { PrismaService } from '@common/prisma/prisma.service';
 import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { AuthService } from '@src/auth/provider/auth.service';
-import { EMPLOYEE_ERROR } from '@src/types/errors';
+import { ER_EMPLOYEE_ERROR } from '@src/types/errors';
 import { ErEmployee } from '../interface/er/er.employee.interface';
 
 Injectable();
@@ -23,7 +23,9 @@ export class ErEmployeeService {
     });
     if (existEmployeeIdCards.length > 0) {
       throw new BadRequestException(
-        EMPLOYEE_ERROR.EMPLOYEE_MULTIPLE_ALREADY_EXIST(existEmployeeIdCards.map((employee) => employee.id_card)),
+        ER_EMPLOYEE_ERROR.EMPLOYEE_MULTIPLE_ALREADY_EXIST(
+          existEmployeeIdCards.map((employee) => employee.id_card).join(', '),
+        ),
       );
     }
     const employeeInfos = await Promise.all(
@@ -70,14 +72,14 @@ export class ErEmployeeService {
       },
     });
     if (!existEmployee) {
-      throw new BadRequestException(EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND);
+      throw new BadRequestException(ER_EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND);
     }
     const comparePassword = await this.authService.comparePassword({
       password: now_password,
       hash: existEmployee.password,
     });
     if (!comparePassword) {
-      throw new BadRequestException(EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_INVALID);
+      throw new BadRequestException(ER_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_INVALID);
     }
     const updatedEmployee = await this.prismaService.er_Employee.update({
       where: {
@@ -94,7 +96,10 @@ export class ErEmployeeService {
     return updatedEmployee;
   }
 
-  async getEmployeeListByQuery({ user, query }: ErEmployee.GetEmployeeList) {
+  async getEmployeeListByQuery({
+    user,
+    query,
+  }: ErEmployee.GetEmployeeList): Promise<ErEmployee.GetEmployeeListQueryReturn> {
     const { hospital_id } = user;
     const { page = 1, limit = 10, search = '', role, search_type } = query;
 
@@ -131,11 +136,11 @@ export class ErEmployeeService {
         updated_at: true,
       },
     };
-    const employees = await this.prismaService.er_Employee.findMany(arg);
+    const employees: ErEmployee.GetEmpoyeeWithoutPassword[] = await this.prismaService.er_Employee.findMany(arg);
     const employee_count = await this.prismaService.er_Employee.count({
       where: arg.where,
     });
 
-    return { employees, count: employee_count };
+    return { employee_list: employees, count: employee_count };
   }
 }

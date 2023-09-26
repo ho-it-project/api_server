@@ -134,6 +134,7 @@ dist
 
 packages/**/*.ts
 packages/**/*.js
+packages/**/*
 
 src/api
 
