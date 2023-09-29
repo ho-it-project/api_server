@@ -36,7 +36,7 @@ describe('ErJwtRefreshStrategy', () => {
 
   describe('validate', () => {
     it('should be return user if user is found', async () => {
-      const mockUser = typia.random<ErAuth.RefreshTokenSignPayload>();
+      const mockUser = typia.random<ErAuth.AccessTokenSignPayload>();
       mockPrismaService.er_Employee.findFirst = jest.fn().mockResolvedValue(mockUser);
       const result = await Strategy.validate(mockUser);
       expect(result).toEqual(mockUser);
