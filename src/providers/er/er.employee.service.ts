@@ -23,11 +23,6 @@ export class ErEmployeeService {
       hospital_id,
     });
     if (existEmployeeIdCards.length > 0) {
-      // throw new BadRequestException(
-      //   ER_EMPLOYEE_ERROR.EMPLOYEE_MULTIPLE_ALREADY_EXIST(
-      //     existEmployeeIdCards.map((employee) => employee.id_card).join(', '),
-      //   ),
-      // );
       return typia.random<ER_EMPLOYEE_ERROR.EMPLOYEE_MULTIPLE_ALREADY_EXIST>();
     }
     const employeeInfos = await Promise.all(
@@ -74,7 +69,6 @@ export class ErEmployeeService {
       },
     });
     if (!existEmployee) {
-      // throw new BadRequestException(ER_EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND);
       return typia.random<ER_EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND>();
     }
     const comparePassword = await this.authService.comparePassword({
@@ -82,7 +76,6 @@ export class ErEmployeeService {
       hash: existEmployee.password,
     });
     if (!comparePassword) {
-      // throw new BadRequestException(ER_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_INVALID);
       return typia.random<ER_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_INVALID>();
     }
     const updatedEmployee = await this.prismaService.er_Employee.update({

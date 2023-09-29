@@ -4,7 +4,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AppController } from '../../../app.controller';
 import { AppService } from '../../../app.service';
 import { PrismaModule } from '../../../common/prisma/prisma.module';
-import { ErModule } from '../../../modules/er.module';
 
 describe('AppController', () => {
   let appController: AppController;
@@ -32,7 +31,6 @@ describe('AppController', () => {
         //   groupId: 'hoit',
         // }),
         PrismaModule,
-        ErModule,
       ],
     }).compile();
 

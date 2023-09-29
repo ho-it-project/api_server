@@ -28,54 +28,61 @@ export namespace ErAuthRequest {
 export namespace ErEmployeeRequest {
   export interface CreateDTO extends Partial<er_Employee> {
     /**
+     * 지원 이름
      * @type string
-     * @description 직원 이름
+     * @title 지원 이름
      */
     employee_name: string;
     /**
+     * 지원 고유 아이디, 각 병워별로 중복되지 않아야함
      * @type string
-     * @description 직원 고유아이디
+     * @title 직원 고유 아이디
      */
     id_card: string;
     /**
      * @type string
-     * @description 직원 비밀번호
+     * @title 비밀번호
      */
     password: string;
 
     /**
+     * 직원의 ROLE - ADMIN, DOCTOR, NURSE, EMT
+     * @title 직원의 역할
      * @type er_EmployeeRole
-     * @description 직원 역할
      */
     role: er_EmployeeRole;
   }
 
   export interface CreateManyDTO {
     /**
+     * 직원들을 한번에 많이 생성할때 사용
+     * @title CreateManyDTO
      * @type CreateDTO[]
-     * @description 직원들
      */
     employees: Array<CreateDTO> & tags.MinItems<1>;
   }
 
   export interface CheckManyExistDTO {
     /**
+     * 중복체크할 직원의 고유 아이디 리스트
      * @type string[]
-     * @description 직원 고유아이디들
+     * @title 직원의 고유 아이디 리스트
      */
     id_cards: string[] & tags.MinItems<1>;
   }
 
   export interface UpdatePasswordDTO {
     /**
+     * 변경할 직원 비밀번호
      * @type string
-     * @description 직원 비밀번호
+     * @title 변경할 직원 비밀번호
      */
     password: string;
 
     /**
+     * 현재 직원의 비밀번호 - 비밀번호가 틀릴경우 에러
      * @type string
-     * @description 현재 직원 비밀번호
+     * @title 현재 직원 비밀번호
      */
     now_password: string;
   }
@@ -119,8 +126,9 @@ export namespace ErEmployeeRequest {
 export namespace ErEmergencyCenterRequest {
   export interface GetEmergencyCenterListByCityQuery {
     /**
+     * 응급센터가 있는 도시
      * @type string
-     * @description 도시
+     * @title 응급센터가 있는 도시
      */
     city?: string;
   }
@@ -130,6 +138,7 @@ export namespace ErEmergencyCenterRequest {
      * @description 위도 - 경도와 함께 사용
      * @min -90
      * @max 90
+     * @title 위도
      */
     latitude: number & tags.Minimum<-90> & tags.Maximum<90>;
 
@@ -138,30 +147,26 @@ export namespace ErEmergencyCenterRequest {
      * @description 경도 - 위도와 함께 사용
      * @min -180
      * @max 180
+     * @title 경도
      */
     longitude: number & tags.Minimum<-180> & tags.Maximum<180>;
   }
   export interface GetEmergencyCenterListQueryDefault {
     /**
-     * @type number
-     * @description page
      * @default 1
-     * @minimum 1
      */
-    page?: number;
+    page?: number & tags.Minimum<1>;
 
     /**
      * @type number
      * @description limit
      * @default 10
      */
-    limit?: number;
+    limit?: number & tags.Minimum<1>;
 
     /**
      * @type string
      * @description search - 병원이름
-     * @default ''
-     * @example '서울'
      */
     search?: string;
 
@@ -176,6 +181,10 @@ export namespace ErEmergencyCenterRequest {
      */
     emergency_room_available?: er_EmergencyRoomType[];
   }
+  /**
+   * test
+   *
+   */
   export type GetEmergencyCenterListQuery = GetEmergencyCenterListQueryDefault &
     GetEmergencyCenterListByCityQuery &
     GetEmergencyCenterListByLocationQuery;

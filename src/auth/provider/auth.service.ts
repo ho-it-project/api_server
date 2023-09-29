@@ -40,7 +40,6 @@ export class AuthService {
       },
     });
     if (!existEmployee) {
-      // throw new UnauthorizedException({ ...AUTH_ERROR.EMPLOYEE_NOT_FOUND });
       return typia.random<AUTH_ERROR.EMPLOYEE_NOT_FOUND>();
     }
     const { employee_id, role, hospital_id } = existEmployee;

@@ -116,7 +116,6 @@ export class ErAuthService {
       );
       return verify;
     } catch (error) {
-      // throw new UnauthorizedException({ ...AUTH_ERROR.REFRESH_TOKEN_INVALID });
       return typia.random<AUTH_ERROR.REFRESH_TOKEN_INVALID>();
     }
   }

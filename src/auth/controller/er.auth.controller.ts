@@ -6,7 +6,6 @@ import { TypedBody, TypedException, TypedRoute } from '@nestia/core';
 import { Controller, Res, UseGuards } from '@nestjs/common';
 import { ErAuthRequest, ErAuthResponse, Try, TryCatch } from '@src/types';
 import { Response } from 'express';
-import typia from 'typia';
 import { assertPrune } from 'typia/lib/misc';
 import { throwError } from '../../config/errors/index';
 import { ErJwtRefreshuthGuard } from '../guard/er.jwt.refresh.guard';
@@ -17,9 +16,17 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   /**
-   * @tag er_auth
-   * @summary 2023-09-30 - 로그인 상태 확인 및 토큰 재발급
+   * 로그인 상태 확인 및 토큰 재발급
+   *
+   * - 로그인 상태를 확인하고, 토큰을 재발급한다.
+   * - refresh_token이 존재하면, access_token을 재발급한다.
+   * - refresh_token이 존재하지 않으면, 로그인 상태가 아니므로, is_login: false를 반환한다.
+   * - refresh_token이 만료되면, 로그인 상태가 아니므로, is_login: false를 반환한다.
+   *
+   *
    * @author de-novo
+   * @tag er_auth
+   * @summary 2023-09-30 - 로그인 상태 확인 및 토큰 재발급 API
    *
    * @security refresh_token
    *
@@ -62,10 +69,20 @@ export class AuthController {
   }
 
   /**
+   * 로그인 API
+   *
+   * - 로그인을 한다.
+   * ## 로그인 성공시
+   * - 로그인 성공시, access_token과 refresh_token을 발급한다.
+   * - 로그인 성공시, refresh_token과 access_token을 쿠키에 저장한다.
+   * - 로그인 성공시, employee 정보를 반환한다.
+   * ## 로그인 실패시
+   * - 로그인 실패시, 에러를 반환한다.
+   * - 로그인 실패시, refresh_token과 access_token을 쿠키에 저장하지 않는다.
+   *
    * @author de-novo
    * @tag er_auth
-   * @summary 2023-09-30 - 로그인
-   * @server
+   * @summary 2023-09-30 - 로그인 API
    *
    * @param loginDTO - 로그인 정보
    * @return {ErAuthResponse.Login} 200 - 로그인
@@ -103,16 +120,18 @@ export class AuthController {
     });
   }
 
-  @TypedRoute.Post('/refresh')
-  async test(): Promise<TryCatch<'a', AUTH_ERROR.ACCESS_TOKEN_FAILURE>> {
-    const result = typia.random<AUTH_ERROR.ACCESS_TOKEN_FAILURE>();
-    const a = 'a';
-    if (isError(result)) {
-      return throwError(result);
-    }
-    return createResponse(a);
-  }
-
+  /**
+   * 로그아웃
+   * - 로그아웃을 한다.
+   * - 로그아웃시, refresh_token과 access_token을 쿠키에서 삭제한다.
+   * @author de-novo
+   * @tag er_auth
+   * @summary 2023-09-30 - 로그아웃 API
+   *
+   * @security refresh_token
+   * @security access_token
+   * @return {ErAuthResponse.Logout} 로그아웃
+   */
   @TypedRoute.Post('/logout')
   async logout(@Res({ passthrough: true }) response: Response): Promise<Try<ErAuthResponse.Logout>> {
     response.clearCookie('refresh_token');
