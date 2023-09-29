@@ -1,16 +1,16 @@
 import { er_Employee } from '@prisma/client';
 import { ErEmergencyCenter } from '@src/providers/interface/er/er.emergencyCenter.interface';
 import { ErEmployee } from '@src/providers/interface/er/er.employee.interface';
-import { Auth } from './../auth/interface/auth.interface';
-export namespace AuthResponse {
+import { ErAuth } from '../auth/interface/er.auth.interface';
+export namespace ErAuthResponse {
   export interface Login {
     is_login: boolean;
-    employee: Auth.AccessTokenSignPayload;
+    employee: ErAuth.AccessTokenSignPayload;
   }
 
   export interface CheckAuthStatus {
     is_login: boolean;
-    employee: Auth.AccessTokenSignPayload | null;
+    employee: ErAuth.AccessTokenSignPayload | null;
   }
 
   export interface Logout {

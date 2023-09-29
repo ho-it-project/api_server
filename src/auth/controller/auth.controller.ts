@@ -1,15 +1,18 @@
 import { CurrentUser } from '@common/decorators/CurrentUser';
 import { createResponse } from '@common/interceptor/createResponse';
+import { isError } from '@config/errors';
+import { AUTH_ERROR } from '@config/errors/auth.error';
 import { TypedBody, TypedException, TypedRoute } from '@nestia/core';
 import { Controller, Res, UseGuards } from '@nestjs/common';
-import { AuthRequest, AuthResponse, Try } from '@src/types';
-import { AUTH_ERROR } from '@src/types/errors';
+import { ErAuthRequest, ErAuthResponse, Try, TryCatch } from '@src/types';
 import { Response } from 'express';
+import typia from 'typia';
 import { assertPrune } from 'typia/lib/misc';
-import { JwtRefreshuthGuard } from './guard/jwt.refresh.guard';
-import { Auth } from './interface/auth.interface';
-import { AuthService } from './provider/auth.service';
-@Controller('/auth')
+import { JwtRefreshuthGuard } from '../guard/jwt.refresh.guard';
+import { ErAuth } from '../interface/er.auth.interface';
+import { AuthService } from '../provider/auth.service';
+import { throwError } from './../../config/errors/index';
+@Controller('/er/auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -17,9 +20,9 @@ export class AuthController {
   @UseGuards(JwtRefreshuthGuard)
   @TypedException<AUTH_ERROR.REFRESH_TOKEN_FAILURE>(401, 'AUTH_ERROR.REFRESH_TOKEN_FAILURE')
   async checkAuthStatus(
-    @CurrentUser() user: Auth.AccessTokenSignPayload,
+    @CurrentUser() user: ErAuth.AccessTokenSignPayload,
     @Res({ passthrough: true }) response: Response,
-  ): Promise<Try<AuthResponse.CheckAuthStatus>> {
+  ): Promise<Try<ErAuthResponse.CheckAuthStatus>> {
     if (user) {
       const { access_token, refresh_token } = this.authService.tokenSign(user);
       response.cookie('refresh_token', refresh_token, {
@@ -34,7 +37,7 @@ export class AuthController {
         secure: process.env.NODE_ENV === 'production' ? true : false, //htt
         maxAge: 1000 * 60 * 60 * 24,
       });
-      const employee = assertPrune<Auth.AccessTokenSignPayload>(user);
+      const employee = assertPrune<ErAuth.AccessTokenSignPayload>(user);
       return createResponse({
         is_login: true,
         employee,
@@ -53,10 +56,14 @@ export class AuthController {
   @TypedException<AUTH_ERROR.EMPLOYEE_NOT_FOUND>(401, 'AUTH_ERROR.EMPLOYEE_NOT_FOUND')
   @TypedException<AUTH_ERROR.PASSWORD_INCORRECT>(400, 'AUTH_ERROR.PASSWORD_INCORRECT')
   async login(
-    @TypedBody() loginDTO: AuthRequest.LoginDTO,
+    @TypedBody() loginDTO: ErAuthRequest.LoginDTO,
     @Res({ passthrough: true }) response: Response,
-  ): Promise<Try<AuthResponse.Login>> {
-    const { access_token, refresh_token, employee } = await this.authService.login(loginDTO);
+  ): Promise<TryCatch<ErAuthResponse.Login, AUTH_ERROR.EMPLOYEE_NOT_FOUND | AUTH_ERROR.PASSWORD_INCORRECT>> {
+    const loginResult = await this.authService.login(loginDTO);
+    if (isError(loginResult)) {
+      return throwError(loginResult);
+    }
+    const { access_token, refresh_token, employee } = loginResult;
 
     response.cookie('refresh_token', refresh_token, {
       sameSite: 'none',
@@ -77,8 +84,18 @@ export class AuthController {
     });
   }
 
+  @TypedRoute.Post('/refresh')
+  async test(): Promise<TryCatch<'a', AUTH_ERROR.ACCESS_TOKEN_FAILURE>> {
+    const result = typia.random<AUTH_ERROR.ACCESS_TOKEN_FAILURE>();
+    const a = 'a';
+    if (isError(result)) {
+      return throwError(result);
+    }
+    return createResponse(a);
+  }
+
   @TypedRoute.Post('/logout')
-  async logout(@Res({ passthrough: true }) response: Response): Promise<Try<AuthResponse.Logout>> {
+  async logout(@Res({ passthrough: true }) response: Response): Promise<Try<ErAuthResponse.Logout>> {
     response.clearCookie('refresh_token');
     response.clearCookie('access_token');
     return createResponse({

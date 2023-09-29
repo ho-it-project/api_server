@@ -1,8 +1,8 @@
-import { ForbiddenException } from '@nestjs/common';
+import { AUTH_ERROR, createError } from '@config/errors';
 import { Reflector } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtAccessAuthGuard } from '@src/auth/guard/jwt.access.guard';
-import { AUTH_ERROR } from '@src/types/errors';
+import typia from 'typia';
 
 describe('JwtAccessAuthGuard', () => {
   let guard: JwtAccessAuthGuard;
@@ -32,13 +32,7 @@ describe('JwtAccessAuthGuard', () => {
     });
 
     it('should throw ForbiddenException if user is not defined', () => {
-      expect(() => guard.handleRequest(null, null)).toThrow(ForbiddenException);
-      expect(() => guard.handleRequest(null, null)).toThrow(new ForbiddenException(AUTH_ERROR.FORBIDDEN));
-    });
-
-    it('should throw error if error is defined', () => {
-      const error = new Error('Test error');
-      expect(() => guard.handleRequest(error, null)).toThrow(error);
+      expect(() => guard.handleRequest(null, null)).toThrow(createError(typia.random<AUTH_ERROR.FORBIDDEN>()));
     });
   });
 });

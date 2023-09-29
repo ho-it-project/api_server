@@ -1,19 +1,19 @@
 import { createResponse } from '@common/interceptor/createResponse';
 import { PrismaService } from '@common/prisma/prisma.service';
 import { JWT_OPTIONS } from '@config/constant';
+import { createError, isError } from '@config/errors';
+import { AUTH_ERROR } from '@config/errors/auth.error';
 import { jwtOption } from '@config/option';
-import { UnauthorizedException } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { er_Employee } from '@prisma/client';
-import { AuthController } from '@src/auth/auth.controller';
-import { Auth } from '@src/auth/interface/auth.interface';
+import { AuthController } from '@src/auth/controller/auth.controller';
+import { ErAuth } from '@src/auth/interface/er.auth.interface';
 import { AuthService } from '@src/auth/provider/auth.service';
 import { JwtAccessStrategy } from '@src/auth/strategy/jwt.access.strategy';
 import { JwtRefreshStrategy } from '@src/auth/strategy/jwt.refresh.strategy';
-import { AuthRequest } from '@src/types';
-import { AUTH_ERROR } from '@src/types/errors';
+import { ErAuthRequest } from '@src/types';
 import Express from 'express';
 import typia from 'typia';
 describe('authController', () => {
@@ -56,7 +56,7 @@ describe('authController', () => {
     });
 
     it("should return 'is_login: true' when user is logged in", async () => {
-      const user = typia.random<Auth.AccessTokenSignPayload>();
+      const user = typia.random<ErAuth.AccessTokenSignPayload>();
       const res = jest.mocked<Express.Response>(Express.response);
       res.cookie = jest.fn().mockReturnValue(res);
       res.status = jest.fn().mockReturnValue(res);
@@ -87,7 +87,7 @@ describe('authController', () => {
     });
 
     it('should return { is_login: false } when user is not logged in', async () => {
-      const user = null as unknown as Auth.AccessTokenSignPayload;
+      const user = null as unknown as ErAuth.AccessTokenSignPayload;
       const res = jest.mocked<Express.Response>(Express.response);
       res.cookie = jest.fn().mockReturnValue(res);
       res.status = jest.fn().mockReturnValue(res);
@@ -117,7 +117,7 @@ describe('authController', () => {
     });
 
     it('should return { is_login: true, employee: user } when user is logged in', async () => {
-      const loginDTO = typia.random<AuthRequest.LoginDTO>();
+      const loginDTO = typia.random<ErAuthRequest.LoginDTO>();
       const employee = { ...typia.random<er_Employee>(), ...loginDTO };
       const res = jest.mocked<Express.Response>(Express.response);
       res.cookie = jest.fn().mockReturnValue(res);
@@ -144,6 +144,10 @@ describe('authController', () => {
           secure: expect.any(Boolean),
         }),
       );
+      if (isError(result)) {
+        throw Error('test fail');
+      }
+      expect(isError(result)).toBe(false);
       expect(result).toHaveProperty('is_success');
       expect(result).toHaveProperty('result');
       expect(result.result).toHaveProperty('is_login');
@@ -155,7 +159,7 @@ describe('authController', () => {
     });
 
     it('wrong password throw UnauthorizedException', async () => {
-      const loginDTO = typia.random<AuthRequest.LoginDTO>();
+      const loginDTO = typia.random<ErAuthRequest.LoginDTO>();
       const employee = { ...typia.random<er_Employee>(), ...loginDTO };
       const res = jest.mocked<Express.Response>(Express.response);
       res.cookie = jest.fn().mockReturnValue(res);
@@ -164,8 +168,7 @@ describe('authController', () => {
       mockPrismaService.er_Employee.findFirst = jest.fn().mockResolvedValue(employee);
       AuthService.prototype.comparePassword = jest.fn().mockResolvedValue(false);
       const result = authController.login(loginDTO, res);
-      await expect(result).rejects.toThrow(UnauthorizedException);
-      await expect(result).rejects.toThrow(new UnauthorizedException(AUTH_ERROR.PASSWORD_INCORRECT));
+      await expect(result).rejects.toThrow(createError(typia.random<AUTH_ERROR.PASSWORD_INCORRECT>()));
     });
   });
 

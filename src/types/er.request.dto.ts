@@ -1,7 +1,7 @@
 import { er_EmergencyRoomType, er_Employee, er_EmployeeRole, er_MedicalInstitutionType } from '@prisma/client';
 import { tags } from 'typia';
 
-export namespace AuthRequest {
+export namespace ErAuthRequest {
   export interface LoginDTO {
     /**
      * @type string

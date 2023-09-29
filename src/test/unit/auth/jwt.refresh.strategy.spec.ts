@@ -1,10 +1,9 @@
 import { PrismaService } from '@common/prisma/prisma.service';
-import { UnauthorizedException } from '@nestjs/common';
+import { AUTH_ERROR, createError } from '@config/errors';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Auth } from '@src/auth/interface/auth.interface';
+import { ErAuth } from '@src/auth/interface/er.auth.interface';
 import { JwtRefreshStrategy } from '@src/auth/strategy/jwt.refresh.strategy';
-import { AUTH_ERROR } from '@src/types/errors';
 import typia from 'typia';
 
 describe('JwtRefreshStrategy', () => {
@@ -37,7 +36,7 @@ describe('JwtRefreshStrategy', () => {
 
   describe('validate', () => {
     it('should be return user if user is found', async () => {
-      const mockUser = typia.random<Auth.RefreshTokenSignPayload>();
+      const mockUser = typia.random<ErAuth.RefreshTokenSignPayload>();
       mockPrismaService.er_Employee.findFirst = jest.fn().mockResolvedValue(mockUser);
       const result = await Strategy.validate(mockUser);
       expect(result).toEqual(mockUser);
@@ -46,11 +45,9 @@ describe('JwtRefreshStrategy', () => {
     it('should throw UnauthorizedException if user is not found', async () => {
       mockPrismaService.er_Employee.findFirst = jest.fn().mockResolvedValue(null);
 
-      await expect(Strategy.validate(typia.random<Auth.RefreshTokenSignPayload>())).rejects.toThrow(
-        UnauthorizedException,
-      );
-      await expect(Strategy.validate(typia.random<Auth.RefreshTokenSignPayload>())).rejects.toThrow(
-        new UnauthorizedException(AUTH_ERROR.REFRESH_TOKEN_FAILURE),
+      await expect(Strategy.validate(typia.random<ErAuth.RefreshTokenSignPayload>())).rejects.toThrow(
+        // new UnauthorizedException(AUTH_ERROR.REFRESH_TOKEN_FAILURE),
+        createError(typia.random<AUTH_ERROR.REFRESH_TOKEN_FAILURE>()),
       );
     });
   });

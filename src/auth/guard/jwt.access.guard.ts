@@ -1,8 +1,10 @@
 import { JWT_AUTH_ACCESS_GUARD } from '@config/constant';
-import { ExecutionContext, ForbiddenException, Injectable, Logger } from '@nestjs/common';
+import { throwError } from '@config/errors';
+import { AUTH_ERROR } from '@config/errors/auth.error';
+import { ExecutionContext, Injectable, Logger } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { AUTH_ERROR } from '@src/types/errors';
 import { Observable } from 'rxjs';
+import typia from 'typia';
 
 @Injectable()
 export class JwtAccessAuthGuard extends AuthGuard(JWT_AUTH_ACCESS_GUARD) {
@@ -14,7 +16,7 @@ export class JwtAccessAuthGuard extends AuthGuard(JWT_AUTH_ACCESS_GUARD) {
   handleRequest<TUser = any>(err: any, user: any): TUser {
     this.logger.debug(`JwtAccessAuthGuard.handleRequest`);
     if (err || !user) {
-      throw err || new ForbiddenException(AUTH_ERROR.FORBIDDEN);
+      throwError(typia.random<AUTH_ERROR.FORBIDDEN>());
     }
     return user;
   }

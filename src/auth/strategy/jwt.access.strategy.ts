@@ -1,11 +1,13 @@
 import { PrismaService } from '@common/prisma/prisma.service';
 import { JWT_AUTH_ACCESS_GUARD } from '@config/constant';
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { throwError } from '@config/errors';
+import { AUTH_ERROR } from '@config/errors/auth.error';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { AUTH_ERROR } from '../../types/errors/auth.error';
-import { Auth } from '../interface/auth.interface';
+import typia from 'typia';
+import { ErAuth } from '../interface/er.auth.interface';
 import { accessTokenExtractorFromCookeis } from '../util/jwtExtractorFromCookeis';
 
 @Injectable()
@@ -21,7 +23,7 @@ export class JwtAccessStrategy extends PassportStrategy(Strategy, JWT_AUTH_ACCES
     });
   }
 
-  async validate(payload: Auth.AccessTokenSignPayload): Promise<Auth.AccessTokenSignPayload> {
+  async validate(payload: ErAuth.AccessTokenSignPayload): Promise<ErAuth.AccessTokenSignPayload> {
     this.logger.debug('JwtAccessStrategy.validate');
     const { employee_id, emergency_center_id } = payload;
     const user = await this.prismaService.er_Employee.findFirst({
@@ -39,7 +41,7 @@ export class JwtAccessStrategy extends PassportStrategy(Strategy, JWT_AUTH_ACCES
     if (user) {
       return payload;
     } else {
-      throw new UnauthorizedException(AUTH_ERROR.ACCESS_TOKEN_FAILURE);
+      return throwError(typia.random<AUTH_ERROR.ACCESS_TOKEN_FAILURE>());
     }
   }
 }

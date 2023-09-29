@@ -1,9 +1,9 @@
-export * from './request.dto';
-export * from './response.dto';
+import { ERROR } from '@config/errors';
+import { ErrorHttpStatusCode } from '@nestjs/common/utils/http-error-by-code.util';
 
-export interface TestBody2 {
-  // test: TestBody;
-}
+export * from './er.request.dto';
+export * from './er.response.dto';
+
 export interface ResponseDTO<T> {
   /**
    * @type T
@@ -30,19 +30,4 @@ export interface ResponseDTO<T> {
 }
 
 export type Try<T> = ResponseDTO<T>;
-export type TryCatch<T, E extends ErrorDTO> = Try<T> | E;
-
-export type ErrorDTO = { message: string; is_success: false };
-export interface ERROR<T extends string> {
-  /**
-   * @type string
-   * @description 에러 메시지
-   */
-  message: T;
-
-  /**
-   * @type false
-   * @description 에러 여부
-   */
-  is_success: false;
-}
+export type TryCatch<T, E extends ERROR<string, ErrorHttpStatusCode>> = Try<T> | E;

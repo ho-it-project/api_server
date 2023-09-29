@@ -11,7 +11,7 @@ import typia from 'typia';
 import { Auth, EmsAuth, ErAuth } from '../interface';
 
 @Injectable()
-export class AuthService {
+export class ErAuthService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly jwtService: JwtService,
@@ -40,7 +40,6 @@ export class AuthService {
       },
     });
     if (!existEmployee) {
-      // throw new UnauthorizedException({ ...AUTH_ERROR.EMPLOYEE_NOT_FOUND });
       return typia.random<AUTH_ERROR.EMPLOYEE_NOT_FOUND>();
     }
     const { employee_id, role, hospital_id } = existEmployee;
@@ -76,20 +75,11 @@ export class AuthService {
     return await bcrypt.compare(password, hash);
   }
 
-  accessTokenSign({ hospital_id, emergency_center_id, employee_id, id_card, role }: ErAuth.AccessTokenSignPayload) {
-    const access_token = this.jwtService.sign(
-      {
-        hospital_id,
-        emergency_center_id,
-        employee_id,
-        id_card,
-        role,
-      },
-      {
-        secret: this.jwtOption.access_secret,
-        expiresIn: this.jwtOption.access_expires_in,
-      },
-    );
+  accessTokenSign(accessTokenPayload: ErAuth.AccessTokenSignPayload | EmsAuth.AccessTokenSignPayload) {
+    const access_token = this.jwtService.sign(accessTokenPayload, {
+      secret: this.jwtOption.access_secret,
+      expiresIn: this.jwtOption.access_expires_in,
+    });
 
     return access_token;
   }
@@ -108,35 +98,30 @@ export class AuthService {
     }
   }
 
-  refreshTokenSign({ hospital_id, emergency_center_id, employee_id, id_card }: ErAuth.RefreshTokenSignPayload) {
-    const refresh_token = this.jwtService.sign(
-      {
-        hospital_id,
-        emergency_center_id,
-        employee_id,
-        id_card,
-      },
-      {
-        secret: this.jwtOption.refresh_secret,
-        expiresIn: this.jwtOption.refresh_expires_in,
-      },
-    );
-
+  refreshTokenSign(payload: ErAuth.RefreshTokenSignPayload | EmsAuth.RefreshTokenSignPayload) {
+    const refresh_token = this.jwtService.sign(payload, {
+      secret: this.jwtOption.refresh_secret,
+      expiresIn: this.jwtOption.refresh_expires_in,
+    });
     return refresh_token;
   }
 
   refreshTokenVerify({ refresh_token }: Auth.RefreshTokenVerify) {
     try {
-      const verify = this.jwtService.verify<ErAuth.RefreshTokenSignPayload>(refresh_token, {
-        secret: this.jwtOption.refresh_secret,
-      });
+      const verify = this.jwtService.verify<ErAuth.RefreshTokenSignPayload | EmsAuth.RefreshTokenSignPayload>(
+        refresh_token,
+        {
+          secret: this.jwtOption.refresh_secret,
+        },
+      );
       return verify;
     } catch (error) {
-      return error;
+      // throw new UnauthorizedException({ ...AUTH_ERROR.REFRESH_TOKEN_INVALID });
+      return typia.random<AUTH_ERROR.REFRESH_TOKEN_INVALID>();
     }
   }
 
-  tokenSign(payload: ErAuth.AccessTokenSignPayload) {
+  tokenSign(payload: ErAuth.AccessTokenSignPayload | EmsAuth.AccessTokenSignPayload) {
     const access_token = this.accessTokenSign(payload);
     const refresh_token = this.refreshTokenSign(payload);
     return { access_token, refresh_token };
