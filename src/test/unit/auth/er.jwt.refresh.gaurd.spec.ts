@@ -1,14 +1,14 @@
 import { Reflector } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
-import { JwtRefreshuthGuard } from '@src/auth/guard/jwt.refresh.guard';
+import { ErJwtRefreshuthGuard } from '@src/auth/guard/er.jwt.refresh.guard';
 
-describe('JwtRefreshuthGuard', () => {
-  let guard: JwtRefreshuthGuard;
+describe('ErJwtRefreshuthGuard', () => {
+  let guard: ErJwtRefreshuthGuard;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        JwtRefreshuthGuard,
+        ErJwtRefreshuthGuard,
         {
           provide: Reflector,
           useValue: {},
@@ -16,7 +16,7 @@ describe('JwtRefreshuthGuard', () => {
       ],
     }).compile();
 
-    guard = module.get<JwtRefreshuthGuard>(JwtRefreshuthGuard);
+    guard = module.get<ErJwtRefreshuthGuard>(ErJwtRefreshuthGuard);
   });
 
   it('should be defined', () => {

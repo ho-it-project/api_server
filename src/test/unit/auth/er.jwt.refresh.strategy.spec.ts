@@ -3,11 +3,11 @@ import { AUTH_ERROR, createError } from '@config/errors';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ErAuth } from '@src/auth/interface/er.auth.interface';
-import { JwtRefreshStrategy } from '@src/auth/strategy/jwt.refresh.strategy';
+import { ErJwtRefreshStrategy } from '@src/auth/strategy/er.jwt.refresh.strategy';
 import typia from 'typia';
 
-describe('JwtRefreshStrategy', () => {
-  let Strategy: JwtRefreshStrategy;
+describe('ErJwtRefreshStrategy', () => {
+  let Strategy: ErJwtRefreshStrategy;
   let mockPrismaService: PrismaService;
 
   beforeEach(async () => {
@@ -15,7 +15,7 @@ describe('JwtRefreshStrategy', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        JwtRefreshStrategy,
+        ErJwtRefreshStrategy,
         {
           provide: ConfigService,
           useValue: {
@@ -28,7 +28,7 @@ describe('JwtRefreshStrategy', () => {
         },
       ],
     }).compile();
-    Strategy = module.get<JwtRefreshStrategy>(JwtRefreshStrategy);
+    Strategy = module.get<ErJwtRefreshStrategy>(ErJwtRefreshStrategy);
   });
   it('should be defined', () => {
     expect(Strategy).toBeDefined();

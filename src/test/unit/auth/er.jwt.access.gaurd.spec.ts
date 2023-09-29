@@ -1,16 +1,16 @@
 import { AUTH_ERROR, createError } from '@config/errors';
 import { Reflector } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
-import { JwtAccessAuthGuard } from '@src/auth/guard/jwt.access.guard';
+import { ErJwtAccessAuthGuard } from '@src/auth/guard/er.jwt.access.guard';
 import typia from 'typia';
 
-describe('JwtAccessAuthGuard', () => {
-  let guard: JwtAccessAuthGuard;
+describe('ErJwtAccessAuthGuard', () => {
+  let guard: ErJwtAccessAuthGuard;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        JwtAccessAuthGuard,
+        ErJwtAccessAuthGuard,
         {
           provide: Reflector,
           useValue: {},
@@ -18,7 +18,7 @@ describe('JwtAccessAuthGuard', () => {
       ],
     }).compile();
 
-    guard = module.get<JwtAccessAuthGuard>(JwtAccessAuthGuard);
+    guard = module.get<ErJwtAccessAuthGuard>(ErJwtAccessAuthGuard);
   });
 
   it('should be defined', () => {

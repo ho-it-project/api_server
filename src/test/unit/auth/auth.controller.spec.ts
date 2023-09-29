@@ -8,11 +8,11 @@ import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { er_Employee } from '@prisma/client';
-import { AuthController } from '@src/auth/controller/auth.controller';
+import { AuthController } from '@src/auth/controller/er.auth.controller';
 import { ErAuth } from '@src/auth/interface/er.auth.interface';
 import { AuthService } from '@src/auth/provider/auth.service';
-import { JwtAccessStrategy } from '@src/auth/strategy/jwt.access.strategy';
-import { JwtRefreshStrategy } from '@src/auth/strategy/jwt.refresh.strategy';
+import { ErJwtAccessStrategy } from '@src/auth/strategy/er.jwt.access.strategy';
+import { ErJwtRefreshStrategy } from '@src/auth/strategy/er.jwt.refresh.strategy';
 import { ErAuthRequest } from '@src/types';
 import Express from 'express';
 import typia from 'typia';
@@ -24,8 +24,8 @@ describe('authController', () => {
     const app: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
       providers: [
-        JwtAccessStrategy,
-        JwtRefreshStrategy,
+        ErJwtAccessStrategy,
+        ErJwtRefreshStrategy,
         AuthService,
         { provide: JWT_OPTIONS, useValue: jwtOption },
         {

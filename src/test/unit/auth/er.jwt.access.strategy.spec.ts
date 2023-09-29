@@ -3,11 +3,11 @@ import { AUTH_ERROR, createError } from '@config/errors';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ErAuth } from '@src/auth/interface/er.auth.interface';
-import { JwtAccessStrategy } from '@src/auth/strategy/jwt.access.strategy';
+import { ErJwtAccessStrategy } from '@src/auth/strategy/er.jwt.access.strategy';
 import typia from 'typia';
 
-describe('JwtAccessStrategy', () => {
-  let strategy: JwtAccessStrategy;
+describe('ErJwtAccessStrategy', () => {
+  let strategy: ErJwtAccessStrategy;
   let mockPrismaService: jest.MockedObjectDeep<PrismaService>;
   //   let mockEmployee: er_Employee;
   beforeEach(async () => {
@@ -16,7 +16,7 @@ describe('JwtAccessStrategy', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        JwtAccessStrategy,
+        ErJwtAccessStrategy,
         {
           provide: ConfigService,
           useValue: {
@@ -29,7 +29,7 @@ describe('JwtAccessStrategy', () => {
         },
       ],
     }).compile();
-    strategy = module.get<JwtAccessStrategy>(JwtAccessStrategy);
+    strategy = module.get<ErJwtAccessStrategy>(ErJwtAccessStrategy);
   });
 
   it('should be defined', () => {

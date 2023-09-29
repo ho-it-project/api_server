@@ -5,7 +5,7 @@ import { AUTH_ERROR } from '@config/errors/auth.error';
 import { TypedBody, TypedException, TypedQuery, TypedRoute } from '@nestia/core';
 import { Controller, UseGuards } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { JwtAccessAuthGuard } from '@src/auth/guard/jwt.access.guard';
+import { ErJwtAccessAuthGuard } from '@src/auth/guard/er.jwt.access.guard';
 import { ErAuth } from '@src/auth/interface/er.auth.interface';
 import { ErEmployeeService } from '@src/providers/er/er.employee.service';
 import { ErEmployeeRequest, ErEmployeeResponse, Try } from '@src/types';
@@ -15,7 +15,7 @@ export class ErEmployeeController {
   constructor(private readonly erEmployeeService: ErEmployeeService) {}
 
   @TypedRoute.Post('/')
-  @UseGuards(JwtAccessAuthGuard)
+  @UseGuards(ErJwtAccessAuthGuard)
   @TypedException<AUTH_ERROR.FORBIDDEN>(403, 'AUTH_ERROR.FORBIDDEN')
   // @TypedException<ER_EMPLOYEE_ERROR.EMPLOYEE_MULTIPLE_ALREADY_EXIST_SWAGGER>(
   //   400,
@@ -31,7 +31,7 @@ export class ErEmployeeController {
   }
 
   @TypedRoute.Post('/exists')
-  @UseGuards(JwtAccessAuthGuard)
+  @UseGuards(ErJwtAccessAuthGuard)
   @TypedException<AUTH_ERROR.FORBIDDEN>(403, 'AUTH_ERROR.FORBIDDEN')
   async checkManyEmployeeExist(
     @TypedBody() body: ErEmployeeRequest.CheckManyExistDTO,
@@ -43,7 +43,7 @@ export class ErEmployeeController {
   }
 
   @TypedRoute.Patch('/')
-  @UseGuards(JwtAccessAuthGuard)
+  @UseGuards(ErJwtAccessAuthGuard)
   @TypedException<AUTH_ERROR.FORBIDDEN>(403, 'AUTH_ERROR.FORBIDDEN')
   // @TypedException<ER_EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND>(400, 'ER_EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND_RETURN')
   // @TypedException<ER_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_INVALID>(
@@ -64,7 +64,7 @@ export class ErEmployeeController {
   }
 
   @TypedRoute.Get('/')
-  @UseGuards(JwtAccessAuthGuard)
+  @UseGuards(ErJwtAccessAuthGuard)
   @TypedException<AUTH_ERROR.FORBIDDEN>(403, 'AUTH_ERROR.FORBIDDEN')
   async getEmployeeList(
     @TypedQuery()

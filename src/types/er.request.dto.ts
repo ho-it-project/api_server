@@ -4,20 +4,22 @@ import { tags } from 'typia';
 export namespace ErAuthRequest {
   export interface LoginDTO {
     /**
+     * 응급센터 id - 주의 : 병원 아이디가 아닌 응급센터 고유 아이디
      * @type string
-     * @description 응급센터 아이디
+     * @title 응급센터 id
      */
     emergency_center_id: string;
 
     /**
+     * 직원 고유 아이디
      * @type string
-     * @description 직원 고유아이디
+     * @title 직원 고유 아이디
      */
     id_card: string;
 
     /**
+     * @title 비밀번호
      * @type string
-     * @description 직원 비밀번호
      */
     password: string;
   }
