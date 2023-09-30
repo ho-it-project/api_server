@@ -8,24 +8,27 @@ import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { er_Employee } from '@prisma/client';
-import { AuthController } from '@src/auth/controller/er.auth.controller';
+import { ErAuthController } from '@src/auth/controller/er.auth.controller';
 import { ErAuth } from '@src/auth/interface/er.auth.interface';
-import { AuthService } from '@src/auth/provider/ems.auth.service';
+import { AuthService } from '@src/auth/provider/common.auth.service';
+import { ErAuthService } from '@src/auth/provider/er.auth.service';
+
 import { ErJwtAccessStrategy } from '@src/auth/strategy/er.jwt.access.strategy';
 import { ErJwtRefreshStrategy } from '@src/auth/strategy/er.jwt.refresh.strategy';
 import { ErAuthRequest } from '@src/types';
 import Express from 'express';
 import typia from 'typia';
 describe('authController', () => {
-  let authController: AuthController;
+  let authController: ErAuthController;
   let mockPrismaService: PrismaService;
 
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
-      controllers: [AuthController],
+      controllers: [ErAuthController],
       providers: [
         ErJwtAccessStrategy,
         ErJwtRefreshStrategy,
+        ErAuthService,
         AuthService,
         { provide: JWT_OPTIONS, useValue: jwtOption },
         {
@@ -42,7 +45,7 @@ describe('authController', () => {
         JwtModule,
       ],
     }).compile();
-    authController = app.get<AuthController>(AuthController);
+    authController = app.get<ErAuthController>(ErAuthController);
   });
 
   describe('GET: /api/auth checkAuthStatus', () => {

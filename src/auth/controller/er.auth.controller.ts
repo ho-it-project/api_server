@@ -10,10 +10,14 @@ import { assertPrune } from 'typia/lib/misc';
 import { throwError } from '../../config/errors/index';
 import { ErJwtRefreshuthGuard } from '../guard/er.jwt.refresh.guard';
 import { ErAuth } from '../interface/er.auth.interface';
-import { AuthService } from '../provider/ems.auth.service';
+import { AuthService } from '../provider/common.auth.service';
+import { ErAuthService } from '../provider/er.auth.service';
 @Controller('/er/auth')
-export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+export class ErAuthController {
+  constructor(
+    private readonly erAuthService: ErAuthService,
+    private readonly authService: AuthService,
+  ) {}
 
   /**
    * 로그인 상태 확인 및 토큰 재발급
@@ -82,7 +86,7 @@ export class AuthController {
    *
    * @author de-novo
    * @tag er_auth
-   * @summary 2023-09-30 - 로그인 API 
+   * @summary 2023-09-30 - 로그인 API
    *
    * @param loginDTO - 로그인 정보
    * @return {ErAuthResponse.Login} 로그인
@@ -95,7 +99,7 @@ export class AuthController {
     @TypedBody() loginDTO: ErAuthRequest.LoginDTO,
     @Res({ passthrough: true }) response: Response,
   ): Promise<TryCatch<ErAuthResponse.Login, AUTH_ERROR.EMPLOYEE_NOT_FOUND | AUTH_ERROR.PASSWORD_INCORRECT>> {
-    const loginResult = await this.authService.login(loginDTO);
+    const loginResult = await this.erAuthService.login(loginDTO);
     if (isError(loginResult)) {
       return throwError(loginResult);
     }
