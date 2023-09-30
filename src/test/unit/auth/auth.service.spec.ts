@@ -7,7 +7,7 @@ import { er_Employee } from '@prisma/client';
 import { ErAuth } from '@src/auth/interface/er.auth.interface';
 import { ErAuthRequest } from '@src/types';
 import typia from 'typia';
-import { AuthService } from '../../../auth/provider/auth.service';
+import { AuthService } from '../../../auth/provider/ems.auth.service';
 interface DateString {
   created_at: string;
   updated_at: string;

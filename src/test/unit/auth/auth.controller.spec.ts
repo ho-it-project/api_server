@@ -10,7 +10,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { er_Employee } from '@prisma/client';
 import { AuthController } from '@src/auth/controller/er.auth.controller';
 import { ErAuth } from '@src/auth/interface/er.auth.interface';
-import { AuthService } from '@src/auth/provider/auth.service';
+import { AuthService } from '@src/auth/provider/ems.auth.service';
 import { ErJwtAccessStrategy } from '@src/auth/strategy/er.jwt.access.strategy';
 import { ErJwtRefreshStrategy } from '@src/auth/strategy/er.jwt.refresh.strategy';
 import { ErAuthRequest } from '@src/types';

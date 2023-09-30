@@ -10,7 +10,7 @@ import { assertPrune } from 'typia/lib/misc';
 import { throwError } from '../../config/errors/index';
 import { ErJwtRefreshuthGuard } from '../guard/er.jwt.refresh.guard';
 import { ErAuth } from '../interface/er.auth.interface';
-import { AuthService } from '../provider/auth.service';
+import { AuthService } from '../provider/ems.auth.service';
 @Controller('/er/auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -82,10 +82,10 @@ export class AuthController {
    *
    * @author de-novo
    * @tag er_auth
-   * @summary 2023-09-30 - 로그인 API
+   * @summary 2023-09-30 - 로그인 API 
    *
    * @param loginDTO - 로그인 정보
-   * @return {ErAuthResponse.Login} 200 - 로그인
+   * @return {ErAuthResponse.Login} 로그인
    * @returns
    */
   @TypedRoute.Post('/login')

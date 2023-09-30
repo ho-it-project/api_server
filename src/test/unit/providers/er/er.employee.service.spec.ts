@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Prisma, PrismaPromise, er_Employee, er_EmployeeRole } from '@prisma/client';
 import { ErAuth } from '@src/auth/interface';
-import { AuthService } from '@src/auth/provider/auth.service';
+import { AuthService } from '@src/auth/provider/ems.auth.service';
 import { ErEmployeeService } from '@src/providers/er/er.employee.service';
 import { ErEmployeeRequest } from '@src/types';
 import typia, { tags } from 'typia';
@@ -286,14 +286,6 @@ describe('ErEmployeeService', () => {
         },
         orderBy: {
           created_at: 'desc',
-        },
-        select: {
-          employee_id: true,
-          id_card: true,
-          employee_name: true,
-          role: true,
-          created_at: true,
-          updated_at: true,
         },
       };
       expect(mockPrismaService.er_Employee.findMany).toBeCalled();

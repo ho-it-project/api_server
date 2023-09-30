@@ -2,7 +2,7 @@ import { PrismaService } from '@common/prisma/prisma.service';
 import { ER_EMPLOYEE_ERROR } from '@config/errors';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { AuthService } from '@src/auth/provider/auth.service';
+import { AuthService } from '@src/auth/provider/ems.auth.service';
 import typia from 'typia';
 import { ErEmployee } from '../interface/er/er.employee.interface';
 
