@@ -1,3 +1,4 @@
+import { ems_Employee } from '@prisma/client';
 import { EmsAuth } from '@src/auth/interface';
 
 export namespace EmsAuthResponse {
@@ -22,5 +23,28 @@ export namespace EmsAuthResponse {
   export interface CheckAuthStatus {
     is_login: boolean;
     employee: EmsAuth.AccessTokenSignPayload | null;
+  }
+}
+
+export namespace EmsEmployeeResponse {
+  export interface CreateManyEmployee {
+    /**
+     * 생성된 직원의 수
+     * @type number
+     * @title 생성된 직원의 수
+     */
+    count: number;
+  }
+
+  export interface CheckManyEmployeeExist {
+    /**
+     * 존재하는 직원의 수
+     * @type number
+     * @title 존재하는 직원의 수
+     */
+    exists: Pick<ems_Employee, 'id_card'>[];
+  }
+  export interface UpdatePassword {
+    update_success: boolean;
   }
 }

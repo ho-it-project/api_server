@@ -7,7 +7,9 @@ import { Controller, UseGuards } from '@nestjs/common';
 import { EmsJwtAccessAuthGuard } from '@src/auth/guard/ems.jwt.access.guard';
 import { EmsAuth } from '@src/auth/interface';
 import { EmsEmployeeService } from '@src/providers/ems/ems.employee.service';
+import { Try, TryCatch } from '@src/types';
 import { EmsEmployeeRequest } from '@src/types/ems.request.dto';
+import { EmsEmployeeResponse } from '@src/types/ems.response.dto';
 
 @Controller('/ems/employee')
 export class EmsEmployeeController {
@@ -46,7 +48,12 @@ export class EmsEmployeeController {
   async createManyEmployee(
     @TypedBody() createManyDto: EmsEmployeeRequest.CreateManyDTO,
     @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
-  ) {
+  ): Promise<
+    TryCatch<
+      EmsEmployeeResponse.CreateManyEmployee,
+      AUTH_ERROR.FORBIDDEN | EMS_EMPLOYEE_ERROR.EMPLOYEE_MULTIPLE_ALREADY_EXIST
+    >
+  > {
     const result = await this.emsEmployeeService.createManyEmployee({
       ...createManyDto,
       user,
@@ -60,6 +67,32 @@ export class EmsEmployeeController {
   @TypedRoute.Get('/:employee_id')
   async getEmployee() {}
 
+  /**
+   * 직원 중복체크 API
+   * 직원들을 중복체크한다.
+   * 한번에 여러명의 직원을 중복체크할 수 있다.
+   *
+   * 필수값 : [id_card]
+   *
+   * @author de-novo
+   * @tag ems_employee
+   * @summary 2023-10-01 - 직원 중복체크 API
+   *
+   * @param body
+   * @param user
+   * @returns {EmsEmployeeResponse.CheckManyEmployeeExist} 중복체크 결과
+   */
   @TypedRoute.Post('/exists')
-  async CheckManyEmployeeExist() {}
+  @UseGuards(EmsJwtAccessAuthGuard, AdminGuard)
+  @TypedException<AUTH_ERROR.FORBIDDEN>(403, 'AUTH_ERROR.FORBIDDEN')
+  async CheckManyEmployeeExist(
+    @TypedBody() body: EmsEmployeeRequest.CheckManyExistDTO,
+    @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
+  ): Promise<Try<EmsEmployeeResponse.CheckManyEmployeeExist>> {
+    const result = await this.emsEmployeeService.checkManyEmployeeExist({
+      ...body,
+      ambulance_company_id: user.ambulance_company_id,
+    });
+    return createResponse({ exists: result });
+  }
 }

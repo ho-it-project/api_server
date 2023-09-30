@@ -65,10 +65,10 @@ export class ErEmployeeController {
    * @param body
    * @param user
    * @security access_token
-   * @returns {ErEmployeeResponse.CheckManyEmployeeExist}
+   * @returns {ErEmployeeResponse.CheckManyEmployeeExist} 중복체크 결과
    */
   @TypedRoute.Post('/exists')
-  @UseGuards(ErJwtAccessAuthGuard)
+  @UseGuards(ErJwtAccessAuthGuard, AdminGuard)
   @TypedException<AUTH_ERROR.FORBIDDEN>(403, 'AUTH_ERROR.FORBIDDEN')
   async checkManyEmployeeExist(
     @TypedBody() body: ErEmployeeRequest.CheckManyExistDTO,
