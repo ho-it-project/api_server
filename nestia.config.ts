@@ -13,6 +13,18 @@ export const NESTIA_CONFIG: INestiaConfig = {
         description: 'Local Server',
       },
     ],
+    security: {
+      refresh_token: {
+        type: 'apiKey',
+        name: 'refresh_token',
+        in: 'cookie',
+      },
+      access_token: {
+        type: 'apiKey',
+        name: 'access_token',
+        in: 'cookie',
+      },
+    },
   },
 };
 export default NESTIA_CONFIG;

@@ -1,14 +1,16 @@
+import { AUTH_ERROR, createError } from '@config/errors';
 import { Reflector } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
-import { JwtRefreshuthGuard } from '@src/auth/guard/jwt.refresh.guard';
+import { ErJwtAccessAuthGuard } from '@src/auth/guard/er.jwt.access.guard';
+import typia from 'typia';
 
-describe('JwtRefreshuthGuard', () => {
-  let guard: JwtRefreshuthGuard;
+describe('ErJwtAccessAuthGuard', () => {
+  let guard: ErJwtAccessAuthGuard;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        JwtRefreshuthGuard,
+        ErJwtAccessAuthGuard,
         {
           provide: Reflector,
           useValue: {},
@@ -16,7 +18,7 @@ describe('JwtRefreshuthGuard', () => {
       ],
     }).compile();
 
-    guard = module.get<JwtRefreshuthGuard>(JwtRefreshuthGuard);
+    guard = module.get<ErJwtAccessAuthGuard>(ErJwtAccessAuthGuard);
   });
 
   it('should be defined', () => {
@@ -29,9 +31,8 @@ describe('JwtRefreshuthGuard', () => {
       expect(guard.handleRequest(null, user)).toEqual(user);
     });
 
-    it('should throw error if error is defined', () => {
-      const error = new Error('Test error');
-      expect(() => guard.handleRequest(error, null)).toThrow(error);
+    it('should throw ForbiddenException if user is not defined', () => {
+      expect(() => guard.handleRequest(null, null)).toThrow(createError(typia.random<AUTH_ERROR.FORBIDDEN>()));
     });
   });
 });

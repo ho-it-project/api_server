@@ -1,13 +1,12 @@
 import { PrismaService } from '@common/prisma/prisma.service';
-import { BadRequestException } from '@nestjs/common';
+import { ER_EMPLOYEE_ERROR, isError } from '@config/errors';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Prisma, PrismaPromise, er_Employee, er_EmployeeRole } from '@prisma/client';
-import { Auth } from '@src/auth/interface/auth.interface';
-import { AuthService } from '@src/auth/provider/auth.service';
+import { ErAuth } from '@src/auth/interface';
+import { AuthService } from '@src/auth/provider/ems.auth.service';
 import { ErEmployeeService } from '@src/providers/er/er.employee.service';
 import { ErEmployeeRequest } from '@src/types';
-import { ER_EMPLOYEE_ERROR } from '@src/types/errors';
 import typia, { tags } from 'typia';
 
 describe('ErEmployeeService', () => {
@@ -114,8 +113,11 @@ describe('ErEmployeeService', () => {
     it('should be return newEmployees', async () => {
       const result = await erEmployeeService.createManyEmployee({
         employees: createManyEmployee.employees,
-        user: typia.random<Auth.AccessTokenSignPayload>(),
+        user: typia.random<ErAuth.AccessTokenSignPayload>(),
       });
+      if (isError(result)) {
+        throw Error('test fail');
+      }
       expect(result).toBeDefined();
       expect(result).toHaveProperty('count');
       expect(result.count).toEqual(createManyEmployee.employees.length);
@@ -124,7 +126,7 @@ describe('ErEmployeeService', () => {
     it('should be call checkManyEmployeeExist', async () => {
       await erEmployeeService.createManyEmployee({
         employees: createManyEmployee.employees,
-        user: typia.random<Auth.AccessTokenSignPayload>(),
+        user: typia.random<ErAuth.AccessTokenSignPayload>(),
       });
       expect(erEmployeeService.checkManyEmployeeExist).toBeCalled();
     });
@@ -134,24 +136,17 @@ describe('ErEmployeeService', () => {
         .spyOn(erEmployeeService, 'checkManyEmployeeExist')
         .mockImplementation(async () => [...createManyEmployee.employees]);
 
-      const result = erEmployeeService.createManyEmployee({
+      const result = await erEmployeeService.createManyEmployee({
         employees: createManyEmployee.employees,
-        user: typia.random<Auth.AccessTokenSignPayload>(),
+        user: typia.random<ErAuth.AccessTokenSignPayload>(),
       });
-      await expect(result).rejects.toThrowError();
-      await expect(result).rejects.toThrowError(
-        new BadRequestException(
-          ER_EMPLOYEE_ERROR.EMPLOYEE_MULTIPLE_ALREADY_EXIST(
-            createManyEmployee.employees.map((employee) => employee.id_card).join(', '),
-          ),
-        ),
-      );
+      expect(result).toEqual(typia.random<ER_EMPLOYEE_ERROR.EMPLOYEE_MULTIPLE_ALREADY_EXIST>());
     });
 
     it('should be call hashPassword', async () => {
       await erEmployeeService.createManyEmployee({
         employees: createManyEmployee.employees,
-        user: typia.random<Auth.AccessTokenSignPayload>(),
+        user: typia.random<ErAuth.AccessTokenSignPayload>(),
       });
       expect(mockAuthService.hashPassword).toBeCalled();
     });
@@ -159,7 +154,7 @@ describe('ErEmployeeService', () => {
     it('should be call er_Employee.createMany', async () => {
       await erEmployeeService.createManyEmployee({
         employees: createManyEmployee.employees,
-        user: typia.random<Auth.AccessTokenSignPayload>(),
+        user: typia.random<ErAuth.AccessTokenSignPayload>(),
       });
       expect(mockPrismaService.er_Employee.createMany).toBeCalled();
     });
@@ -167,7 +162,7 @@ describe('ErEmployeeService', () => {
     it('should be call er_Employee.createMany with data', async () => {
       await erEmployeeService.createManyEmployee({
         employees: createManyEmployee.employees,
-        user: typia.random<Auth.AccessTokenSignPayload>(),
+        user: typia.random<ErAuth.AccessTokenSignPayload>(),
       });
       expect(mockPrismaService.er_Employee.createMany).toBeCalledWith({
         data: createManyEmployee.employees.map((employee) => ({
@@ -211,6 +206,9 @@ describe('ErEmployeeService', () => {
         hospital_id: typia.random<string>(),
         now_password,
       });
+      if (isError(result)) {
+        throw Error('test fail');
+      }
       expect(result).toBeDefined();
       expect(result).toHaveProperty('password');
       await expect(
@@ -219,27 +217,25 @@ describe('ErEmployeeService', () => {
     });
 
     it('should be throw BadRequestException when er_Employee is not exist', async () => {
-      const result = erEmployeeService.updatePassword({
+      const result = await erEmployeeService.updatePassword({
         id_card: typia.random<string>(),
         password: typia.random<string>(),
         hospital_id: typia.random<string>(),
         now_password: typia.random<string>(),
       });
-      await expect(result).rejects.toThrowError(BadRequestException);
-      await expect(result).rejects.toThrowError(new BadRequestException(ER_EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND));
+      expect(result).toEqual(typia.random<ER_EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND>());
     });
 
-    it('should be throw BadRequestionExtion when now_password is invalid', async () => {
+    it('should be return EMPLOYEE_PASSWORD_INVALID when now_password is invalid', async () => {
       const er = typia.random<er_Employee>();
       jest.spyOn(mockPrismaService.er_Employee, 'findFirst').mockImplementation(async () => er);
-      const result = erEmployeeService.updatePassword({
+      const result = await erEmployeeService.updatePassword({
         id_card: typia.random<string>(),
         password: typia.random<string>(),
         hospital_id: typia.random<string>(),
         now_password: typia.random<string>(),
       });
-      await expect(result).rejects.toThrowError(BadRequestException);
-      await expect(result).rejects.toThrowError(new BadRequestException(ER_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_INVALID));
+      expect(result).toEqual(typia.random<ER_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_INVALID>());
     });
   });
 
@@ -265,7 +261,7 @@ describe('ErEmployeeService', () => {
         role: typia.random<er_EmployeeRole>(),
       };
       const { page, limit, search, search_type, role } = mockQuery;
-      const user = typia.random<Auth.AccessTokenSignPayload>();
+      const user = typia.random<ErAuth.AccessTokenSignPayload>();
       const skip = (page - 1) * limit;
       const { hospital_id } = user;
       await erEmployeeService.getEmployeeListByQuery({ query: mockQuery, user });
@@ -291,14 +287,6 @@ describe('ErEmployeeService', () => {
         orderBy: {
           created_at: 'desc',
         },
-        select: {
-          employee_id: true,
-          id_card: true,
-          employee_name: true,
-          role: true,
-          created_at: true,
-          updated_at: true,
-        },
       };
       expect(mockPrismaService.er_Employee.findMany).toBeCalled();
       expect(mockPrismaService.er_Employee.findMany).toBeCalledWith(arg);
@@ -312,7 +300,7 @@ describe('ErEmployeeService', () => {
         search_type: typia.random<'id_card' | 'employee_name'>(),
         role: typia.random<er_EmployeeRole>(),
       };
-      const user = typia.random<Auth.AccessTokenSignPayload>();
+      const user = typia.random<ErAuth.AccessTokenSignPayload>();
       const mockEmployees = typia.random<Omit<er_Employee, 'password'>[]>();
       jest.spyOn(mockPrismaService.er_Employee, 'findMany').mockImplementation(async () => mockEmployees);
       jest.spyOn(mockPrismaService.er_Employee, 'count').mockImplementation(async () => mockEmployees.length);

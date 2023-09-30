@@ -1,14 +1,13 @@
 import { PrismaService } from '@common/prisma/prisma.service';
-import { UnauthorizedException } from '@nestjs/common';
+import { AUTH_ERROR, createError } from '@config/errors';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Auth } from '@src/auth/interface/auth.interface';
-import { JwtAccessStrategy } from '@src/auth/strategy/jwt.access.strategy';
-import { AUTH_ERROR } from '@src/types/errors';
+import { ErAuth } from '@src/auth/interface/er.auth.interface';
+import { ErJwtAccessStrategy } from '@src/auth/strategy/er.jwt.access.strategy';
 import typia from 'typia';
 
-describe('JwtAccessStrategy', () => {
-  let strategy: JwtAccessStrategy;
+describe('ErJwtAccessStrategy', () => {
+  let strategy: ErJwtAccessStrategy;
   let mockPrismaService: jest.MockedObjectDeep<PrismaService>;
   //   let mockEmployee: er_Employee;
   beforeEach(async () => {
@@ -17,7 +16,7 @@ describe('JwtAccessStrategy', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        JwtAccessStrategy,
+        ErJwtAccessStrategy,
         {
           provide: ConfigService,
           useValue: {
@@ -30,7 +29,7 @@ describe('JwtAccessStrategy', () => {
         },
       ],
     }).compile();
-    strategy = module.get<JwtAccessStrategy>(JwtAccessStrategy);
+    strategy = module.get<ErJwtAccessStrategy>(ErJwtAccessStrategy);
   });
 
   it('should be defined', () => {
@@ -39,7 +38,7 @@ describe('JwtAccessStrategy', () => {
 
   describe('validate', () => {
     it('should be return user if user is found', async () => {
-      const mockUser = typia.random<Auth.AccessTokenSignPayload>();
+      const mockUser = typia.random<ErAuth.AccessTokenSignPayload>();
       mockPrismaService.er_Employee.findFirst = jest.fn().mockResolvedValue(mockUser);
       const result = await strategy.validate(mockUser);
       expect(result).toEqual(mockUser);
@@ -47,11 +46,8 @@ describe('JwtAccessStrategy', () => {
 
     it('should throw UnauthorizedException if user is not found', async () => {
       mockPrismaService.er_Employee.findFirst = jest.fn().mockResolvedValue(null);
-      await expect(strategy.validate(typia.random<Auth.AccessTokenSignPayload>())).rejects.toThrow(
-        UnauthorizedException,
-      );
-      await expect(strategy.validate(typia.random<Auth.AccessTokenSignPayload>())).rejects.toThrow(
-        new UnauthorizedException(AUTH_ERROR.ACCESS_TOKEN_FAILURE),
+      await expect(strategy.validate(typia.random<ErAuth.AccessTokenSignPayload>())).rejects.toThrow(
+        createError(typia.random<AUTH_ERROR.ACCESS_TOKEN_FAILURE>()),
       );
     });
   });

@@ -1,8 +1,9 @@
 import { PrismaService } from '@common/prisma/prisma.service';
-import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
+import { ER_EMPLOYEE_ERROR } from '@config/errors';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { AuthService } from '@src/auth/provider/auth.service';
-import { ER_EMPLOYEE_ERROR } from '@src/types/errors';
+import { AuthService } from '@src/auth/provider/ems.auth.service';
+import typia from 'typia';
 import { ErEmployee } from '../interface/er/er.employee.interface';
 
 Injectable();
@@ -22,11 +23,7 @@ export class ErEmployeeService {
       hospital_id,
     });
     if (existEmployeeIdCards.length > 0) {
-      throw new BadRequestException(
-        ER_EMPLOYEE_ERROR.EMPLOYEE_MULTIPLE_ALREADY_EXIST(
-          existEmployeeIdCards.map((employee) => employee.id_card).join(', '),
-        ),
-      );
+      return typia.random<ER_EMPLOYEE_ERROR.EMPLOYEE_MULTIPLE_ALREADY_EXIST>();
     }
     const employeeInfos = await Promise.all(
       employees.map(async (employee) => {
@@ -72,14 +69,22 @@ export class ErEmployeeService {
       },
     });
     if (!existEmployee) {
-      throw new BadRequestException(ER_EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND);
+      return typia.random<ER_EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND>();
     }
-    const comparePassword = await this.authService.comparePassword({
+    const beforeComparePassword = await this.authService.comparePassword({
+      password,
+      hash: existEmployee.password,
+    });
+    if (beforeComparePassword) {
+      return typia.random<ER_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_SAME>();
+    }
+
+    const nowComparePassword = await this.authService.comparePassword({
       password: now_password,
       hash: existEmployee.password,
     });
-    if (!comparePassword) {
-      throw new BadRequestException(ER_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_INVALID);
+    if (!nowComparePassword) {
+      return typia.random<ER_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_INVALID>();
     }
     const updatedEmployee = await this.prismaService.er_Employee.update({
       where: {
@@ -126,14 +131,6 @@ export class ErEmployeeService {
       },
       orderBy: {
         created_at: 'desc',
-      },
-      select: {
-        employee_id: true,
-        id_card: true,
-        employee_name: true,
-        role: true,
-        created_at: true,
-        updated_at: true,
       },
     };
     const employees: ErEmployee.GetEmpoyeeWithoutPassword[] = await this.prismaService.er_Employee.findMany(arg);

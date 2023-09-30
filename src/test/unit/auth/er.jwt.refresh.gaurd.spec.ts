@@ -1,16 +1,14 @@
-import { ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
-import { JwtAccessAuthGuard } from '@src/auth/guard/jwt.access.guard';
-import { AUTH_ERROR } from '@src/types/errors';
+import { ErJwtRefreshuthGuard } from '@src/auth/guard/er.jwt.refresh.guard';
 
-describe('JwtAccessAuthGuard', () => {
-  let guard: JwtAccessAuthGuard;
+describe('ErJwtRefreshuthGuard', () => {
+  let guard: ErJwtRefreshuthGuard;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        JwtAccessAuthGuard,
+        ErJwtRefreshuthGuard,
         {
           provide: Reflector,
           useValue: {},
@@ -18,7 +16,7 @@ describe('JwtAccessAuthGuard', () => {
       ],
     }).compile();
 
-    guard = module.get<JwtAccessAuthGuard>(JwtAccessAuthGuard);
+    guard = module.get<ErJwtRefreshuthGuard>(ErJwtRefreshuthGuard);
   });
 
   it('should be defined', () => {
@@ -29,11 +27,6 @@ describe('JwtAccessAuthGuard', () => {
     it('should return user if user is defined', () => {
       const user = { id: 1, username: 'test' };
       expect(guard.handleRequest(null, user)).toEqual(user);
-    });
-
-    it('should throw ForbiddenException if user is not defined', () => {
-      expect(() => guard.handleRequest(null, null)).toThrow(ForbiddenException);
-      expect(() => guard.handleRequest(null, null)).toThrow(new ForbiddenException(AUTH_ERROR.FORBIDDEN));
     });
 
     it('should throw error if error is defined', () => {

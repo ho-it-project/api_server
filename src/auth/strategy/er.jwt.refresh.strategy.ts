@@ -1,16 +1,19 @@
 import { PrismaService } from '@common/prisma/prisma.service';
-import { JWT_AUTH_REFRESH_GUARD } from '@config/constant';
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { ER_JWT_AUTH_REFRESH_GUARD } from '@config/constant';
+import { throwError } from '@config/errors';
+import { AUTH_ERROR } from '@config/errors/auth.error';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { AUTH_ERROR } from '../../types/errors/auth.error';
-import { Auth } from '../interface/auth.interface';
+import typia from 'typia';
+import { assertPrune } from 'typia/lib/misc';
+import { ErAuth } from '../interface/er.auth.interface';
 import { refreshTokenExtractorFromCookeis } from '../util/jwtExtractorFromCookeis';
 
 @Injectable()
-export class JwtRefreshStrategy extends PassportStrategy(Strategy, JWT_AUTH_REFRESH_GUARD) {
-  private readonly logger = new Logger(JwtRefreshStrategy.name);
+export class ErJwtRefreshStrategy extends PassportStrategy(Strategy, ER_JWT_AUTH_REFRESH_GUARD) {
+  private readonly logger = new Logger(ErJwtRefreshStrategy.name);
   constructor(
     readonly configService: ConfigService,
     private readonly prismaService: PrismaService,
@@ -21,7 +24,7 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, JWT_AUTH_REFR
     });
   }
 
-  async validate(payload: Auth.RefreshTokenSignPayload): Promise<Auth.RefreshTokenSignPayload> {
+  async validate(payload: ErAuth.RefreshTokenSignPayload): Promise<ErAuth.RefreshTokenSignPayload> {
     this.logger.debug('JwtAccessStrategy.validate');
     const { employee_id, emergency_center_id } = payload;
     const user = await this.prismaService.er_Employee.findFirst({
@@ -37,9 +40,9 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, JWT_AUTH_REFR
       },
     });
     if (user) {
-      return payload;
+      return assertPrune<ErAuth.AccessTokenSignPayload>({ ...user, emergency_center_id });
     } else {
-      throw new UnauthorizedException(AUTH_ERROR.REFRESH_TOKEN_FAILURE);
+      return throwError(typia.random<AUTH_ERROR.REFRESH_TOKEN_FAILURE>());
     }
   }
 }
