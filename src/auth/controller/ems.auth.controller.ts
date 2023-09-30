@@ -30,7 +30,7 @@ export class EmsAuthController {
    *
    *
    * @author de-novo
-   * @tag er_auth
+   * @tag ems_auth
    * @summary 2023-09-30 - 로그인 상태 확인 및 토큰 재발급 API
    *
    * @security refresh_token
@@ -127,7 +127,7 @@ export class EmsAuthController {
    * - 로그아웃을 한다.
    * - 로그아웃시, refresh_token과 access_token을 쿠키에서 삭제한다.
    * @author de-novo
-   * @tag er_auth
+   * @tag ems_auth
    * @summary 2023-09-30 - 로그아웃 API
    *
    * @security refresh_token
