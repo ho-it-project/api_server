@@ -1,6 +1,15 @@
 import { PrismaService } from '@common/prisma/prisma.service';
 import { Injectable, Logger } from '@nestjs/common';
-import { er_Department, er_EmergencyCenter, er_EmployeeRole, er_Hospital, er_MedicalEquipment } from '@prisma/client';
+import {
+  ems_Ambulance,
+  ems_AmbulanceCompany,
+  ems_EmployeeRole,
+  er_Department,
+  er_EmergencyCenter,
+  er_EmployeeRole,
+  er_Hospital,
+  er_MedicalEquipment,
+} from '@prisma/client';
 import bcrypt from 'bcrypt';
 import fs from 'fs';
 import path from 'path';
@@ -12,7 +21,9 @@ export class DbInit {
     if (process.env.NODE_ENV === 'production' || process.env.DATABASE_URL?.indexOf('ho-it') !== -1) return;
 
     this.logger.debug('init');
+    this.logger.debug('delete all');
     await this.deleteAll();
+    this.logger.debug('er setup');
     await this.hospitalSetup();
     await this.emergencyCenterSetup();
     await this.departmentSetup();
@@ -21,6 +32,11 @@ export class DbInit {
     await this.emergencyRoomSetup();
     await this.emergencyRoomBedSetup();
     await this.employeeSetup();
+
+    this.logger.debug('ems setup');
+    await this.ambulanceCompanySetup();
+    await this.ambulanceSetup();
+    await this.ambulanceCompanyEmployeeSetup();
   }
   async deleteAll() {
     this.logger.debug('delete all');
@@ -36,6 +52,10 @@ export class DbInit {
     await this.prismaService.er_Hospital.deleteMany({ where: {} });
     await this.prismaService.er_MedicalEquipment.deleteMany({ where: {} });
     await this.prismaService.er_Department.deleteMany({ where: {} });
+
+    await this.prismaService.ems_Ambulance.deleteMany({ where: {} });
+    await this.prismaService.ems_AmbulanceCompany.deleteMany({ where: {} });
+    await this.prismaService.ems_Employee.deleteMany({ where: {} });
   }
   async hospitalSetup() {
     this.logger.debug('hospitalSetup');
@@ -118,7 +138,6 @@ export class DbInit {
     this.logger.debug('employeeSetup');
     const file_path = path.join(__dirname, '../../../src/common/database/emergency_center.db.json');
     const json: er_EmergencyCenter[] = JSON.parse(fs.readFileSync(file_path, 'utf-8'));
-    json;
 
     const employees = await Promise.all(
       json.map(async (emergency_center) => {
@@ -136,6 +155,51 @@ export class DbInit {
     );
 
     await this.prismaService.er_Employee.createMany({
+      data: employees,
+      skipDuplicates: true,
+    });
+  }
+
+  async ambulanceCompanySetup() {
+    this.logger.debug('ambulanceCompanySetup');
+    const file_path = path.join(__dirname, '../../../src/common/database/ambulance_company.db.json');
+    const json: ems_AmbulanceCompany[] = JSON.parse(fs.readFileSync(file_path, 'utf-8'));
+    await this.prismaService.ems_AmbulanceCompany.createMany({
+      data: json,
+      skipDuplicates: true,
+    });
+  }
+
+  async ambulanceSetup() {
+    this.logger.debug('ambulanceSetup');
+    const file_path = path.join(__dirname, '../../../src/common/database/ambulance.db.json');
+    const json: ems_Ambulance[] = JSON.parse(fs.readFileSync(file_path, 'utf-8'));
+    await this.prismaService.ems_Ambulance.createMany({
+      data: json,
+      skipDuplicates: true,
+    });
+  }
+
+  async ambulanceCompanyEmployeeSetup() {
+    this.logger.debug('ambulanceCompanyEmployeeSetup');
+    const file_path = path.join(__dirname, '../../../src/common/database/ambulance_company.db.json');
+    const json: ems_AmbulanceCompany[] = JSON.parse(fs.readFileSync(file_path, 'utf-8'));
+    const employees = await Promise.all(
+      json.map(async (ambulance_company) => {
+        const { ambulance_company_id } = ambulance_company;
+        const employee_name = 'admin';
+        const hashedPassword = await bcrypt.hash('1234', Number(process.env.HASH_SALT));
+        return {
+          ambulance_company_id,
+          employee_name,
+          id_card: 'admin',
+          password: hashedPassword,
+          role: 'ADMIN' as ems_EmployeeRole,
+        };
+      }),
+    );
+
+    await this.prismaService.ems_Employee.createMany({
       data: employees,
       skipDuplicates: true,
     });

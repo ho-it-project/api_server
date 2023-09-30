@@ -355,7 +355,7 @@ enum er_MedicalInstitutionType {
 model ems_AmbulanceCompany {
   ambulance_company_id             String  @id @default(uuid())
   ambulance_company_name           String  @db.VarChar(50)
-  ambulance_company_representative String  @db.VarChar(50)
+  ambulance_company_representative String?  @db.VarChar(50)
   ambulance_company_area           String  @db.VarChar(50)
   ambulance_company_address        String? @db.VarChar(255)
   ambulance_company_phone          String  @db.VarChar(20)
@@ -375,8 +375,8 @@ model ems_AmbulanceCompany {
 
 model ems_Ambulance {
   ambulance_id        String            @id
-  abulance_campany_id String            @db.VarChar(50)
-  abulance_type       ems_AmbulanceType
+  ambulance_company_id String            @db.VarChar(50)
+  ambulance_type       ems_AmbulanceType
   ambulance_number    String            @db.VarChar(50)
 
   /// default
@@ -385,7 +385,7 @@ model ems_Ambulance {
   status     Status   @default(ACTIVE)
 
   ///relation
-  ambulance_company ems_AmbulanceCompany @relation(fields: [abulance_campany_id], references: [ambulance_company_id])
+  ambulance_company ems_AmbulanceCompany @relation(fields: [ambulance_company_id], references: [ambulance_company_id])
 
   @@map("ambulance")
   @@schema("ems")
@@ -395,7 +395,7 @@ model ems_Employee {
   employee_id          String           @id @default(uuid())
   ambulance_company_id String           @db.VarChar(50)
   employee_name        String           @db.VarChar(50)
-  employee_role        ems_EmployeeRole
+  role        ems_EmployeeRole
   id_card              String           @db.VarChar(20)
   password             String           @db.VarChar(255)
 
