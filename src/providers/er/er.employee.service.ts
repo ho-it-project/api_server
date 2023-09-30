@@ -71,11 +71,19 @@ export class ErEmployeeService {
     if (!existEmployee) {
       return typia.random<ER_EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND>();
     }
-    const comparePassword = await this.authService.comparePassword({
+    const beforeComparePassword = await this.authService.comparePassword({
+      password,
+      hash: existEmployee.password,
+    });
+    if (beforeComparePassword) {
+      return typia.random<ER_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_SAME>();
+    }
+
+    const nowComparePassword = await this.authService.comparePassword({
       password: now_password,
       hash: existEmployee.password,
     });
-    if (!comparePassword) {
+    if (!nowComparePassword) {
       return typia.random<ER_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_INVALID>();
     }
     const updatedEmployee = await this.prismaService.er_Employee.update({
@@ -123,14 +131,6 @@ export class ErEmployeeService {
       },
       orderBy: {
         created_at: 'desc',
-      },
-      select: {
-        employee_id: true,
-        id_card: true,
-        employee_name: true,
-        role: true,
-        created_at: true,
-        updated_at: true,
       },
     };
     const employees: ErEmployee.GetEmpoyeeWithoutPassword[] = await this.prismaService.er_Employee.findMany(arg);

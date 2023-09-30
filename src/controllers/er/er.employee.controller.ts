@@ -1,6 +1,6 @@
 import { CurrentUser } from '@common/decorators/CurrentUser';
 import { createResponse } from '@common/interceptor/createResponse';
-import { isError, throwError } from '@config/errors';
+import { ER_EMPLOYEE_ERROR, isError, throwError } from '@config/errors';
 import { AUTH_ERROR } from '@config/errors/auth.error';
 import { TypedBody, TypedException, TypedQuery, TypedRoute } from '@nestia/core';
 import { Controller, UseGuards } from '@nestjs/common';
@@ -8,7 +8,7 @@ import { Prisma } from '@prisma/client';
 import { ErJwtAccessAuthGuard } from '@src/auth/guard/er.jwt.access.guard';
 import { ErAuth } from '@src/auth/interface/er.auth.interface';
 import { ErEmployeeService } from '@src/providers/er/er.employee.service';
-import { ErEmployeeRequest, ErEmployeeResponse, Try } from '@src/types';
+import { ErEmployeeRequest, ErEmployeeResponse, Try, TryCatch } from '@src/types';
 
 @Controller('/er/employee')
 export class ErEmployeeController {
@@ -84,6 +84,9 @@ export class ErEmployeeController {
    *
    * 필수값 : [password, now_password]
    *
+   * 이전과 동일한 비밀번호로 변경할 수 없다.
+   * 비밀번호는 8자리 이상이어야한다.
+   *
    * @author de-novo
    * @tag er_employee
    * @summary 2023-09-30 - 비밀번호 변경 API
@@ -96,20 +99,27 @@ export class ErEmployeeController {
   @TypedRoute.Patch('/')
   @UseGuards(ErJwtAccessAuthGuard)
   @TypedException<AUTH_ERROR.FORBIDDEN>(403, 'AUTH_ERROR.FORBIDDEN')
-  // @TypedException<ER_EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND>(400, 'ER_EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND_RETURN')
-  // @TypedException<ER_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_INVALID>(
-  //   400,
-  //   'ER_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_INVALID_RETURN',
-  // )
+  @TypedException<ER_EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND>(400, 'ER_EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND')
+  @TypedException<ER_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_INVALID>(400, 'ER_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_INVALID')
+  @TypedException<ER_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_SAME>(400, 'ER_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_SAME')
   async updatePassword(
     @TypedBody() body: ErEmployeeRequest.UpdatePasswordDTO,
     @CurrentUser() user: ErAuth.AccessTokenSignPayload,
-  ): Promise<Try<ErEmployeeResponse.UpdatePassword>> {
-    await this.erEmployeeService.updatePassword({
+  ): Promise<
+    TryCatch<
+      ErEmployeeResponse.UpdatePassword,
+      | AUTH_ERROR.FORBIDDEN
+      | ER_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_INVALID
+      | ER_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_INVALID
+      | ER_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_SAME
+    >
+  > {
+    const result = await this.erEmployeeService.updatePassword({
       ...body,
       id_card: user.id_card,
       hospital_id: user.hospital_id,
     });
+    if (isError(result)) return throwError(result);
 
     return createResponse({ update_success: true });
   }

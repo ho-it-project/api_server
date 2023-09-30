@@ -40,7 +40,7 @@ export class ErJwtRefreshStrategy extends PassportStrategy(Strategy, ER_JWT_AUTH
       },
     });
     if (user) {
-      return assertPrune<ErAuth.AccessTokenSignPayload>(user);
+      return assertPrune<ErAuth.AccessTokenSignPayload>({ ...user, emergency_center_id });
     } else {
       return throwError(typia.random<AUTH_ERROR.REFRESH_TOKEN_FAILURE>());
     }

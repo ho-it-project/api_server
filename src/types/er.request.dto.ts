@@ -77,7 +77,7 @@ export namespace ErEmployeeRequest {
      * @type string
      * @title 변경할 직원 비밀번호
      */
-    password: string;
+    password: string & tags.MinLength<8>;
 
     /**
      * 현재 직원의 비밀번호 - 비밀번호가 틀릴경우 에러

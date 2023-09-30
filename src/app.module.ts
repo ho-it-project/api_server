@@ -6,9 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import Joi from 'joi';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module';
-import { ErEmergencyCenterModule } from './modules/er/emergencyCenter.module';
-import { ErEmployeeModule } from './modules/er/employee.module';
+import { ErModule } from './modules/er.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -35,9 +33,7 @@ import { ErEmployeeModule } from './modules/er/employee.module';
     //   groupId: 'hoit',
     // }),
     PrismaModule,
-    AuthModule,
-    ErEmployeeModule,
-    ErEmergencyCenterModule,
+    ErModule,
   ],
   controllers: [AppController],
   providers: [AppService, Logger, DbInit],
