@@ -1,4 +1,5 @@
 import { CurrentUser } from '@common/decorators/CurrentUser';
+import { AdminGuard } from '@common/guard/admin.guard';
 import { createResponse } from '@common/interceptor/createResponse';
 import { ER_EMPLOYEE_ERROR, isError, throwError } from '@config/errors';
 import { AUTH_ERROR } from '@config/errors/auth.error';
@@ -37,10 +38,10 @@ export class ErEmployeeController {
   @TypedRoute.Post('/')
   @UseGuards(ErJwtAccessAuthGuard)
   @TypedException<AUTH_ERROR.FORBIDDEN>(403, 'AUTH_ERROR.FORBIDDEN')
-  // @TypedException<ER_EMPLOYEE_ERROR.EMPLOYEE_MULTIPLE_ALREADY_EXIST_SWAGGER>(
-  //   400,
-  //   'ER_EMPLOYEE_ERROR.EMPLOYEE_MULTIPLE_ALREADY_EXIST_RETURN',
-  // )
+  @TypedException<ER_EMPLOYEE_ERROR.EMPLOYEE_MULTIPLE_ALREADY_EXIST>(
+    400,
+    'ER_EMPLOYEE_ERROR.EMPLOYEE_MULTIPLE_ALREADY_EXIST_RETURN',
+  )
   async createManyEmployee(
     @TypedBody() body: ErEmployeeRequest.CreateManyDTO,
     @CurrentUser() user: ErAuth.AccessTokenSignPayload,
@@ -152,7 +153,7 @@ export class ErEmployeeController {
    * @returns {ErEmployeeResponse.GetEmployeeList} 직원 리스트 조회
    */
   @TypedRoute.Get('/')
-  @UseGuards(ErJwtAccessAuthGuard)
+  @UseGuards(ErJwtAccessAuthGuard, AdminGuard)
   @TypedException<AUTH_ERROR.FORBIDDEN>(403, 'AUTH_ERROR.FORBIDDEN')
   async getEmployeeList(
     @TypedQuery()
