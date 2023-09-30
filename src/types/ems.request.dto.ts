@@ -67,7 +67,6 @@ export namespace EmsEmployeeRequest {
      * 중복체크할 직원의 고유 아이디 리스트
      * @type string[]
      * @title 직원의 고유 아이디 리스트
-     * @minItems 1
      */
     id_cards: string[] & tags.MinItems<1>;
   }

@@ -23,6 +23,8 @@ export class EmsEmployeeController {
    * 직원들을 생성한다.
    * 한번에 여러명의 직원을 생성할 수 있다.
    *
+   * ADMIN 권한이 필요하다.
+   *
    * 필수값 : [id_card, name, password, role]
    *
    * - 조직(회사)마다 id_card는 중복될 수 없다.
@@ -64,13 +66,12 @@ export class EmsEmployeeController {
     return createResponse(result);
   }
 
-  @TypedRoute.Get('/:employee_id')
-  async getEmployee() {}
-
   /**
    * 직원 중복체크 API
    * 직원들을 중복체크한다.
    * 한번에 여러명의 직원을 중복체크할 수 있다.
+   *
+   * ADMIN 권한이 필요하다.
    *
    * 필수값 : [id_card]
    *
@@ -80,6 +81,7 @@ export class EmsEmployeeController {
    *
    * @param body
    * @param user
+   * @security access_token
    * @returns {EmsEmployeeResponse.CheckManyEmployeeExist} 중복체크 결과
    */
   @TypedRoute.Post('/exists')
