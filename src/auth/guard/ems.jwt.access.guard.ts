@@ -7,14 +7,14 @@ import { Observable } from 'rxjs';
 import typia from 'typia';
 
 @Injectable()
-export class ErJwtAccessAuthGuard extends AuthGuard(EMS_JWT_AUTH_ACCESS_GUARD) {
-  private logger = new Logger(ErJwtAccessAuthGuard.name);
+export class EmsJwtAccessAuthGuard extends AuthGuard(EMS_JWT_AUTH_ACCESS_GUARD) {
+  private logger = new Logger(EmsJwtAccessAuthGuard.name);
   canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
     return super.canActivate(context);
   }
 
   handleRequest<TUser = any>(err: any, user: any): TUser {
-    this.logger.debug(`ErJwtAccessAuthGuard.handleRequest`);
+    this.logger.debug(`EmsJwtAccessAuthGuard.handleRequest`);
     if (err || !user) {
       throwError(typia.random<AUTH_ERROR.FORBIDDEN>());
     }

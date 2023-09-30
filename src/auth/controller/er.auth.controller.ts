@@ -38,11 +38,10 @@ export class ErAuthController {
    */
   @TypedRoute.Get('/')
   @UseGuards(ErJwtRefreshuthGuard)
-  @TypedException<AUTH_ERROR.REFRESH_TOKEN_FAILURE>(401, '401 - 토큰 만료')
   async checkAuthStatus(
     @CurrentUser() user: ErAuth.AccessTokenSignPayload,
     @Res({ passthrough: true }) response: Response,
-  ): Promise<TryCatch<ErAuthResponse.CheckAuthStatus, AUTH_ERROR.REFRESH_TOKEN_FAILURE>> {
+  ): Promise<Try<ErAuthResponse.CheckAuthStatus>> {
     if (user) {
       const { access_token, refresh_token } = this.authService.tokenSign(user);
       response.cookie('refresh_token', refresh_token, {
@@ -93,7 +92,7 @@ export class ErAuthController {
    * @returns
    */
   @TypedRoute.Post('/login')
-  @TypedException<AUTH_ERROR.EMPLOYEE_NOT_FOUND>(401, '직원 아이디가 존재하지 않음.')
+  @TypedException<AUTH_ERROR.EMPLOYEE_NOT_FOUND>(400, '직원 아이디가 존재하지 않음.')
   @TypedException<AUTH_ERROR.PASSWORD_INCORRECT>(400, '직원 비밀번호 틀림.')
   async login(
     @TypedBody() loginDTO: ErAuthRequest.LoginDTO,

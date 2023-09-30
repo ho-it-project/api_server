@@ -7,7 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import typia from 'typia';
-import { ErAuth } from '../interface/er.auth.interface';
+import { EmsAuth } from '../interface';
 import { accessTokenExtractorFromCookeis } from '../util/jwtExtractorFromCookeis';
 
 @Injectable()
@@ -23,21 +23,16 @@ export class EmsJwtAccessStrategy extends PassportStrategy(Strategy, EMS_JWT_AUT
     });
   }
 
-  async validate(payload: ErAuth.AccessTokenSignPayload): Promise<ErAuth.AccessTokenSignPayload> {
+  async validate(payload: EmsAuth.AccessTokenSignPayload): Promise<EmsAuth.AccessTokenSignPayload> {
     this.logger.debug('JwtAccessStrategy.validate');
-    const { employee_id, emergency_center_id } = payload;
-    const user = await this.prismaService.er_Employee.findFirst({
+    const { employee_id, ambulance_company_id } = payload;
+    const user = await this.prismaService.ems_Employee.findFirst({
       where: {
         employee_id,
-        hospital: {
-          emergency_center: {
-            every: {
-              emergency_center_id,
-            },
-          },
-        },
+        ambulance_company_id,
       },
     });
+
     if (user) {
       return payload;
     } else {

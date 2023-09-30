@@ -8,7 +8,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import typia from 'typia';
 import { assertPrune } from 'typia/lib/misc';
-import { ErAuth } from '../interface/er.auth.interface';
+import { EmsAuth } from '../interface';
 import { refreshTokenExtractorFromCookeis } from '../util/jwtExtractorFromCookeis';
 
 @Injectable()
@@ -24,23 +24,17 @@ export class EmsJwtRefreshStrategy extends PassportStrategy(Strategy, EMS_JWT_AU
     });
   }
 
-  async validate(payload: ErAuth.RefreshTokenSignPayload): Promise<ErAuth.RefreshTokenSignPayload> {
+  async validate(payload: EmsAuth.RefreshTokenSignPayload): Promise<EmsAuth.AccessTokenSignPayload> {
     this.logger.debug('JwtAccessStrategy.validate');
-    const { employee_id, emergency_center_id } = payload;
-    const user = await this.prismaService.er_Employee.findFirst({
+    const { employee_id, ambulance_company_id } = payload;
+    const user = await this.prismaService.ems_Employee.findFirst({
       where: {
         employee_id,
-        hospital: {
-          emergency_center: {
-            every: {
-              emergency_center_id,
-            },
-          },
-        },
+        ambulance_company_id,
       },
     });
     if (user) {
-      return assertPrune<ErAuth.AccessTokenSignPayload>(user);
+      return assertPrune<EmsAuth.AccessTokenSignPayload>(user);
     } else {
       return throwError(typia.random<AUTH_ERROR.REFRESH_TOKEN_FAILURE>());
     }
