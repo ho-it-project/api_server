@@ -116,6 +116,6 @@
       { "transform": "@nestia/core/lib/transform" }
     ]
   },
-  "include": ["src/**/*.ts", ".eslintrc.js", "src/auth/provider/ems.auth.service.ts"],
+  "include": ["src/**/*.ts", ".eslintrc.js"],
   "exclude": ["node_modules", "packages", "src/test/e2e/**/*.ts"]
 }
