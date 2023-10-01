@@ -101,4 +101,17 @@ export namespace EmsEmployeeRequest {
      */
     search?: string;
   }
+
+  export interface UpdatePasswordDTO {
+    /**
+     * @type string
+     * @title 현재 비밀번호
+     */
+    now_password: string;
+    /**
+     * @type string
+     * @title 변경할 비밀번호
+     */
+    password: string;
+  }
 }
