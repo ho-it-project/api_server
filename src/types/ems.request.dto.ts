@@ -70,4 +70,35 @@ export namespace EmsEmployeeRequest {
      */
     id_cards: string[] & tags.MinItems<1>;
   }
+
+  export interface GetEmployeeListQuery {
+    /**
+     * @type number
+     * @title 페이지 번호
+     * @default 1
+     */
+    page?: number & tags.Minimum<1>;
+    /**
+     * @type number
+     * @title 페이지당 아이템 갯수
+     * @default 10
+     */
+    limit?: number & tags.Minimum<1>;
+    /**
+     * role filter
+     * @type string
+     * @title 직원 role
+     */
+    role?: ems_EmployeeRole[];
+    /**
+     * @type string
+     * @title 검색 타입
+     */
+    search_type?: 'id_card' | 'employee_name';
+    /**
+     * @type string
+     * @title 검색어
+     */
+    search?: string;
+  }
 }

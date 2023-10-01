@@ -101,10 +101,7 @@ export class ErEmployeeService {
     return updatedEmployee;
   }
 
-  async getEmployeeListByQuery({
-    user,
-    query,
-  }: ErEmployee.GetEmployeeList): Promise<ErEmployee.GetEmployeeListQueryReturn> {
+  async getEmployeeListByQuery({ user, query }: ErEmployee.GetEmployeeList) {
     const { hospital_id } = user;
     const { page = 1, limit = 10, search = '', role, search_type } = query;
 

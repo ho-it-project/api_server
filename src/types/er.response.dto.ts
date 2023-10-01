@@ -1,6 +1,5 @@
 import { er_Employee } from '@prisma/client';
 import { ErEmergencyCenter } from '@src/providers/interface/er/er.emergencyCenter.interface';
-import { ErEmployee } from '@src/providers/interface/er/er.employee.interface';
 import { ErAuth } from '../auth/interface/er.auth.interface';
 export namespace ErAuthResponse {
   export interface Login {
@@ -22,7 +21,7 @@ export namespace ErEmployeeResponse {
   export interface CheckManyEmployeeExist {
     exists: Pick<er_Employee, 'id_card'>[];
   }
-  export type GetEmployeeList = ErEmployee.GetEmployeeListQueryReturn;
+  export type GetEmployeeList = { count: number } & { employee_list: Omit<er_Employee, 'password'>[] };
 
   export interface UpdatePassword {
     update_success: boolean;
