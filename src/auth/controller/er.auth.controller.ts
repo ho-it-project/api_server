@@ -10,10 +10,14 @@ import { assertPrune } from 'typia/lib/misc';
 import { throwError } from '../../config/errors/index';
 import { ErJwtRefreshuthGuard } from '../guard/er.jwt.refresh.guard';
 import { ErAuth } from '../interface/er.auth.interface';
-import { AuthService } from '../provider/ems.auth.service';
+import { AuthService } from '../provider/common.auth.service';
+import { ErAuthService } from '../provider/er.auth.service';
 @Controller('/er/auth')
-export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+export class ErAuthController {
+  constructor(
+    private readonly erAuthService: ErAuthService,
+    private readonly authService: AuthService,
+  ) {}
 
   /**
    * 로그인 상태 확인 및 토큰 재발급
@@ -34,11 +38,10 @@ export class AuthController {
    */
   @TypedRoute.Get('/')
   @UseGuards(ErJwtRefreshuthGuard)
-  @TypedException<AUTH_ERROR.REFRESH_TOKEN_FAILURE>(401, '401 - 토큰 만료')
   async checkAuthStatus(
     @CurrentUser() user: ErAuth.AccessTokenSignPayload,
     @Res({ passthrough: true }) response: Response,
-  ): Promise<TryCatch<ErAuthResponse.CheckAuthStatus, AUTH_ERROR.REFRESH_TOKEN_FAILURE>> {
+  ): Promise<Try<ErAuthResponse.CheckAuthStatus>> {
     if (user) {
       const { access_token, refresh_token } = this.authService.tokenSign(user);
       response.cookie('refresh_token', refresh_token, {
@@ -82,20 +85,20 @@ export class AuthController {
    *
    * @author de-novo
    * @tag er_auth
-   * @summary 2023-09-30 - 로그인 API 
+   * @summary 2023-09-30 - 로그인 API
    *
    * @param loginDTO - 로그인 정보
    * @return {ErAuthResponse.Login} 로그인
    * @returns
    */
   @TypedRoute.Post('/login')
-  @TypedException<AUTH_ERROR.EMPLOYEE_NOT_FOUND>(401, '직원 아이디가 존재하지 않음.')
+  @TypedException<AUTH_ERROR.EMPLOYEE_NOT_FOUND>(400, '직원 아이디가 존재하지 않음.')
   @TypedException<AUTH_ERROR.PASSWORD_INCORRECT>(400, '직원 비밀번호 틀림.')
   async login(
     @TypedBody() loginDTO: ErAuthRequest.LoginDTO,
     @Res({ passthrough: true }) response: Response,
   ): Promise<TryCatch<ErAuthResponse.Login, AUTH_ERROR.EMPLOYEE_NOT_FOUND | AUTH_ERROR.PASSWORD_INCORRECT>> {
-    const loginResult = await this.authService.login(loginDTO);
+    const loginResult = await this.erAuthService.login(loginDTO);
     if (isError(loginResult)) {
       return throwError(loginResult);
     }

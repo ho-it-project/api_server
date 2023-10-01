@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import Joi from 'joi';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { EmsModule } from './modules/ems.module';
 import { ErModule } from './modules/er.module';
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { ErModule } from './modules/er.module';
     // }),
     PrismaModule,
     ErModule,
+    EmsModule,
   ],
   controllers: [AppController],
   providers: [AppService, Logger, DbInit],

@@ -1,143 +1,59 @@
 import { PrismaService } from '@common/prisma/prisma.service';
-import { JWT_OPTIONS } from '@config/constant';
-import { AUTH_ERROR } from '@config/errors/auth.error';
-import { JwtOption } from '@config/option/interface';
-import { Inject, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
-import { ErAuthRequest } from '@src/types';
-import * as bcrypt from 'bcrypt';
+import { AUTH_ERROR } from '@config/errors';
+import { Injectable } from '@nestjs/common';
+import { EmsAuthRequest } from '@src/types/ems.request.dto';
 import typia from 'typia';
-import { Auth, EmsAuth, ErAuth } from '../interface';
+import { assertPrune } from 'typia/lib/misc';
+import { EmsAuth } from '../interface';
+import { AuthService } from './common.auth.service';
 
 @Injectable()
-export class AuthService {
+export class EmsAuthService {
   constructor(
+    private readonly authService: AuthService,
     private readonly prismaService: PrismaService,
-    private readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
-    @Inject(JWT_OPTIONS)
-    private readonly jwtOption: JwtOption,
   ) {}
 
   async login({
-    emergency_center_id,
+    ambulance_company_name,
     id_card,
     password,
-  }: ErAuthRequest.LoginDTO): Promise<
-    ErAuth.LoginReturn | AUTH_ERROR.EMPLOYEE_NOT_FOUND | AUTH_ERROR.PASSWORD_INCORRECT
+  }: EmsAuthRequest.LoginDTO): Promise<
+    EmsAuth.LoginReturn | AUTH_ERROR.EMPLOYEE_NOT_FOUND | AUTH_ERROR.PASSWORD_INCORRECT
   > {
-    const existEmployee = await this.prismaService.er_Employee.findFirst({
+    const existEmployee = await this.prismaService.ems_Employee.findFirst({
       where: {
         id_card,
-        hospital: {
-          emergency_center: {
-            every: {
-              emergency_center_id,
-            },
-          },
+        ambulance_company: {
+          ambulance_company_name,
         },
       },
     });
+
     if (!existEmployee) {
       return typia.random<AUTH_ERROR.EMPLOYEE_NOT_FOUND>();
     }
-    const { employee_id, role, hospital_id } = existEmployee;
-    const comparePassword = await this.comparePassword({
+    const { employee_id, role, ambulance_company_id } = existEmployee;
+    const comparePassword = await this.authService.comparePassword({
       password,
       hash: existEmployee.password,
     });
     if (!comparePassword) {
       return typia.random<AUTH_ERROR.PASSWORD_INCORRECT>();
     }
-    const { access_token, refresh_token } = this.tokenSign({ emergency_center_id, ...existEmployee });
+    const { access_token, refresh_token } = this.authService.tokenSign(
+      assertPrune<EmsAuth.AccessTokenSignPayload>({ ...existEmployee }),
+    );
+
     return {
       access_token,
       refresh_token,
       employee: {
-        hospital_id,
-        emergency_center_id,
+        ambulance_company_id,
         employee_id,
         id_card,
         role,
       },
     };
-  }
-
-  async logout() {}
-
-  async hashPassword({ password }: Auth.HashPassword) {
-    const hashedPassword = bcrypt.hash(password, Number(this.configService.get('HASH_SALT')));
-    return hashedPassword;
-  }
-
-  async comparePassword({ password, hash }: Auth.ComparePassword) {
-    return await bcrypt.compare(password, hash);
-  }
-
-  accessTokenSign({ hospital_id, emergency_center_id, employee_id, id_card, role }: ErAuth.AccessTokenSignPayload) {
-    const access_token = this.jwtService.sign(
-      {
-        hospital_id,
-        emergency_center_id,
-        employee_id,
-        id_card,
-        role,
-      },
-      {
-        secret: this.jwtOption.access_secret,
-        expiresIn: this.jwtOption.access_expires_in,
-      },
-    );
-
-    return access_token;
-  }
-
-  accessTokenVerify({ access_token }: Auth.AccessTokenVerify) {
-    try {
-      const verify = this.jwtService.verify<ErAuth.AccessTokenSignPayload | EmsAuth.AccessTokenSignPayload>(
-        access_token,
-        {
-          secret: this.jwtOption.access_secret,
-        },
-      );
-      return verify;
-    } catch (error) {
-      return error;
-    }
-  }
-
-  refreshTokenSign({ hospital_id, emergency_center_id, employee_id, id_card }: ErAuth.RefreshTokenSignPayload) {
-    const refresh_token = this.jwtService.sign(
-      {
-        hospital_id,
-        emergency_center_id,
-        employee_id,
-        id_card,
-      },
-      {
-        secret: this.jwtOption.refresh_secret,
-        expiresIn: this.jwtOption.refresh_expires_in,
-      },
-    );
-
-    return refresh_token;
-  }
-
-  refreshTokenVerify({ refresh_token }: Auth.RefreshTokenVerify) {
-    try {
-      const verify = this.jwtService.verify<ErAuth.RefreshTokenSignPayload>(refresh_token, {
-        secret: this.jwtOption.refresh_secret,
-      });
-      return verify;
-    } catch (error) {
-      return error;
-    }
-  }
-
-  tokenSign(payload: ErAuth.AccessTokenSignPayload) {
-    const access_token = this.accessTokenSign(payload);
-    const refresh_token = this.refreshTokenSign(payload);
-    return { access_token, refresh_token };
   }
 }

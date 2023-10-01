@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Prisma, PrismaPromise, er_Employee, er_EmployeeRole } from '@prisma/client';
 import { ErAuth } from '@src/auth/interface';
-import { AuthService } from '@src/auth/provider/ems.auth.service';
+import { AuthService } from '@src/auth/provider/common.auth.service';
 import { ErEmployeeService } from '@src/providers/er/er.employee.service';
 import { ErEmployeeRequest } from '@src/types';
 import typia, { tags } from 'typia';
@@ -13,6 +13,7 @@ describe('ErEmployeeService', () => {
   let erEmployeeService: ErEmployeeService;
   let mockPrismaService: jest.MockedObjectDeep<PrismaService>;
   let mockAuthService: AuthService;
+
   beforeAll(() => {
     mockPrismaService = jest.mocked(new PrismaService());
   });
@@ -21,7 +22,7 @@ describe('ErEmployeeService', () => {
   });
 
   beforeEach(() => {
-    mockAuthService = new AuthService(mockPrismaService, new JwtService(), new ConfigService(), {
+    mockAuthService = new AuthService(new JwtService(), new ConfigService(), {
       refresh_expires_in: '1d',
       refresh_secret: 'refresh_secret',
       access_expires_in: '1d',
