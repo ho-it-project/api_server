@@ -12,7 +12,7 @@ export class EmsAmbulanceCampanyService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async getAmbulanceCompanyList(query: EmsAmbulanceCompanyRequest.GetAmbulanceCompanyListQuery) {
-    const { page = 1, limit = 10, search = '', city = [], area = [] } = query;
+    const { page = 1, limit = 10, search = '', city = [], area = [], ambulance_type = [] } = query;
     const skip = (page - 1) * limit;
 
     // 입력된 지역명을 정제하여 중복을 제거한다.
@@ -47,6 +47,15 @@ export class EmsAmbulanceCampanyService {
       ...(cleanedCitySet.length > 0 && {
         ambulance_company_address: {
           in: cleanedCitySet,
+        },
+      }),
+      ...(ambulance_type.length > 0 && {
+        ambulances: {
+          some: {
+            ambulance_type: {
+              in: ambulance_type,
+            },
+          },
         },
       }),
     };

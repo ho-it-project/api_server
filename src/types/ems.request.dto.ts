@@ -1,4 +1,4 @@
-import { ems_Employee, ems_EmployeeRole } from '@prisma/client';
+import { ems_AmbulanceType, ems_Employee, ems_EmployeeRole } from '@prisma/client';
 import { tags } from 'typia';
 
 export namespace EmsAuthRequest {
@@ -155,5 +155,12 @@ export namespace EmsAmbulanceCompanyRequest {
      * @title 지역
      */
     area?: string[];
+
+    /**
+     * 보유중인 구급차량 타입
+     * @type ems_AmbulanceType[]
+     * @title 구급차량 타입
+     */
+    ambulance_type?: ems_AmbulanceType[];
   }
 }

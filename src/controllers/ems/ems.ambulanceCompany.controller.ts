@@ -38,6 +38,10 @@ export class EmsAmbulanceCompanyController {
    *    - ex) '천안시', '천안'
    *    -> '천안'으로 정제하여 검색하기때문에 모두 가능
    *
+   * - ambulance_type: ems_AmbulanceType[]
+   *    - 보유중인 구급차량 타입
+   *    - BOX_TYPE, GENERAL, NEGATIVE_PRESSURE, SPECIAL
+   *
    * @author de-novo
    * @tag ems_ambulance_company
    * @summary 2023-10-02 구급업체 리스트 조회 API
