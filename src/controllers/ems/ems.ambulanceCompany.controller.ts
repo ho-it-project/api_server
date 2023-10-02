@@ -1,8 +1,9 @@
 import { createResponse } from '@common/interceptor/createResponse';
-import { TypedQuery, TypedRoute } from '@nestia/core';
+import { EMS_AMBULANCE_COMPANY_ERROR, isError, throwError } from '@config/errors';
+import { TypedException, TypedParam, TypedQuery, TypedRoute } from '@nestia/core';
 import { Controller } from '@nestjs/common';
 import { EmsAmbulanceCampanyService } from '@src/providers/ems/ems.ambulanceCampany.service';
-import { Try } from '@src/types';
+import { Try, TryCatch } from '@src/types';
 import { EmsAmbulanceCompanyRequest } from '@src/types/ems.request.dto';
 import { EmsAmbulanceCompanyResponse } from '@src/types/ems.response.dto';
 
@@ -49,7 +50,43 @@ export class EmsAmbulanceCompanyController {
   async getAmbulanceCompanyList(
     @TypedQuery() query: EmsAmbulanceCompanyRequest.GetAmbulanceCompanyListQuery,
   ): Promise<Try<EmsAmbulanceCompanyResponse.GetAmbulanceCompanyList>> {
-    const result = await this.emsAmbulanceCampanyService.getAmbulanceCampanyList(query);
+    const result = await this.emsAmbulanceCampanyService.getAmbulanceCompanyList(query);
+    return createResponse(result);
+  }
+
+  /**
+   * 구급업체 상세 조회 API
+   *
+   * - 구급업체 상세 정보를 조회한다.
+   *
+   * ## params
+   * - ems_ambulance_company_id: string
+   *
+   * @author de-novo
+   * @tag ems_ambulance_company
+   * @summary 2023-10-02 구급업체 상세 조회 API
+   *
+   * @param ems_ambulance_company_id
+   * @returns {EmsAmbulanceCompanyResponse.GetAmbulanceCompanyDetail} 구급업체 상세 정보
+   */
+  @TypedRoute.Get('/:ems_ambulance_company_id')
+  @TypedException<EMS_AMBULANCE_COMPANY_ERROR.AMBULANCE_COMPANY_NOT_FOUND>(
+    400,
+    'EMS_AMBULANCE_COMPANY_ERROR.AMBULANCE_COMPANY_NOT_FOUND',
+  )
+  async getAmbulanceCompanyDetail(
+    @TypedParam('ems_ambulance_company_id') ems_ambulance_company_id: string,
+  ): Promise<
+    TryCatch<
+      EmsAmbulanceCompanyResponse.GetAmbulanceCompanyDetail,
+      EMS_AMBULANCE_COMPANY_ERROR.AMBULANCE_COMPANY_NOT_FOUND
+    >
+  > {
+    const result = await this.emsAmbulanceCampanyService.getAmbulanceCompanyDetail(ems_ambulance_company_id);
+
+    if (isError(result)) {
+      return throwError(result);
+    }
     return createResponse(result);
   }
 }

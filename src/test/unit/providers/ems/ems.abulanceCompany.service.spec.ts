@@ -33,14 +33,14 @@ describe('ems.abulanceCompany.service', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
-    expect(service.getAmbulanceCampanyList).toBeDefined();
-    expect(service.getAmbulanceCampanyList).toBeInstanceOf(Function);
+    expect(service.getAmbulanceCompanyList).toBeDefined();
+    expect(service.getAmbulanceCompanyList).toBeInstanceOf(Function);
   });
 
-  describe('getAmbulanceCampanyList', () => {
+  describe('getAmbulanceCompanyList', () => {
     it('should be defined', () => {
-      expect(service.getAmbulanceCampanyList).toBeDefined();
-      expect(service.getAmbulanceCampanyList).toBeInstanceOf(Function);
+      expect(service.getAmbulanceCompanyList).toBeDefined();
+      expect(service.getAmbulanceCompanyList).toBeInstanceOf(Function);
     });
 
     beforeEach(() => {
@@ -53,7 +53,7 @@ describe('ems.abulanceCompany.service', () => {
     });
 
     it('should be return empty array', async () => {
-      const result = await service.getAmbulanceCampanyList({
+      const result = await service.getAmbulanceCompanyList({
         city: ['없는도시'],
         area: ['없는지역'],
       });
@@ -67,7 +67,7 @@ describe('ems.abulanceCompany.service', () => {
       const pageMockData = typia.random<ems_AmbulanceCompany[] & tags.MinItems<10> & tags.MaxItems<10>>();
       mockPrismaService.ems_AmbulanceCompany.findMany = jest.fn().mockResolvedValue(pageMockData);
       mockPrismaService.ems_AmbulanceCompany.count = jest.fn().mockResolvedValue(pageMockData.length);
-      const result = await service.getAmbulanceCampanyList({
+      const result = await service.getAmbulanceCompanyList({
         city: ['있는도시'],
         area: ['있는지역'],
         page: 1,

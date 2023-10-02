@@ -1,15 +1,17 @@
 import { cleanAreaName } from '@common/util/cleanAreaName';
 import { cleanCityName } from '@common/util/cleanCityName';
+import { EMS_AMBULANCE_COMPANY_ERROR } from '@config/errors';
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { EmsAmbulanceCompanyRequest } from '@src/types/ems.request.dto';
+import typia from 'typia';
 import { PrismaService } from './../../common/prisma/prisma.service';
 
 @Injectable()
 export class EmsAmbulanceCampanyService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async getAmbulanceCampanyList(query: EmsAmbulanceCompanyRequest.GetAmbulanceCompanyListQuery) {
+  async getAmbulanceCompanyList(query: EmsAmbulanceCompanyRequest.GetAmbulanceCompanyListQuery) {
     const { page = 1, limit = 10, search = '', city = [], area = [] } = query;
     const skip = (page - 1) * limit;
 
@@ -64,5 +66,21 @@ export class EmsAmbulanceCampanyService {
       ambulance_company_list,
       count: ambulance_company_count,
     };
+  }
+
+  async getAmbulanceCompanyDetail(ems_ambulance_company_id: string) {
+    const ambulance_company = await this.prismaService.ems_AmbulanceCompany.findUnique({
+      where: {
+        ambulance_company_id: ems_ambulance_company_id,
+      },
+      include: {
+        ambulances: true,
+      },
+    });
+
+    if (!ambulance_company) {
+      return typia.random<EMS_AMBULANCE_COMPANY_ERROR.AMBULANCE_COMPANY_NOT_FOUND>();
+    }
+    return ambulance_company;
   }
 }
