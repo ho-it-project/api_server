@@ -89,14 +89,6 @@ export class EmsEmployeeService {
     if (!employee) {
       return typia.random<EMS_EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND>();
     }
-    const beforeComparePassword = await this.authService.comparePassword({
-      password,
-      hash: employee.password,
-    });
-    if (beforeComparePassword) {
-      return typia.random<EMS_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_SAME>();
-    }
-
     const nowComparePassword = await this.authService.comparePassword({
       password: now_password,
       hash: employee.password,
@@ -104,6 +96,15 @@ export class EmsEmployeeService {
     if (!nowComparePassword) {
       return typia.random<EMS_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_INVALID>();
     }
+    const beforeComparePassword = await this.authService.comparePassword({
+      password,
+      hash: employee.password,
+    });
+    if (beforeComparePassword) {
+      return typia.random<EMS_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_SAME>();
+    }
+    const updateHashedPassword = await this.authService.hashPassword({ password });
+
     const updatedEmployee = await this.prismaService.ems_Employee.update({
       where: {
         id_card_ambulance_company_id: {
@@ -112,7 +113,7 @@ export class EmsEmployeeService {
         },
       },
       data: {
-        password: await this.authService.hashPassword({ password }),
+        password: updateHashedPassword,
       },
     });
     return updatedEmployee;

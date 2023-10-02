@@ -180,6 +180,90 @@ describe('EmsEmployeeService', () => {
       expect(result.employee_list).toEqual(mockEmployeeList);
       expect(result.count).toEqual(mockEmployeeList.length);
     });
-    
+  });
+
+  describe('updatePassword', () => {
+    it('should be defined', () => {
+      expect(mockEmsEmployeeService.updatePassword).toBeDefined();
+    });
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+    beforeEach(() => {
+      jest.spyOn(mockPrismaService.ems_Employee, 'findFirst').mockResolvedValue({
+        ...typia.random<ems_Employee>(),
+      } as unknown as PrismaPromise<ems_Employee>);
+      jest.spyOn(mockPrismaService.ems_Employee, 'update').mockResolvedValue({
+        ...typia.random<ems_Employee>(),
+      });
+    });
+
+    it('should be call ems_Employee.findFirst', async () => {
+      await mockEmsEmployeeService.updatePassword({
+        id_card: typia.random<string>(),
+        password: typia.random<string>(),
+        now_password: typia.random<string>(),
+        ambulance_company_id: typia.random<string>(),
+      });
+      expect(mockPrismaService.ems_Employee.findFirst).toBeCalled();
+    });
+
+    it('should be return EMPLOYEE_NOT_FOUND', async () => {
+      jest.spyOn(mockPrismaService.ems_Employee, 'findFirst').mockResolvedValue(null);
+      const result = await mockEmsEmployeeService.updatePassword({
+        id_card: typia.random<string>(),
+        password: typia.random<string>(),
+        now_password: typia.random<string>(),
+        ambulance_company_id: typia.random<string>(),
+      });
+      expect(result).toEqual(typia.random<EMS_EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND>());
+    });
+
+    it('should be return EMPLOYEE_PASSWORD_SAME', async () => {
+      const mockbeforePassword = typia.random<string>();
+      const mockbeforeHashPassword = await mockAuthService.hashPassword({ password: mockbeforePassword });
+      jest.spyOn(mockPrismaService.ems_Employee, 'findFirst').mockResolvedValue({
+        ...typia.random<ems_Employee>(),
+        password: mockbeforeHashPassword,
+      });
+      const result = await mockEmsEmployeeService.updatePassword({
+        id_card: typia.random<string>(),
+        password: mockbeforePassword,
+        now_password: mockbeforePassword,
+        ambulance_company_id: typia.random<string>(),
+      });
+      expect(result).toEqual(typia.random<EMS_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_SAME>());
+    });
+
+    it('should be return EMPLOYEE_PASSWORD_INVALID', async () => {
+      jest.spyOn(mockAuthService, 'comparePassword').mockImplementation(async () => false);
+      const result = await mockEmsEmployeeService.updatePassword({
+        id_card: typia.random<string>(),
+        password: typia.random<string>(),
+        now_password: typia.random<string>(),
+        ambulance_company_id: typia.random<string>(),
+      });
+      expect(result).toEqual(typia.random<EMS_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_INVALID>());
+    });
+
+    it('should be call hashPassword', async () => {
+      const mockbeforePassword = typia.random<string>();
+      const mockbeforeHashPassword = await mockAuthService.hashPassword({ password: mockbeforePassword });
+
+      jest.spyOn(mockAuthService, 'hashPassword').mockResolvedValue(mockbeforeHashPassword);
+      jest.spyOn(mockPrismaService.ems_Employee, 'findFirst').mockResolvedValue({
+        ...typia.random<ems_Employee>(),
+        password: mockbeforeHashPassword,
+      });
+
+      await mockEmsEmployeeService.updatePassword({
+        id_card: typia.random<string>(),
+        password: typia.random<string>(),
+        now_password: mockbeforePassword,
+        ambulance_company_id: typia.random<string>(),
+      });
+      expect(mockAuthService.hashPassword).toBeCalled();
+    });
   });
 });

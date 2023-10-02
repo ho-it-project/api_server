@@ -40,6 +40,7 @@ export class EmsEmployeeController {
    *
    * @param query
    * @param user
+   * @security access_token
    * @returns {EmsEmployeeResponse.GetEmployeeList} 직원 리스트 및 총 직원 수
    */
   @TypedRoute.Get('/')
