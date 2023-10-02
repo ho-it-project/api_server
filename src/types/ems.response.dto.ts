@@ -74,3 +74,9 @@ export namespace EmsAmbulanceCompanyResponse {
     ambulances: ems_Ambulance[];
   }
 }
+
+export namespace EmsAmbulanceResponse {
+  export interface GetAmbulanceDetail extends ems_Ambulance {
+    ambulance_company: ems_AmbulanceCompany;
+  }
+}
