@@ -54,8 +54,8 @@ export class DbInit {
     await this.prismaService.er_Department.deleteMany({ where: {} });
 
     await this.prismaService.ems_Ambulance.deleteMany({ where: {} });
-    await this.prismaService.ems_AmbulanceCompany.deleteMany({ where: {} });
     await this.prismaService.ems_Employee.deleteMany({ where: {} });
+    await this.prismaService.ems_AmbulanceCompany.deleteMany({ where: {} });
   }
   async hospitalSetup() {
     this.logger.debug('hospitalSetup');

@@ -1,4 +1,4 @@
-import { ems_Employee } from '@prisma/client';
+import { ems_Ambulance, ems_AmbulanceCompany, ems_Employee } from '@prisma/client';
 import { EmsAuth } from '@src/auth/interface';
 
 export namespace EmsAuthResponse {
@@ -61,5 +61,22 @@ export namespace EmsEmployeeResponse {
      * @title 직원 수
      */
     count: number;
+  }
+}
+
+export namespace EmsAmbulanceCompanyResponse {
+  export interface GetAmbulanceCompanyList {
+    ambulance_company_list: ems_AmbulanceCompany[];
+    count: number;
+  }
+
+  export interface GetAmbulanceCompanyDetail extends ems_AmbulanceCompany {
+    ambulances: ems_Ambulance[];
+  }
+}
+
+export namespace EmsAmbulanceResponse {
+  export interface GetAmbulanceDetail extends ems_Ambulance {
+    ambulance_company: ems_AmbulanceCompany;
   }
 }

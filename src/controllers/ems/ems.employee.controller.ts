@@ -40,6 +40,7 @@ export class EmsEmployeeController {
    *
    * @param query
    * @param user
+   * @security access_token
    * @returns {EmsEmployeeResponse.GetEmployeeList} 직원 리스트 및 총 직원 수
    */
   @TypedRoute.Get('/')
@@ -131,5 +132,49 @@ export class EmsEmployeeController {
       ambulance_company_id: user.ambulance_company_id,
     });
     return createResponse({ exists: result });
+  }
+
+  /**
+   * 비밀번호 변경 API
+   *
+   * 비밀번호를 변경한다.
+   * 필수값 : [password, now_password]
+   *
+   * now_password는 현재 비밀번호를 입력해야한다.
+   * password는 변경할 비밀번호를 입력해야한다.
+   *
+   *
+   * @author de-novo
+   * @tag ems_employee
+   * @summary 2023-10-01 - 비밀번호 변경 API
+   *
+   * @param updateDto
+   * @param user
+   * @security access_token
+   * @returns {EmsEmployeeResponse.UpdatePassword} 비밀번호 변경 성공 여부
+   */
+
+  @TypedRoute.Patch('/')
+  @UseGuards(EmsJwtAccessAuthGuard)
+  async updatePassword(
+    @TypedBody() updateDto: EmsEmployeeRequest.UpdatePasswordDTO,
+    @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
+  ): Promise<
+    TryCatch<
+      EmsEmployeeResponse.UpdatePassword,
+      | EMS_EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND
+      | EMS_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_INVALID
+      | EMS_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_SAME
+    >
+  > {
+    const result = await this.emsEmployeeService.updatePassword({
+      ...updateDto,
+      ...user,
+    });
+    if (isError(result)) {
+      return throwError(result);
+    }
+
+    return createResponse({ update_success: true });
   }
 }

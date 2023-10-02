@@ -7,4 +7,11 @@ export namespace EmsEmployee {
   export type GetEmployeeList = { user: EmsAuth.AccessTokenSignPayload } & {
     query: EmsEmployeeRequest.GetEmployeeListQuery;
   };
+
+  export type UpdatePassword = {
+    ambulance_company_id: string;
+    id_card: string;
+    password: string;
+    now_password: string;
+  };
 }

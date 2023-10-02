@@ -1,4 +1,4 @@
-import { ems_Employee, ems_EmployeeRole } from '@prisma/client';
+import { ems_AmbulanceType, ems_Employee, ems_EmployeeRole } from '@prisma/client';
 import { tags } from 'typia';
 
 export namespace EmsAuthRequest {
@@ -100,5 +100,67 @@ export namespace EmsEmployeeRequest {
      * @title 검색어
      */
     search?: string;
+  }
+
+  export interface UpdatePasswordDTO {
+    /**
+     * @type string
+     * @title 현재 비밀번호
+     */
+    now_password: string;
+    /**
+     * @type string
+     * @title 변경할 비밀번호
+     */
+    password: string;
+  }
+}
+
+export namespace EmsAmbulanceCompanyRequest {
+  export interface GetAmbulanceCompanyListQuery {
+    /**
+     * @type number
+     * @title 페이지 번호
+     * @default 1
+     * @minimum 1
+     */
+    page?: number;
+
+    /**
+     * @type number
+     * @title 페이지당 아이템 갯수
+     * @default 10
+     * @minimum 1
+     */
+    limit?: number;
+
+    /**
+     * @type string
+     * @title 검색어
+     */
+    search?: string;
+
+    /**
+     * 예: 서울, 부산, 충남....
+     *
+     * @type string[]
+     * @title 도시
+     */
+    city?: string[];
+
+    /**
+     * 예: 강남, 가평, 아산 .....
+     *
+     * @type string[]
+     * @title 지역
+     */
+    area?: string[];
+
+    /**
+     * 보유중인 구급차량 타입
+     * @type ems_AmbulanceType[]
+     * @title 구급차량 타입
+     */
+    ambulance_type?: ems_AmbulanceType[];
   }
 }
