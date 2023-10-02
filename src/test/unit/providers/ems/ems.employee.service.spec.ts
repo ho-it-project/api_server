@@ -2,7 +2,7 @@ import { PrismaService } from '@common/prisma/prisma.service';
 import { EMS_EMPLOYEE_ERROR, isError } from '@config/errors';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { Prisma, PrismaPromise } from '@prisma/client';
+import { Prisma, PrismaPromise, ems_Employee } from '@prisma/client';
 import { EmsAuth } from '@src/auth/interface';
 import { AuthService } from '@src/auth/provider/common.auth.service';
 import { EmsEmployeeService } from '@src/providers/ems/ems.employee.service';
@@ -135,5 +135,51 @@ describe('EmsEmployeeService', () => {
       });
       expect(result).toEqual(typia.random<EMS_EMPLOYEE_ERROR.EMPLOYEE_MULTIPLE_ALREADY_EXIST>());
     });
+  });
+
+  describe('getEmployeeList', () => {
+    let mockEmployeeList: ems_Employee[];
+    beforeEach(() => {
+      mockEmployeeList = typia.random<ems_Employee[] & tags.MinItems<10> & tags.MaxItems<10>>();
+      mockPrismaService.ems_Employee.findMany = jest.fn().mockResolvedValue(mockEmployeeList);
+      mockPrismaService.ems_Employee.count = jest.fn().mockResolvedValue(mockEmployeeList.length);
+    });
+    beforeAll(() => {
+      jest.clearAllMocks();
+    });
+
+    it('should be defined', () => {
+      expect(mockEmsEmployeeService.getEmployeeList).toBeDefined();
+    });
+
+    it('should be call ems_Employee.findMany', async () => {
+      await mockEmsEmployeeService.getEmployeeList({
+        query: typia.random<EmsEmployeeRequest.GetEmployeeListQuery>(),
+        user: typia.random<EmsAuth.AccessTokenSignPayload>(),
+      });
+      expect(mockPrismaService.ems_Employee.findMany).toBeCalled();
+    });
+
+    it('should be call ems_Employee.count', async () => {
+      await mockEmsEmployeeService.getEmployeeList({
+        query: typia.random<EmsEmployeeRequest.GetEmployeeListQuery>(),
+        user: typia.random<EmsAuth.AccessTokenSignPayload>(),
+      });
+      expect(mockPrismaService.ems_Employee.count).toBeCalled();
+    });
+
+    it('should be return employee_list and count', async () => {
+      const result = await mockEmsEmployeeService.getEmployeeList({
+        query: typia.random<EmsEmployeeRequest.GetEmployeeListQuery>(),
+        user: typia.random<EmsAuth.AccessTokenSignPayload>(),
+      });
+      console.log(mockEmployeeList.length);
+      expect(result).toBeDefined();
+      expect(result).toHaveProperty('employee_list');
+      expect(result).toHaveProperty('count');
+      expect(result.employee_list).toEqual(mockEmployeeList);
+      expect(result.count).toEqual(mockEmployeeList.length);
+    });
+    
   });
 });

@@ -2,7 +2,7 @@ import { CurrentUser } from '@common/decorators/CurrentUser';
 import { AdminGuard } from '@common/guard/admin.guard';
 import { createResponse } from '@common/interceptor/createResponse';
 import { AUTH_ERROR, EMS_EMPLOYEE_ERROR, isError, throwError } from '@config/errors';
-import { TypedBody, TypedException, TypedRoute } from '@nestia/core';
+import { TypedBody, TypedException, TypedQuery, TypedRoute } from '@nestia/core';
 import { Controller, UseGuards } from '@nestjs/common';
 import { EmsJwtAccessAuthGuard } from '@src/auth/guard/ems.jwt.access.guard';
 import { EmsAuth } from '@src/auth/interface';
@@ -10,13 +10,48 @@ import { EmsEmployeeService } from '@src/providers/ems/ems.employee.service';
 import { Try, TryCatch } from '@src/types';
 import { EmsEmployeeRequest } from '@src/types/ems.request.dto';
 import { EmsEmployeeResponse } from '@src/types/ems.response.dto';
+import { assertPrune } from 'typia/lib/misc';
 
 @Controller('/ems/employee')
 export class EmsEmployeeController {
   constructor(private readonly emsEmployeeService: EmsEmployeeService) {}
 
+  /**
+   * 직원 리스트 조회 API
+   *
+   * 직원 리스트를 조회한다.
+   * - access_token을 기반으로 소속 조직(회사) 직원 리스트를 조회한다.
+   * - 회사마다 직원을 조회할수 있다
+   *
+   * ## query
+   * - page : 조회할 페이지
+   *   - default : 1
+   * - limit : 한 페이지에 보여줄 직원 수
+   *   - default : 10
+   * - search_type : 검색 타입
+   *   - employee_name | id_card
+   * - search : seach_type에 따라 검색
+   *   - default : '' - 전체
+   * - role : 직원 타입 필터 - 복수 선택 가능
+   *
+   * @author de-novo
+   * @tag ems_employee
+   * @summary 2023-10-01 - 직원 리스트 조회 API
+   *
+   * @param query
+   * @param user
+   * @returns {EmsEmployeeResponse.GetEmployeeList} 직원 리스트 및 총 직원 수
+   */
   @TypedRoute.Get('/')
-  async getEmployeeList() {}
+  @UseGuards(EmsJwtAccessAuthGuard)
+  async getEmployeeList(
+    @TypedQuery() query: EmsEmployeeRequest.GetEmployeeListQuery,
+    @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
+  ): Promise<Try<EmsEmployeeResponse.GetEmployeeList>> {
+    const result = await this.emsEmployeeService.getEmployeeList({ query, user });
+    const prune = assertPrune<EmsEmployeeResponse.GetEmployeeList>(result);
+    return createResponse(prune);
+  }
 
   /**
    * 직원 생성 API

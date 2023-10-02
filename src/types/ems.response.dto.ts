@@ -47,4 +47,19 @@ export namespace EmsEmployeeResponse {
   export interface UpdatePassword {
     update_success: boolean;
   }
+
+  export interface GetEmployeeList {
+    /**
+     * 직원 리스트
+     * @type ems_Employee[]
+     * @title 직원 리스트
+     */
+    employee_list: Omit<ems_Employee, 'password'>[];
+    /**
+     * 직원 수
+     * @type number
+     * @title 직원 수
+     */
+    count: number;
+  }
 }

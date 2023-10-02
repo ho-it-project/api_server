@@ -54,4 +54,27 @@ export class EmsEmployeeService {
     });
     return employee_list;
   }
+
+  async getEmployeeList({ query, user }: EmsEmployee.GetEmployeeList) {
+    const { page = 1, limit = 10, role, search, search_type } = query;
+
+    const skip = (page - 1) * limit;
+
+    const where = {
+      ambulance_company_id: user.ambulance_company_id,
+      ...(role && { role: { in: role } }),
+      ...(search && search_type && { [search_type]: { contains: search } }),
+    };
+    const arg = {
+      where,
+      skip,
+      take: limit,
+    };
+    const employee_list = await this.prismaService.ems_Employee.findMany(arg);
+    const count = await this.prismaService.ems_Employee.count({
+      where: arg.where,
+    });
+
+    return { employee_list, count };
+  }
 }

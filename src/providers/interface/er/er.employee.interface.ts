@@ -13,5 +13,4 @@ export namespace ErEmployee {
     user: ErAuth.AccessTokenSignPayload;
   };
   export type GetEmpoyeeWithoutPassword = Omit<er_Employee, 'password'>;
-  export type GetEmployeeListQueryReturn = { count: number } & { employee_list: GetEmpoyeeWithoutPassword[] };
 }
