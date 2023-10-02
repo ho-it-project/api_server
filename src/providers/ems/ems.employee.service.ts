@@ -79,7 +79,6 @@ export class EmsEmployeeService {
   }
 
   async updatePassword({ ambulance_company_id, id_card, password, now_password }: EmsEmployee.UpdatePassword) {
-    console.log('updatePassword', { ambulance_company_id, id_card, password, now_password });
     const employee = await this.prismaService.ems_Employee.findFirst({
       where: {
         ambulance_company_id,

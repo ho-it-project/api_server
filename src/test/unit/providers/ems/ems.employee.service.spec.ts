@@ -173,7 +173,6 @@ describe('EmsEmployeeService', () => {
         query: typia.random<EmsEmployeeRequest.GetEmployeeListQuery>(),
         user: typia.random<EmsAuth.AccessTokenSignPayload>(),
       });
-      console.log(mockEmployeeList.length);
       expect(result).toBeDefined();
       expect(result).toHaveProperty('employee_list');
       expect(result).toHaveProperty('count');
