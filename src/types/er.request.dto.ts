@@ -1,4 +1,10 @@
-import { er_EmergencyRoomType, er_Employee, er_EmployeeRole, er_MedicalInstitutionType } from '@prisma/client';
+import {
+  er_Department,
+  er_EmergencyRoomType,
+  er_Employee,
+  er_EmployeeRole,
+  er_MedicalInstitutionType,
+} from '@prisma/client';
 import { tags } from 'typia';
 
 export namespace ErAuthRequest {
@@ -188,4 +194,15 @@ export namespace ErEmergencyCenterRequest {
   export type GetEmergencyCenterListQuery = GetEmergencyCenterListQueryDefault &
     GetEmergencyCenterListByCityQuery &
     GetEmergencyCenterListByLocationQuery;
+}
+
+export namespace ErDepartmentRequest {
+  export interface AddAvailableDepartmentRequestDto {
+    /**
+     * @type number
+     * @description 진료가능과로 설정할 진료과 번호
+     */
+    department_id: er_Department['department_id'];
+  }
+  export type RemoveAvailableDepartmentParam = er_Department['department_id'];
 }

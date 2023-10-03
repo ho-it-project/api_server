@@ -1,11 +1,12 @@
 import { winstonLogger } from '@common/logger/logger';
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
 
 import passport from 'passport';
 import { AppModule } from './app.module';
+import { PrismaClientExceptionFilter } from '@common/filters/prisma-client-exception.filter';
 
 async function bootstrap() {
   const port = process.env.PORT || 8000;
@@ -36,6 +37,9 @@ async function bootstrap() {
   app.enableCors({
     origin: '*', //초기 개발환경에서는 모든 요청을 허용하도록 하였습니다.
   });
+
+  const { httpAdapter } = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new PrismaClientExceptionFilter(httpAdapter));
 
   await app.listen(port);
 }
