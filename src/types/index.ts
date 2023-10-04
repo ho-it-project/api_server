@@ -31,3 +31,5 @@ export interface ResponseDTO<T> {
 
 export type Try<T> = ResponseDTO<T>;
 export type TryCatch<T, E extends ERROR<string, ErrorHttpStatusCode>> = Try<T> | E;
+
+export type ArrayElement<T extends unknown[]> = T[number];

@@ -24,3 +24,5 @@ export class EmsAmbulanceService {
     return ambulance;
   }
 }
+
+

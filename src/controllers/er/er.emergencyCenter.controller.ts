@@ -28,7 +28,6 @@ export class ErEmergencyCenterController {
    * - latitude : 위도
    * - longitude : 경도
    *
-   *
    * @author de-novo
    * @tag er_emergency_center
    * @summary 2023-09-30 - 응급의료기관 리스트 조회 API

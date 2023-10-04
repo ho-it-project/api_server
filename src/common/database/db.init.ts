@@ -18,7 +18,7 @@ export class DbInit {
   constructor(private readonly prismaService: PrismaService) {}
   private readonly logger = new Logger(DbInit.name);
   async init() {
-    if (process.env.NODE_ENV === 'production' || process.env.DATABASE_URL?.indexOf('ho-it') !== -1) return;
+    // if (process.env.NODE_ENV === 'production' || process.env.DATABASE_URL?.indexOf('ho-it') !== -1) return;
 
     this.logger.debug('init');
     this.logger.debug('delete all');

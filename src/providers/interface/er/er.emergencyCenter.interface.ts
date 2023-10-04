@@ -4,7 +4,7 @@ import { ErEmergencyCenterRequest } from '@src/types';
 export namespace ErEmergencyCenter {
   export type GetEmergencyCenterListQuery = ErEmergencyCenterRequest.GetEmergencyCenterListQuery;
   export interface GetEmergencyCenterListQueryReturn {
-    emergency_center_list: SortEmergencyCenterByDistanceRetrun;
+    emergency_center_list: (GetEmergentcyCenterListQueryFindManyOuput & { distance: number })[];
     count: number;
   }
 
@@ -25,5 +25,11 @@ export namespace ErEmergencyCenter {
     })[];
   }
 
-  export type SortEmergencyCenterByDistanceRetrun = EmergencyCenterWithDistance[];
+  // export type SortEmergencyCenterByDistanceRetrun = EmergencyCenterWithDistance[];
+
+  export type SortEmergencyCenterListByDistance = <T extends er_EmergencyCenter>(arg: {
+    latitude: number;
+    longitude: number;
+    emergencyCenterList: T[];
+  }) => (T & { distance: number })[];
 }

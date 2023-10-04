@@ -21,7 +21,7 @@ export class ErEmployeeController {
    * 한번에 여러명의 직원을 생성할 수 있다.
    *
    * ADMIN 권한이 필요하다.
-   * 
+   *
    * 필수값 : [id_card, name, password, role]
    *
    * - 병원마다 id_card는 중복될 수 없다.
@@ -59,7 +59,7 @@ export class ErEmployeeController {
    * 한번에 여러명의 직원을 중복체크할 수 있다.
    *
    * ADMIN 권한이 필요하다.
-   * 
+   *
    * 필수값 : [id_card]
    *
    * @author de-novo

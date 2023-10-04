@@ -80,3 +80,10 @@ export namespace EmsAmbulanceResponse {
     ambulance_company: ems_AmbulanceCompany;
   }
 }
+
+export namespace EmsPatientResponse {
+  // export interface GetPatientList {
+  //   patient_list: ems_Patient[];
+  //   count: number;
+  // }
+}
