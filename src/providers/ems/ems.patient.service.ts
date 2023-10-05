@@ -42,7 +42,6 @@ export class EmsPatientService {
     }
 
     // TODO : 주석 제거
-    // 중복 생성되면 매번 바꿔주어야 하기에 생성된다 가정....
     const newPatient = await this.prismaService.ems_Patient.create({
       select: {
         patient_id: true,
@@ -80,10 +79,24 @@ export class EmsPatientService {
         vs: true,
         sample: true,
         opqrst: true,
+        patient_salt: true,
       },
     });
     if (!patient) return typia.random<EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>();
-    const patientWithoutIdNumber = assertPrune<EmsPatient.GetPatientDetailDTO>(patient);
+    const { patient_salt, ...patientWithoutSalt } = patient;
+    if (!patient_salt) {
+      return typia.random<EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>();
+    }
+    const { salt } = patient_salt;
+    const decryptedIdentityNumber = await this.cryptoService.decrypt({
+      hash: patientWithoutSalt.patient_identity_number,
+      salt,
+    });
+
+    const patientWithoutIdNumber = assertPrune<EmsPatient.GetPatientDetailDTO>({
+      ...patient,
+      patient_identity_number: decryptedIdentityNumber,
+    });
     return patientWithoutIdNumber;
   }
 

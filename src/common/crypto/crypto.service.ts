@@ -18,7 +18,6 @@ export class CryptoService {
   }
 
   async decrypt(props: { hash: string; salt: string }) {
-    console.log(props);
     const { hash, salt } = props;
     const password = this.configService.get<string>('SCRYPT_PASSWORD') as string;
     const [encrypted, iv] = hash.split(':');

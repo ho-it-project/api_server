@@ -33,7 +33,3 @@ export type Try<T> = ResponseDTO<T>;
 export type TryCatch<T, E extends ERROR<string, ErrorHttpStatusCode>> = Try<T> | E;
 
 export type ArrayElement<T extends unknown[]> = T[number];
-
-export type ExcludeModel<T extends object, U extends keyof T> = {
-  [K in Exclude<keyof T, U>]: T[K];
-};

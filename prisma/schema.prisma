@@ -486,8 +486,7 @@ model ems_PatientSalt {
   status     Status   @default(ACTIVE)
 
   /// relation
-  patient ems_Patient @relation(fields: [patient_id], references: [patient_id])
-
+  patient ems_Patient             @relation(fields: [patient_id], references: [patient_id])
   @@map("patient_salt")
   @@schema("ems")
 }
