@@ -1,5 +1,9 @@
+import { EmsAuth } from '@src/auth/interface';
 import { EmsPatientRequest } from '@src/types/ems.request.dto';
 
 export namespace EmsPatient {
-  export interface CreatePatientDTO extends EmsPatientRequest.CreatePatientDTO {}
+  export type CreatePatientDTO = {
+    patientInfo: EmsPatientRequest.CreatePatientDTO;
+    user: EmsAuth.AccessTokenSignPayload;
+  };
 }

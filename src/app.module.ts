@@ -1,3 +1,4 @@
+import { CryptoModule } from '@common/crypto/crypto.module';
 import { DbInit } from '@common/database/db.init';
 import { LoggerMiddleware } from '@common/middlewares/logger.middleware';
 import { PrismaModule } from '@common/prisma/prisma.module';
@@ -26,6 +27,9 @@ import { ErModule } from './modules/er.module';
 
         // Hash
         HASH_SALT: Joi.number().required(),
+
+        // Crypto
+        SCRYPT_PASSWORD: Joi.string().required(),
       }),
     }),
     // KafkaModule.register({
@@ -34,6 +38,7 @@ import { ErModule } from './modules/er.module';
     //   groupId: 'hoit',
     // }),
     PrismaModule,
+    CryptoModule,
     ErModule,
     EmsModule,
   ],

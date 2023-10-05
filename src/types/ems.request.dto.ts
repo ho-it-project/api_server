@@ -1,4 +1,11 @@
-import { Gender, ems_AmbulanceType, ems_Employee, ems_EmployeeRole } from '@prisma/client';
+import {
+  Gender,
+  ems_AmbulanceType,
+  ems_Employee,
+  ems_EmployeeRole,
+  ems_IncidentCause,
+  ems_Severity,
+} from '@prisma/client';
 import { tags } from 'typia';
 
 export namespace EmsAuthRequest {
@@ -254,5 +261,19 @@ export namespace EmsPatientRequest {
      * @maximum 180
      */
     patient_longitude: number & tags.Minimum<-180> & tags.Maximum<180>;
+
+    /**
+     * 환자의 상태를 입력하세요
+     * @type ems_Severity
+     * @title 환자 상태
+     */
+    patient_severity: ems_Severity;
+
+    /**
+     * 환자의 응급사유를 입력하세요
+     * @type ems_IncidentCause
+     * @title 환자 응급사유
+     */
+    patient_emergency_cause: ems_IncidentCause;
   }
 }

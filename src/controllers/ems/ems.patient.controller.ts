@@ -1,7 +1,9 @@
+import { CurrentUser } from '@common/decorators/CurrentUser';
 import { createResponse } from '@common/interceptor/createResponse';
 import { TypedBody, TypedRoute } from '@nestia/core';
 import { Controller, UseGuards } from '@nestjs/common';
 import { EmsJwtAccessAuthGuard } from '@src/auth/guard/ems.jwt.access.guard';
+import { EmsAuth } from '@src/auth/interface';
 import { createCipheriv, createDecipheriv, randomBytes, scrypt } from 'crypto';
 import { promisify } from 'util';
 import { EmsPatientService } from './../../providers/ems/ems.patient.service';
@@ -31,9 +33,9 @@ export class EmsPatientController {
   @UseGuards(EmsJwtAccessAuthGuard)
   async createPatient(
     @TypedBody() createPatientDTO: EmsPatientRequest.CreatePatientDTO,
-    // @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
+    @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
   ) {
-    const result = await this.emsPatientService.createPatient(createPatientDTO);
+    const result = await this.emsPatientService.createPatient({ patientInfo: createPatientDTO, user });
 
     return createResponse(result);
   }

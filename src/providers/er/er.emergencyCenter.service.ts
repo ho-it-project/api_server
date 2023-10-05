@@ -80,6 +80,9 @@ export class ErEmergencyCenterService {
     return { emergency_center_list, count: emergency_center_count };
   }
 
+  /**
+   * 사용하지않지만 변경된점을 알기위해 남겨둠 지워질 예정
+   */
   // sortEmergencyCenterListByDistance<T extends er_EmergencyCenter>(
   //   latitude: number,
   //   longitude: number,

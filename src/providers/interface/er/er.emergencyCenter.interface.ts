@@ -25,6 +25,9 @@ export namespace ErEmergencyCenter {
     })[];
   }
 
+  /**
+   * 사용하지않지만 변경된점을 알기위해 남겨둠 지워질 예정
+   */
   // export type SortEmergencyCenterByDistanceRetrun = EmergencyCenterWithDistance[];
 
   export type SortEmergencyCenterListByDistance = <T extends er_EmergencyCenter>(arg: {
