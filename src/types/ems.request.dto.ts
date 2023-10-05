@@ -3,6 +3,7 @@ import {
   ems_AmbulanceType,
   ems_Employee,
   ems_EmployeeRole,
+  ems_GuardianRelation,
   ems_IncidentCause,
   ems_Severity,
 } from '@prisma/client';
@@ -275,5 +276,44 @@ export namespace EmsPatientRequest {
      * @title 환자 응급사유
      */
     patient_emergency_cause: ems_IncidentCause;
+
+    /**
+     * 환자의 보호자 정보를 입력하세요
+     * @type PatientGuardianDTO
+     * @title 환자 보호자 정보
+     * @description 보호자 정보
+     */
+    patient_guardian?: PatientGuardianDTO;
+  }
+
+  export interface PatientGuardianDTO {
+    /**
+     * 보호자 이름을 입력하세요
+     * @type string
+     * @title 보호자 이름
+     * @description 보호자 이름
+     */
+    guardian_name: string;
+    /**
+     * 보호자 연락처를 입력하세요
+     * @type string
+     * @title 보호자 연락처
+     * @description 보호자 연락처
+     */
+    guardian_phone: string;
+    /**
+     * 보호자 주소를 입력하세요
+     * @type string
+     * @title 보호자 주소
+     * @description 보호자 주소
+     */
+    guardian_address: string;
+    /**
+     * 보호자 관계를 입력하세요
+     * @type ems_GuardianRelation
+     * @title 보호자 관계
+     * @description 보호자 관계
+     */
+    guardian_relation: ems_GuardianRelation;
   }
 }

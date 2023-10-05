@@ -86,4 +86,8 @@ export namespace EmsPatientResponse {
   //   patient_list: ems_Patient[];
   //   count: number;
   // }
+
+  export interface CreatePatient {
+    patient_id: string;
+  }
 }
