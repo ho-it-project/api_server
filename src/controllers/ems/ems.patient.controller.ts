@@ -48,6 +48,20 @@ export class EmsPatientController {
   @UseGuards(EmsJwtAccessAuthGuard)
   async getPatientList() {}
 
+  /**
+   * 환자 상세 조회 API
+   *
+   * 환자의 상세 정보를 조회합니다.
+   * 주민등록번호 뒷자리는 복호화되어 반환됩니다.
+   * @author de-novo
+   * @tag ems_patient
+   * @summary 2023-10-06 - 환자 상세 조회 API
+   *
+   * @security access_token
+   * @param patient_id
+   * @returns
+   */
+
   @TypedRoute.Get('/:patient_id')
   @TypedException<EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>(404, 'EMS_PATIENT_ERROR.PATIENT_NOT_FOUND')
   @UseGuards(EmsJwtAccessAuthGuard)

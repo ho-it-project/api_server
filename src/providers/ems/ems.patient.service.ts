@@ -93,7 +93,7 @@ export class EmsPatientService {
       salt,
     });
 
-    const patientWithoutIdNumber = assertPrune<EmsPatient.GetPatientDetailDTO>({
+    const patientWithoutIdNumber = assertPrune<EmsPatient.GetPatientDetailReturn>({
       ...patient,
       patient_identity_number: decryptedIdentityNumber,
     });

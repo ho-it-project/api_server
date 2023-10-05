@@ -92,5 +92,5 @@ export namespace EmsPatientResponse {
     patient_id: string;
   }
 
-  export interface GetPatientDetail extends EmsPatient.GetPatientDetailDTO {}
+  export interface GetPatientDetail extends EmsPatient.GetPatientDetailReturn {}
 }

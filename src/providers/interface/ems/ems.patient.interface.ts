@@ -16,7 +16,7 @@ export namespace EmsPatient {
     user: EmsAuth.AccessTokenSignPayload;
   };
 
-  export interface GetPatientDetailDTO extends ems_Patient {
+  export interface GetPatientDetailReturn extends ems_Patient {
     guardian: ems_Guardian | null;
     abcde: ems_ABCDE_Assessment[];
     dcap_btls: ems_DCAP_BTLS_Assessment[];
