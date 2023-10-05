@@ -2,7 +2,7 @@ import { CurrentUser } from '@common/decorators/CurrentUser';
 import { createResponse } from '@common/interceptor/createResponse';
 import { EMS_PATIENT_ERROR, isError, throwError } from '@config/errors';
 import { TypedBody, TypedException, TypedRoute } from '@nestia/core';
-import { Controller, UseGuards } from '@nestjs/common';
+import { Controller, Param, UseGuards } from '@nestjs/common';
 import { EmsJwtAccessAuthGuard } from '@src/auth/guard/ems.jwt.access.guard';
 import { EmsAuth } from '@src/auth/interface';
 import { TryCatch } from '@src/types';
@@ -40,6 +40,21 @@ export class EmsPatientController {
     @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
   ): Promise<TryCatch<EmsPatientResponse.CreatePatient, EMS_PATIENT_ERROR.INCHARGED_PATIENT_ALREADY_EXIST>> {
     const result = await this.emsPatientService.createPatient({ patientInfo: createPatientDTO, user });
+    if (isError(result)) return throwError(result);
+    return createResponse(result);
+  }
+
+  @TypedRoute.Get('/')
+  @UseGuards(EmsJwtAccessAuthGuard)
+  async getPatientList() {}
+
+  @TypedRoute.Get('/:patient_id')
+  @TypedException<EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>(404, 'EMS_PATIENT_ERROR.PATIENT_NOT_FOUND')
+  @UseGuards(EmsJwtAccessAuthGuard)
+  async getPatientDetail(
+    @Param('patient_id') patient_id: string,
+  ): Promise<TryCatch<EmsPatientResponse.GetPatientDetail, EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>> {
+    const result = await this.emsPatientService.getPatientDetail(patient_id);
     if (isError(result)) return throwError(result);
     return createResponse(result);
   }

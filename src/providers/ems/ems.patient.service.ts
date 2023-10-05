@@ -4,6 +4,7 @@ import { EMS_PATIENT_ERROR } from '@config/errors';
 import { Injectable } from '@nestjs/common';
 import { ems_Patient } from '@prisma/client';
 import typia from 'typia';
+import { assertPrune } from 'typia/lib/misc';
 import { v4 } from 'uuid';
 import { EmsPatient } from '../interface/ems/ems.patient.interface';
 
@@ -65,5 +66,31 @@ export class EmsPatientService {
     });
 
     return newPatient;
+  }
+
+  async getPatientDetail(patient_id: string) {
+    const patient = await this.prismaService.ems_Patient.findUnique({
+      where: {
+        patient_id,
+      },
+      include: {
+        guardian: true,
+        abcde: true,
+        dcap_btls: true,
+        vs: true,
+        sample: true,
+        opqrst: true,
+      },
+    });
+    if (!patient) return typia.random<EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>();
+    const patientWithoutIdNumber = assertPrune<EmsPatient.GetPatientDetailDTO>(patient);
+    return patientWithoutIdNumber;
+  }
+
+  async getPatientList() {
+    const patientList = await this.prismaService.ems_Patient.findMany({
+      include: {},
+    });
+    return patientList;
   }
 }

@@ -1,5 +1,6 @@
 import { ems_Ambulance, ems_AmbulanceCompany, ems_Employee } from '@prisma/client';
 import { EmsAuth } from '@src/auth/interface';
+import { EmsPatient } from '@src/providers/interface/ems/ems.patient.interface';
 
 export namespace EmsAuthResponse {
   export interface Login {
@@ -90,4 +91,6 @@ export namespace EmsPatientResponse {
   export interface CreatePatient {
     patient_id: string;
   }
+
+  export interface GetPatientDetail extends EmsPatient.GetPatientDetailDTO {}
 }
