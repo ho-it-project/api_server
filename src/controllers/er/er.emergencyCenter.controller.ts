@@ -32,7 +32,7 @@ export class ErEmergencyCenterController {
    * @tag er_emergency_center
    * @summary 2023-09-30 - 응급의료기관 리스트 조회 API
    * @param query
-   * @returns {ErEmergencyCenterResponse.GetEmergencyCenterList} 응급의료기관 리스트 조회
+   * @returns 응급의료기관 리스트 조회
    */
   @TypedRoute.Get('')
   async getEmergencyCenterList(

@@ -1,6 +1,6 @@
 import { CurrentUser } from '@common/decorators/CurrentUser';
 import { createResponse } from '@common/interceptor/createResponse';
-import { EMS_PATIENT_ERROR, isError, throwError } from '@config/errors';
+import { AUTH_ERROR, EMS_PATIENT_ERROR, isError, throwError } from '@config/errors';
 import { TypedBody, TypedException, TypedQuery, TypedRoute } from '@nestia/core';
 import { Controller, Param, UseGuards } from '@nestjs/common';
 import {
@@ -12,10 +12,10 @@ import {
 } from '@prisma/client';
 import { EmsJwtAccessAuthGuard } from '@src/auth/guard/ems.jwt.access.guard';
 import { EmsAuth } from '@src/auth/interface';
-import { TryCatch } from '@src/types';
+import { EmsPatientService } from '@src/providers/ems/ems.patient.service';
+import { Try, TryCatch } from '@src/types';
+import { EmsPatientRequest } from '@src/types/ems.request.dto';
 import { EmsPatientResponse } from '@src/types/ems.response.dto';
-import { EmsPatientService } from './../../providers/ems/ems.patient.service';
-import { EmsPatientRequest } from './../../types/ems.request.dto';
 @Controller('/ems/patient')
 export class EmsPatientController {
   constructor(private readonly emsPatientService: EmsPatientService) {}
@@ -34,9 +34,10 @@ export class EmsPatientController {
    *
    * @security access_token
    * @param createPatientDTO
-   * @returns {EmsPatientResponse.CreatePatient} 생성된 환자 id
+   * @returns 생성된 환자 id
    */
   @TypedRoute.Post('/')
+  @TypedException<AUTH_ERROR.FORBIDDEN>(403, 'AUTH_ERROR.FORBIDDEN')
   @TypedException<EMS_PATIENT_ERROR.INCHARGED_PATIENT_ALREADY_EXIST>(
     400,
     'EMS_PATIENT_ERROR.INCHARGED_PATIENT_ALREADY_EXIST',
@@ -84,11 +85,12 @@ export class EmsPatientController {
    * @returns 환자 목록 및 환자 수
    */
   @TypedRoute.Get('/')
+  @TypedException<AUTH_ERROR.FORBIDDEN>(403, 'AUTH_ERROR.FORBIDDEN')
   @UseGuards(EmsJwtAccessAuthGuard)
   async getPatientList(
     @TypedQuery() query: EmsPatientRequest.GetPatientListQuery,
     @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
-  ) {
+  ): Promise<Try<EmsPatientResponse.GetPatientList>> {
     const result = await this.emsPatientService.getPatientList({ query, user });
     return createResponse(result);
   }
@@ -107,6 +109,7 @@ export class EmsPatientController {
    * @returns 환자 상세 정보
    */
   @TypedRoute.Get('/:patient_id')
+  @TypedException<AUTH_ERROR.FORBIDDEN>(403, 'AUTH_ERROR.FORBIDDEN')
   @TypedException<EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>(404, 'EMS_PATIENT_ERROR.PATIENT_NOT_FOUND')
   @UseGuards(EmsJwtAccessAuthGuard)
   async getPatientDetail(
@@ -213,6 +216,7 @@ export class EmsPatientController {
   @TypedRoute.Post('/:patient_id/vs')
   @TypedException<EMS_PATIENT_ERROR.FORBIDDEN>(403, 'EMS_PATIENT_ERROR.FORBIDDEN')
   @TypedException<EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>(404, 'EMS_PATIENT_ERROR.PATIENT_NOT_FOUND')
+  @TypedException<ems_VS_Assessment>(201, 'ems_VS_Assessment')
   @UseGuards(EmsJwtAccessAuthGuard)
   async createVSAssessment(
     @TypedBody() createVSAssessmentDTO: EmsPatientRequest.CreateVSAssessmentDTO,

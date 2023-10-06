@@ -5,12 +5,19 @@ import { Injectable } from '@nestjs/common';
 import { ems_PatientStatus } from '@prisma/client';
 import { EmsAuth } from '@src/auth/interface';
 import typia from 'typia';
+import { ReqEmsToErRequest } from '../interface/req/req.emsToEr.interface';
 
 @Injectable()
 export class ReqEmsToErService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async createEmsToErRequest(user: EmsAuth.AccessTokenSignPayload) {
+  async createEmsToErRequest(
+    user: EmsAuth.AccessTokenSignPayload,
+  ): Promise<
+    | ReqEmsToErRequest.createEmsToErRequestReturn
+    | REQ_EMS_TO_ER_ERROR.PENDING_PATIENT_NOT_FOUND
+    | REQ_EMS_TO_ER_ERROR.AMBULANCE_COMPANY_NOT_FOUND
+  > {
     const { employee_id, ambulance_company_id } = user;
 
     //TODO: 서버 분리시 api 호출로 변경

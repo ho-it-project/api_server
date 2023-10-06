@@ -28,16 +28,16 @@ export class ReqEmsToErController {
    *
    * @author de-novo
    * @tag req_ems-to-er-(EMS)
-   * @summary EMS to Er 수용요청 생성 API
+   * @summary EMS to Er 수용요청 생성 API -- 아직 완성안됨
    *
    * @security access_token
    * @param body
-   * @return string
+   * @return {ReqEmsToErResponse.createEmsToErRequest} 요청된 병원 리스트
    */
   @TypedRoute.Post('/')
-  @TypedException<REQ_EMS_TO_ER_ERROR.PENDING_PATIENT_NOT_FOUND>(404, 'PENDING_PATIENT_NOT_FOUND')
-  @TypedException<REQ_EMS_TO_ER_ERROR.AMBULANCE_COMPANY_NOT_FOUND>(404, 'AMBULANCE_COMPANY_NOT_FOUND')
-  @TypedException<AUTH_ERROR.FORBIDDEN>(403, 'FORBIDDEN')
+  @TypedException<AUTH_ERROR.FORBIDDEN>(403, 'AUTH_ERROR.FORBIDDEN')
+  @TypedException<REQ_EMS_TO_ER_ERROR.PENDING_PATIENT_NOT_FOUND>(404.1, 'PENDING_PATIENT_NOT_FOUND')
+  @TypedException<REQ_EMS_TO_ER_ERROR.AMBULANCE_COMPANY_NOT_FOUND>(404.2, 'AMBULANCE_COMPANY_NOT_FOUND')
   @UseGuards(EmsJwtAccessAuthGuard)
   async createEmsToErRequest(
     @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
