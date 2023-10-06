@@ -122,7 +122,12 @@ describe('ErEmergencyCenterService', () => {
     });
 
     it('should be return empty array', async () => {
-      const result = await service.sortEmergencyCenterListByDistance(37.123, 127.123, []);
+      // const result = await service.sortEmergencyCenterListByDistance(37.123, 127.123, []);
+      const result = service.sortEmergencyCenterListByDistance({
+        latitude: 37.123,
+        longitude: 127.123,
+        emergencyCenterList: [],
+      });
       expect(result).toEqual([]);
     });
 
@@ -130,7 +135,12 @@ describe('ErEmergencyCenterService', () => {
     it('should return sorted emergency center data', async () => {
       mockPrismaService.er_EmergencyCenter.findMany = jest.fn().mockResolvedValue(mockData);
 
-      const result = service.sortEmergencyCenterListByDistance(37.123, 127.123, mockData);
+      // const result = service.sortEmergencyCenterListByDistance(37.123, 127.123, []);
+      const result = service.sortEmergencyCenterListByDistance({
+        latitude: 37.123,
+        longitude: 127.123,
+        emergencyCenterList: mockData,
+      });
       const mockDataWithDistance = mockData
         .map((data) => {
           const distance = calculateDistance(

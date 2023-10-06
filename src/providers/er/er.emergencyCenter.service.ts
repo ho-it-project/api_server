@@ -13,9 +13,12 @@ export class ErEmergencyCenterService {
     query: ErEmergencyCenter.GetEmergencyCenterListQuery,
   ): Promise<ErEmergencyCenter.GetEmergencyCenterListQueryReturn> {
     const { emergency_center_type, emergency_room_available, page = 1, limit = 10 } = query;
+
     const skip = (page - 1) * limit;
+
     const { city = '' } = query;
     const { latitude, longitude } = query;
+
     const emergency_center_type_where = emergency_center_type
       ? {
           emergency_center_type: {
@@ -62,21 +65,50 @@ export class ErEmergencyCenterService {
     });
     // // location query
 
-    const emergency_center_list = this.sortEmergencyCenterListByDistance(
+    // const emergency_center_list = this.sortEmergencyCenterListByDistance(
+    //   latitude,
+    //   longitude,
+    //   emergencyCenterList,
+    // ).slice(skip, skip + limit);
+    const emergency_center_list = this.sortEmergencyCenterListByDistance({
       latitude,
       longitude,
       emergencyCenterList,
-    ).slice(skip, skip + limit);
+    }).slice(skip, skip + limit);
 
     const emergency_center_count = emergencyCenterList.length;
     return { emergency_center_list, count: emergency_center_count };
   }
 
-  sortEmergencyCenterListByDistance(
-    latitude: number,
-    longitude: number,
-    emergencyCenterList: ErEmergencyCenter.GetEmergentcyCenterListQueryFindManyOuput[],
-  ): ErEmergencyCenter.SortEmergencyCenterByDistanceRetrun {
+  /**
+   * 사용하지않지만 변경된점을 알기위해 남겨둠 지워질 예정
+   */
+  // sortEmergencyCenterListByDistance<T extends er_EmergencyCenter>(
+  //   latitude: number,
+  //   longitude: number,
+  //   emergencyCenterList: T[],
+  // ): (T & { distance: number })[] {
+  //   const sortedEmergencyCenterList = emergencyCenterList
+  //     .map((emergencyCenter) => {
+  //       return {
+  //         ...emergencyCenter,
+  //         distance: calculateDistance(
+  //           latitude,
+  //           longitude,
+  //           emergencyCenter.emergency_center_latitude,
+  //           emergencyCenter.emergency_center_longitude,
+  //         ),
+  //       };
+  //     })
+  //     .sort((a, b) => a.distance - b.distance);
+  //   return sortedEmergencyCenterList;
+  // }
+
+  sortEmergencyCenterListByDistance: ErEmergencyCenter.SortEmergencyCenterListByDistance = ({
+    latitude,
+    longitude,
+    emergencyCenterList,
+  }) => {
     const sortedEmergencyCenterList = emergencyCenterList
       .map((emergencyCenter) => {
         return {
@@ -91,5 +123,5 @@ export class ErEmergencyCenterService {
       })
       .sort((a, b) => a.distance - b.distance);
     return sortedEmergencyCenterList;
-  }
+  };
 }

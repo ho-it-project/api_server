@@ -1,4 +1,12 @@
-import { ems_AmbulanceType, ems_Employee, ems_EmployeeRole } from '@prisma/client';
+import {
+  Gender,
+  ems_AmbulanceType,
+  ems_Employee,
+  ems_EmployeeRole,
+  ems_GuardianRelation,
+  ems_IncidentCause,
+  ems_Severity,
+} from '@prisma/client';
 import { tags } from 'typia';
 
 export namespace EmsAuthRequest {
@@ -162,5 +170,150 @@ export namespace EmsAmbulanceCompanyRequest {
      * @title 구급차량 타입
      */
     ambulance_type?: ems_AmbulanceType[];
+  }
+}
+
+export namespace EmsPatientRequest {
+  export interface CreatePatientDTO {
+    /**
+     * 환자이름을 입렵하세요
+     * 이름을 모를시 '익명'으로 입력
+     * @type string
+     * @title 환자 이름
+     */
+    patient_name: string;
+
+    /**
+     * 환자의 생년월일을 입력하세요
+     *
+     * 혼수상태등의 이유로 알수없는 경우
+     * 00000000 으로 입력
+     * @type string
+     * @title 환자 생년월일
+     * @pattern [0-9]{8}
+     * @example 19990101
+     * @description 생년월일 8자리
+     */
+    patient_birth: string & tags.Pattern<'[0-9]{8}'>; // 생년월일
+
+    /**
+     * 환자의 주민등록번호 뒷자리 7자리를 입력하세요
+     *
+     * 혼수상태등의 이유로 알수없는 경우
+     * 00000000 으로 입력
+     * @type string
+     * @title 환자 주민등록번호 뒷자리
+     * @pattern [0-9]{7}
+     * @example 1234567
+     * @description 주민등록번호 뒤 7자리
+     */
+    patient_identity_number: string & tags.Pattern<'[0-9]{7}'>; // 주민등록번호 뒤 7자리
+
+    /**
+     * 환자의 성별을 입력하세요
+     *
+     * @type string
+     * @title 환자 성별
+     * @enum FEMALE, MALE
+     * @example 남자
+     * @description 남자, 여자
+     */
+    patient_gender: Gender;
+
+    /**
+     * 환자의 연락처를 입력하세요
+     *
+     * 혼수상태등의 이유로 알수없는 경우
+     * 00000000000 으로 입력
+     *
+     * @type string
+     * @title 환자 연락처
+     * @pattern [0-9]{11}
+     * @example 01012345678
+     */
+    patient_phone: string & tags.Pattern<'[0-9]{11}'>; // 핸드폰 번호
+
+    /**
+     * 환자의 주소를 입력하세요
+     *
+     * 혼수상태등의 이유로 알수없는 경우
+     * '알수없음' 으로 입력
+     *
+     * @type string
+     * @title 환자 주소
+     */
+    patient_address: string;
+
+    /**
+     * 환자의 위도를 입력하세요
+     *
+     * @type number
+     * @title 환자 위도
+     * @minimum -90
+     * @maximum 90
+     */
+    patient_latitude: number & tags.Minimum<-90> & tags.Maximum<90>;
+
+    /**
+     * 환자의 경도를 입력하세요
+     * @type number
+     * @title 환자 경도
+     * @minimum -180
+     * @maximum 180
+     */
+    patient_longitude: number & tags.Minimum<-180> & tags.Maximum<180>;
+
+    /**
+     * 환자의 상태를 입력하세요
+     * @type ems_Severity
+     * @title 환자 상태
+     */
+    patient_severity: ems_Severity;
+
+    /**
+     * 환자의 응급사유를 입력하세요
+     * @type ems_IncidentCause
+     * @title 환자 응급사유
+     */
+    patient_emergency_cause: ems_IncidentCause;
+
+    /**
+     * 환자의 보호자 정보를 입력하세요
+     * @type PatientGuardianDTO
+     * @title 환자 보호자 정보
+     * @description 보호자 정보
+     */
+    patient_guardian?: PatientGuardianDTO;
+  }
+
+  export interface PatientGuardianDTO {
+    /**
+     * 보호자 이름을 입력하세요
+     * @type string
+     * @title 보호자 이름
+     * @description 보호자 이름
+     */
+    guardian_name: string;
+    /**
+     * 보호자 연락처를 입력하세요
+     * @type string
+     * @title 보호자 연락처
+     * @description 보호자 연락처
+     */
+    guardian_phone: string;
+    /**
+     * 보호자 주소를 입력하세요
+     * @type string
+     * @title 보호자 주소
+     * @description 보호자 주소
+     */
+    guardian_address: string;
+    /**
+     * 보호자 관계를 입력하세요
+     * @type ems_GuardianRelation
+     * @title 보호자 관계
+     * @description 보호자 관계
+     */
+    guardian_relation: ems_GuardianRelation;
   }
 }

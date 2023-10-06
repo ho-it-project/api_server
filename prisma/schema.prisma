@@ -6,7 +6,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  schemas  = ["ems", "er", "public"]
+  schemas  = ["ems", "er", "public", "request"]
 }
 
 /// 
@@ -183,11 +183,13 @@ model er_EmergencyRoomBedLog {
 }
 
 model er_Patient {
-  patient_id      String @id @default(uuid())
-  patient_name    String @db.VarChar(50)
-  patient_birth   String @db.VarChar(50)
-  patient_phone   String @db.VarChar(50)
-  patient_address String @db.VarChar(50)
+  patient_id              String @id @default(uuid())
+  patient_name            String @db.VarChar(50)
+  patient_birth           String @db.VarChar(50) ///  yyyy-mm-dd
+  patient_identity_number String @db.VarChar(100)
+  patient_gender          Gender
+  patient_phone           String @db.VarChar(50)
+  patient_address         String @db.VarChar(50)
 
   /// default 
   created_at DateTime @default(now())
@@ -290,6 +292,25 @@ model er_HospitalMedicalEquipment {
   @@schema("er")
 }
 
+
+model er_Response {
+  emergency_center_id String @db.VarChar(50)
+  request_id          String @db.VarChar(50)
+  
+  response er_ResponseType 
+  reject_reason String? @db.VarChar(255)
+
+  /// default 
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+  status     Status   @default(ACTIVE)
+
+  @@id([emergency_center_id, request_id])
+  @@map("response")
+  @@schema("er")
+}
+
+
 enum er_EmployeeRole {
   ADMIN
   DOCTOR
@@ -349,13 +370,20 @@ enum er_MedicalInstitutionType {
   @@schema("er")
 }
 
+
+enum er_ResponseType {
+  ACCEPTED
+  REJECTED
+  @@schema("er")
+}
+
 /// 
 /// ems schema
 ///
 model ems_AmbulanceCompany {
   ambulance_company_id             String  @id @default(uuid())
   ambulance_company_name           String  @db.VarChar(50)
-  ambulance_company_representative String?  @db.VarChar(50)
+  ambulance_company_representative String? @db.VarChar(50)
   ambulance_company_area           String  @db.VarChar(50)
   ambulance_company_address        String? @db.VarChar(255)
   ambulance_company_phone          String  @db.VarChar(20)
@@ -374,10 +402,10 @@ model ems_AmbulanceCompany {
 }
 
 model ems_Ambulance {
-  ambulance_id        String            @id
+  ambulance_id         String            @id
   ambulance_company_id String            @db.VarChar(50)
   ambulance_type       ems_AmbulanceType
-  ambulance_number    String            @db.VarChar(50)
+  ambulance_number     String            @db.VarChar(50)
 
   /// default
   created_at DateTime @default(now())
@@ -395,7 +423,7 @@ model ems_Employee {
   employee_id          String           @id @default(uuid())
   ambulance_company_id String           @db.VarChar(50)
   employee_name        String           @db.VarChar(50)
-  role        ems_EmployeeRole
+  role                 ems_EmployeeRole
   id_card              String           @db.VarChar(20)
   password             String           @db.VarChar(255)
 
@@ -406,7 +434,7 @@ model ems_Employee {
 
   /// relation
   ambulance_company ems_AmbulanceCompany @relation(fields: [ambulance_company_id], references: [ambulance_company_id])
-  requests          ems_request[]
+  patients          ems_Patient[]
 
   @@unique([id_card, ambulance_company_id])
   @@map("employee")
@@ -416,31 +444,50 @@ model ems_Employee {
 model ems_Patient {
   patient_id              String            @id @default(uuid())
   patient_name            String            @default("익명") @db.VarChar(50) /// 익명으로 기본값
-  // patient_age             Int               @default(0) /// age는 한국나이가 애매함으로 생년월일로 대체
   patient_birth           String            @default("0000-00-00") @db.VarChar(50) /// 생년월일 0000-00-00 형식 0000-00-00은 미상
+  patient_identity_number String            @db.VarChar(100) // 주민등록번호 뒷자리 7자리 암호화해서 저장
   patient_phone           String            @default("000-0000-0000") @db.VarChar(50) /// 000-0000-0000 형식 000-0000-0000은 미상
   patient_address         String            @default("미상") @db.VarChar(200) /// 환자 주소 미상으로 기본값
+  patient_gender          Gender
   patient_latitude        Float /// 위도 - 사고지점  
   patient_longitude       Float /// 경도 - 사고지점
   patient_severity        ems_Severity /// 중증, 경증, 정상, 미상 
   patient_emergency_cause ems_IncidentCause /// 사고원인
   guardian_id             String?           @unique @db.VarChar(50)
+  ems_employee_id         String            @db.VarChar(50)
 
+  patient_status ems_PatientStatus @default(PENDING) /// 대기중 // 요청전 단계
   /// default 
+  created_at     DateTime          @default(now())
+  updated_at     DateTime          @default(now()) @updatedAt
+  status         Status            @default(ACTIVE)
+
+  /// relation
+  guardian     ems_Guardian?
+  abcde        ems_ABCDE_Assessment[]
+  dcap_btls    ems_DCAP_BTLS_Assessment[]
+  vs           ems_VS_Assessment[]
+  sample       ems_SAMPLE_Assessment[]
+  opqrst       ems_OPQRST_Assessment[]
+  employee     ems_Employee               @relation(fields: [ems_employee_id], references: [employee_id])
+  patient_salt ems_PatientSalt?
+
+  @@map("patient")
+  @@schema("ems")
+}
+
+model ems_PatientSalt {
+  patient_id String @id @db.VarChar(50)
+  salt       String @db.VarChar(255)
+
+  /// default
   created_at DateTime @default(now())
   updated_at DateTime @default(now()) @updatedAt
   status     Status   @default(ACTIVE)
 
   /// relation
-  guardian  ems_Guardian?
-  abcde     ems_ABCDE_Assessment[]
-  dcap_btls ems_DCAP_BTLS_Assessment[]
-  vs        ems_VS_Assessment[]
-  sample    ems_SAMPLE_Assessment[]
-  opqrst    ems_OPQRST_Assessment[]
-  requests  ems_request[]
-
-  @@map("patient")
+  patient ems_Patient             @relation(fields: [patient_id], references: [patient_id])
+  @@map("patient_salt")
   @@schema("ems")
 }
 
@@ -578,27 +625,6 @@ model ems_OPQRST_Assessment {
   @@schema("ems")
 }
 
-model ems_request {
-  request_id     String            @id @default(uuid())
-  patient_id     String            @db.VarChar(50)
-  employee_id    String            @db.VarChar(50)
-  request_status ems_RequestStatus @default(REQUESTED)
-  request_date   DateTime          @default(now())
-  request_reason String            @db.VarChar(255)
-
-  accept_hospital_id String?      @db.VarChar(255)
-  accept_date        DateTime?    @default("1970-01-01T00:00:00Z") /// 유닉스 타임스탬프 "1970-01-01T00:00:00Z" = 아직 수락 안됨
-  /// default
-  created_at         DateTime     @default(now())
-  updated_at         DateTime     @default(now()) @updatedAt
-  status             Status       @default(ACTIVE)
-  /// relation
-  patient            ems_Patient  @relation(fields: [patient_id], references: [patient_id])
-  employee           ems_Employee @relation(fields: [employee_id], references: [employee_id])
-
-  @@map("request")
-  @@schema("ems")
-}
 
 enum ems_EmployeeRole {
   ADMIN
@@ -698,10 +724,27 @@ enum ems_AffectedArea {
   @@schema("ems")
 }
 
-enum ems_RequestStatus {
+enum RequestStatus {
   REQUESTED /// 요청됨
   ACCEPTED /// 수락됨
   REJECTED /// 거절됨
+  CANCELED /// 취소됨
+  COMPLETED /// 완료됨
+
+  @@schema("request")
+}
+
+enum Gender {
+  FEMALE
+  MALE
+
+  @@schema("public")
+}
+
+enum ems_PatientStatus {
+  PENDING /// 대기중 // 요청전 단계 
+  REQUESTED /// 요청됨
+  ACCEPTED /// 수락됨
   CANCELED /// 취소됨
   COMPLETED /// 완료됨
 
@@ -715,3 +758,49 @@ enum Status {
 
   @@schema("public")
 }
+
+
+
+/// ////
+/// request schema
+/// ////
+
+
+model req_EmsToErRequest {
+  patient_id     String            @db.VarChar(50)
+  emergency_center_id String      @db.VarChar(50)
+  ems_employee_id    String            @db.VarChar(50)
+  request_status RequestStatus @default(REQUESTED)
+  request_date   DateTime          @default(now())
+
+  response_date        DateTime    @default("1970-01-01T00:00:00Z") /// 유닉스 타임스탬프 "1970-01-01T00:00:00Z" = 아직 응답 안함
+  /// default
+  created_at         DateTime     @default(now())
+  updated_at         DateTime     @default(now()) @updatedAt
+  status             Status       @default(ACTIVE)
+  /// relation
+  patient            req_Patient  @relation(fields: [patient_id], references: [patient_id])
+  @@id([patient_id, emergency_center_id])
+  @@map("ems_to_er_request")
+  @@schema("request")
+}
+
+model req_Patient {
+  patient_id     String           @id @db.VarChar(50)
+  patient_name   String           @default("익명") @db.VarChar(50) /// 익명으로 기본값
+  patient_birth  String           @default("0000-00-00") @db.VarChar(50) /// 생년월일 0000-00-00 형식 0000-00-00은 미상
+  patient_gender Gender
+  patient_symptom_summary String            @db.VarChar(255)
+
+  /// default
+  created_at     DateTime         @default(now())
+  updated_at     DateTime         @default(now()) @updatedAt
+  status         Status           @default(ACTIVE)
+
+  /// relation
+  ems_to_er_request req_EmsToErRequest[]
+  @@schema("request")
+}
+
+
+
