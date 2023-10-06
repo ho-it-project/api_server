@@ -491,7 +491,7 @@ export namespace EmsPatientRequest {
      * @type string
      * @title 통증 발현시간
      */
-    time: Date;
+    time: string & tags.Format<'date-time'>;
   }
 
   export interface CreateSAMPLEAssessmentDTO {
@@ -500,7 +500,7 @@ export namespace EmsPatientRequest {
      * @type string
      * @title 증상 및 증후
      */
-    sings_symptoms: string;
+    signs_symptoms: string;
 
     /**
      * 알레르기
@@ -528,7 +528,7 @@ export namespace EmsPatientRequest {
      * @type string
      * @title 마지막 경구 섭취
      */
-    last_oral_intake: Date;
+    last_oral_intake: string & tags.Format<'date-time'>;
 
     /**
      * 발병 전 사건 - 무엇을 하고있었는지.

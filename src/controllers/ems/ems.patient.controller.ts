@@ -3,6 +3,13 @@ import { createResponse } from '@common/interceptor/createResponse';
 import { EMS_PATIENT_ERROR, isError, throwError } from '@config/errors';
 import { TypedBody, TypedException, TypedQuery, TypedRoute } from '@nestia/core';
 import { Controller, Param, UseGuards } from '@nestjs/common';
+import {
+  ems_ABCDE_Assessment,
+  ems_DCAP_BTLS_Assessment,
+  ems_OPQRST_Assessment,
+  ems_SAMPLE_Assessment,
+  ems_VS_Assessment,
+} from '@prisma/client';
 import { EmsJwtAccessAuthGuard } from '@src/auth/guard/ems.jwt.access.guard';
 import { EmsAuth } from '@src/auth/interface';
 import { TryCatch } from '@src/types';
@@ -110,58 +117,191 @@ export class EmsPatientController {
     return createResponse(result);
   }
 
+  /**
+   * ABCDE 평가 생성 API
+   *
+   * ABCDE 평가를 생성합니다.
+   * figma에있는 플로우 ABSc에대한 평가를 생성합니다.
+   *
+   * @author de-novo
+   * @tag ems_patient
+   * @summary 2023-10-06 - ABCDE 평가 생성 API - 사용안 할수도 있음
+   *
+   * @security access_token
+   * @param createABCDEAssessmentDTO
+   * @param user
+   * @param patient_id
+   * @returns 생성된 ABCDE 평가
+   */
   @TypedRoute.Post('/:patient_id/abcde')
+  @TypedException<EMS_PATIENT_ERROR.FORBIDDEN>(403, 'EMS_PATIENT_ERROR.FORBIDDEN')
+  @TypedException<EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>(404, 'EMS_PATIENT_ERROR.PATIENT_NOT_FOUND')
   @UseGuards(EmsJwtAccessAuthGuard)
   async createABCDEAssessment(
     @TypedBody() createABCDEAssessmentDTO: EmsPatientRequest.CreateABCDEAssessmentDTO,
     @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
     @Param('patient_id') patient_id: string,
-  ) {
-    console.log(createABCDEAssessmentDTO);
-    console.log(user, patient_id);
+  ): Promise<TryCatch<ems_ABCDE_Assessment, EMS_PATIENT_ERROR.FORBIDDEN | EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>> {
+    const result = await this.emsPatientService.createABCDEAssessment({
+      patient_id,
+      ems_employee_id: user.employee_id,
+      abcde_assessment: createABCDEAssessmentDTO,
+    });
+    if (isError(result)) return throwError(result);
+    return createResponse(result);
   }
 
+  /**
+   * DCAP_BTLS 평가 생성 API
+   *
+   * DCAP_BTLS 평가를 생성합니다.
+   * figma에있는 플로우 DCAP_BTLS에대한 평가를 생성합니다.
+   *
+   * DCAP_BTLS 평가를 진행하는 경우
+   * 1. 외상환자 - 손상기전 명확
+   * 2. 비외상환자
+   *    - 무의식 환자인 경우 첫번째 단계
+   *    - 의식 환자인 경우 4번째(마지막) 단계
+   *
+   * @author de-novo
+   * @tag ems_patient
+   * @summary 2023-10-06 - DCAP_BTLS 평가 생성 API
+   *
+   * @security access_token
+   * @param createDCAP_BTLSAssessmentDTO
+   * @param user
+   * @param patient_id
+   * @returns 생성된 DCAP_BTLS 평가
+   */
   @TypedRoute.Post('/:patient_id/dcap_btls')
+  @TypedException<EMS_PATIENT_ERROR.FORBIDDEN>(403, 'EMS_PATIENT_ERROR.FORBIDDEN')
+  @TypedException<EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>(404, 'EMS_PATIENT_ERROR.PATIENT_NOT_FOUND')
   @UseGuards(EmsJwtAccessAuthGuard)
   async createDCAP_BTLSAssessment(
     @TypedBody() createDCAP_BTLSAssessmentDTO: EmsPatientRequest.CreateDCAP_BTLSAssessmentDTO,
     @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
     @Param('patient_id') patient_id: string,
-  ) {
-    console.log(createDCAP_BTLSAssessmentDTO);
-    console.log(user, patient_id);
+  ): Promise<TryCatch<ems_DCAP_BTLS_Assessment, EMS_PATIENT_ERROR.FORBIDDEN | EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>> {
+    const result = await this.emsPatientService.createDCAP_BTLSAssessment({
+      patient_id,
+      ems_employee_id: user.employee_id,
+      dcap_btls_assessment: createDCAP_BTLSAssessmentDTO,
+    });
+    if (isError(result)) return throwError(result);
+    return createResponse(result);
   }
 
+  /**
+   * VS 평가 생성 API
+   *
+   *
+   * VS 평가를 생성합니다.
+   * figma에있는 플로우 VS에대한 평가를 생성합니다.
+   *
+   * VS 평가는 모든 환자에게 진행되어야 합니다.
+   *
+   * @author de-novo
+   * @tag ems_patient
+   * @summary 2023-10-06 - VS 평가 생성 API
+   *
+   * @security access_token
+   * @param createVSAssessmentDTO
+   * @param user
+   * @param patient_id
+   * @returns 생성된 VS 평가
+   */
   @TypedRoute.Post('/:patient_id/vs')
+  @TypedException<EMS_PATIENT_ERROR.FORBIDDEN>(403, 'EMS_PATIENT_ERROR.FORBIDDEN')
+  @TypedException<EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>(404, 'EMS_PATIENT_ERROR.PATIENT_NOT_FOUND')
   @UseGuards(EmsJwtAccessAuthGuard)
   async createVSAssessment(
     @TypedBody() createVSAssessmentDTO: EmsPatientRequest.CreateVSAssessmentDTO,
     @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
     @Param('patient_id') patient_id: string,
-  ) {
-    console.log(createVSAssessmentDTO);
-    console.log(user, patient_id);
+  ): Promise<TryCatch<ems_VS_Assessment, EMS_PATIENT_ERROR.FORBIDDEN | EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>> {
+    const result = await this.emsPatientService.createVSAssessment({
+      patient_id,
+      ems_employee_id: user.employee_id,
+      vs_assessment: createVSAssessmentDTO,
+    });
+    if (isError(result)) return throwError(result);
+    return createResponse(result);
   }
 
+  /**
+   * SAMPLE 평가 생성 API
+   *
+   *
+   * SAMPLE 평가를 생성합니다.
+   * figma에있는 플로우 SAMPLE에대한 평가를 생성합니다.
+   *
+   * SAMPLE 평가는 모든 환자에게 진행되어야 합니다.
+   *
+   * @author de-novo
+   * @tag ems_patient
+   * @summary 2023-10-06 - SAMPLE 평가 생성 API
+   *
+   * @security access_token
+   * @param createSAMPLEAssessmentDTO
+   * @param user
+   * @param patient_id
+   * @returns 생성된 SAMPLE 평가
+   */
   @TypedRoute.Post('/:patient_id/sample')
+  @TypedException<EMS_PATIENT_ERROR.FORBIDDEN>(403, 'EMS_PATIENT_ERROR.FORBIDDEN')
+  @TypedException<EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>(404, 'EMS_PATIENT_ERROR.PATIENT_NOT_FOUND')
   @UseGuards(EmsJwtAccessAuthGuard)
   async createSAMPLEAssessment(
     @TypedBody() createSAMPLEAssessmentDTO: EmsPatientRequest.CreateSAMPLEAssessmentDTO,
     @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
     @Param('patient_id') patient_id: string,
-  ) {
-    console.log(createSAMPLEAssessmentDTO);
-    console.log(user, patient_id);
+  ): Promise<TryCatch<ems_SAMPLE_Assessment, EMS_PATIENT_ERROR.FORBIDDEN | EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>> {
+    const result = await this.emsPatientService.createSAMPLEAssessment({
+      patient_id,
+      ems_employee_id: user.employee_id,
+      sample_assessment: createSAMPLEAssessmentDTO,
+    });
+    if (isError(result)) return throwError(result);
+    return createResponse(result);
   }
 
+  /**
+   * OPQRST 평가 생성 API
+   *
+   *
+   * OPQRST 평가를 생성합니다.
+   *
+   * OPQRST 평가를 진행해야하는 경우
+   * 1. 비외상환자
+   *    - 의식환자의 경우 1번째 단계
+   *    - 무의식환자의 경우 3번째 (보호자/신고자등) 단계
+   *
+   * @author de-novo
+   * @tag ems_patient
+   * @summary 2023-10-06 - OPQRST 평가 생성 API
+   *
+   * @security access_token
+   * @param createOPQRSTAssessmentDTO
+   * @param user
+   * @param patient_id
+   * @returns 생성된 OPQRST 평가
+   */
+
   @TypedRoute.Post('/:patient_id/opqrst')
+  @TypedException<EMS_PATIENT_ERROR.FORBIDDEN>(403, 'EMS_PATIENT_ERROR.FORBIDDEN')
+  @TypedException<EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>(404, 'EMS_PATIENT_ERROR.PATIENT_NOT_FOUND')
   @UseGuards(EmsJwtAccessAuthGuard)
   async createOPQRSTAssessment(
     @TypedBody() createOPQRSTAssessmentDTO: EmsPatientRequest.CreateOPQRSTAssessmentDTO,
     @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
     @Param('patient_id') patient_id: string,
-  ) {
-    console.log(createOPQRSTAssessmentDTO);
-    console.log(user, patient_id);
+  ): Promise<TryCatch<ems_OPQRST_Assessment, EMS_PATIENT_ERROR.FORBIDDEN | EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>> {
+    const result = await this.emsPatientService.createOPQRSTAssessment({
+      patient_id,
+      ems_employee_id: user.employee_id,
+      opqrst_assessment: createOPQRSTAssessmentDTO,
+    });
+    if (isError(result)) return throwError(result);
+    return createResponse(result);
   }
 }

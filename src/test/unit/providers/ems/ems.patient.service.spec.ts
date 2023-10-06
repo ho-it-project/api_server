@@ -28,6 +28,21 @@ describe('EmsPatientService', () => {
               findMany: jest.fn(),
               findFirst: jest.fn(),
             },
+            ems_ABCDE_Assessment: {
+              create: jest.fn(),
+            },
+            ems_DCAP_BTLS_Assessment: {
+              create: jest.fn(),
+            },
+            ems_VS_Assessment: {
+              create: jest.fn(),
+            },
+            ems_SAMPLE_Assessment: {
+              create: jest.fn(),
+            },
+            ems_OPQRST_Assessment: {
+              create: jest.fn(),
+            },
           },
         },
         CryptoService,
@@ -172,6 +187,236 @@ describe('EmsPatientService', () => {
         user,
       });
       expect(result).toEqual(mockPatientList);
+    });
+  });
+
+  describe('createABCDEAssessment', () => {
+    let mockCreateABCDEAssessment: EmsPatient.CreateABCDEAssessment;
+    beforeEach(() => {
+      mockCreateABCDEAssessment = typia.random<EmsPatient.CreateABCDEAssessment>();
+
+      prismaService.ems_ABCDE_Assessment.create = jest.fn().mockResolvedValue(mockCreateABCDEAssessment);
+      prismaService.ems_Patient.findUnique = jest.fn().mockResolvedValue(typia.random<ems_Patient>());
+    });
+    afterEach(() => {
+      jest.resetAllMocks();
+    });
+    it('should create an ABCDE assessment', async () => {
+      prismaService.ems_Patient.findUnique = jest.fn().mockResolvedValue({
+        ...typia.random<ems_Patient>(),
+        patient_id: mockCreateABCDEAssessment.patient_id,
+        ems_employee_id: mockCreateABCDEAssessment.ems_employee_id,
+      });
+      const result = await service.createABCDEAssessment(mockCreateABCDEAssessment);
+      expect(result).toEqual(mockCreateABCDEAssessment);
+    });
+    it('should return EMS_PATIENT_ERROR.PATIENT_NOT_FOUND', async () => {
+      prismaService.ems_Patient.findUnique = jest.fn().mockResolvedValue(null);
+
+      const result = await service.createABCDEAssessment({
+        ...mockCreateABCDEAssessment,
+      });
+      expect(result).toEqual(typia.random<EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>());
+    });
+    it('should return EMS_PATIENT_ERROR.FORBIDDEN', async () => {
+      prismaService.ems_Patient.findUnique = jest.fn().mockResolvedValue({
+        ...typia.random<ems_Patient>(),
+        patient_id: v4(),
+        ems_employee_id: v4(),
+      });
+      const result = await service.createABCDEAssessment(mockCreateABCDEAssessment);
+      expect(result).toEqual(typia.random<EMS_PATIENT_ERROR.FORBIDDEN>());
+    });
+  });
+
+  describe('createDCAP_BTLSAssessment', () => {
+    let mockCreateDCAP_BTLSAssessment: EmsPatient.CreateDCAP_BTLSAssessment;
+    beforeEach(() => {
+      mockCreateDCAP_BTLSAssessment = typia.random<EmsPatient.CreateDCAP_BTLSAssessment>();
+
+      prismaService.ems_DCAP_BTLS_Assessment.create = jest.fn().mockResolvedValue(mockCreateDCAP_BTLSAssessment);
+      prismaService.ems_Patient.findUnique = jest.fn().mockResolvedValue(typia.random<ems_Patient>());
+    });
+    afterEach(() => {
+      jest.resetAllMocks();
+    });
+    it('should create an DCAP_BTLS assessment', async () => {
+      prismaService.ems_Patient.findUnique = jest.fn().mockResolvedValue({
+        ...typia.random<ems_Patient>(),
+        patient_id: mockCreateDCAP_BTLSAssessment.patient_id,
+        ems_employee_id: mockCreateDCAP_BTLSAssessment.ems_employee_id,
+      });
+      const result = await service.createDCAP_BTLSAssessment(mockCreateDCAP_BTLSAssessment);
+      expect(result).toEqual(mockCreateDCAP_BTLSAssessment);
+    });
+    it('should return EMS_PATIENT_ERROR.PATIENT_NOT_FOUND', async () => {
+      prismaService.ems_Patient.findUnique = jest.fn().mockResolvedValue(null);
+
+      const result = await service.createDCAP_BTLSAssessment({
+        ...mockCreateDCAP_BTLSAssessment,
+      });
+      expect(result).toEqual(typia.random<EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>());
+    });
+    it('should return EMS_PATIENT_ERROR.FORBIDDEN', async () => {
+      prismaService.ems_Patient.findUnique = jest.fn().mockResolvedValue({
+        ...typia.random<ems_Patient>(),
+        patient_id: v4(),
+        ems_employee_id: v4(),
+      });
+      const result = await service.createDCAP_BTLSAssessment(mockCreateDCAP_BTLSAssessment);
+      expect(result).toEqual(typia.random<EMS_PATIENT_ERROR.FORBIDDEN>());
+    });
+  });
+
+  describe('createVSAssessment', () => {
+    let mockCreateVSAssessment: EmsPatient.CreateVSAssessment;
+    beforeEach(() => {
+      mockCreateVSAssessment = typia.random<EmsPatient.CreateVSAssessment>();
+
+      prismaService.ems_VS_Assessment.create = jest.fn().mockResolvedValue(mockCreateVSAssessment);
+      prismaService.ems_Patient.findUnique = jest.fn().mockResolvedValue(typia.random<ems_Patient>());
+    });
+    afterEach(() => {
+      jest.resetAllMocks();
+    });
+    it('should create an VS assessment', async () => {
+      prismaService.ems_Patient.findUnique = jest.fn().mockResolvedValue({
+        ...typia.random<ems_Patient>(),
+        patient_id: mockCreateVSAssessment.patient_id,
+        ems_employee_id: mockCreateVSAssessment.ems_employee_id,
+      });
+      const result = await service.createVSAssessment(mockCreateVSAssessment);
+      expect(result).toEqual(mockCreateVSAssessment);
+    });
+    it('should return EMS_PATIENT_ERROR.PATIENT_NOT_FOUND', async () => {
+      prismaService.ems_Patient.findUnique = jest.fn().mockResolvedValue(null);
+
+      const result = await service.createVSAssessment({
+        ...mockCreateVSAssessment,
+      });
+      expect(result).toEqual(typia.random<EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>());
+    });
+    it('should return EMS_PATIENT_ERROR.FORBIDDEN', async () => {
+      prismaService.ems_Patient.findUnique = jest.fn().mockResolvedValue({
+        ...typia.random<ems_Patient>(),
+        patient_id: v4(),
+        ems_employee_id: v4(),
+      });
+      const result = await service.createVSAssessment(mockCreateVSAssessment);
+      expect(result).toEqual(typia.random<EMS_PATIENT_ERROR.FORBIDDEN>());
+    });
+  });
+
+  describe('createSAMPLEAssessment', () => {
+    let mockCreateSAMPLEAssessment: EmsPatient.CreateSAMPLEAssessment;
+    beforeEach(() => {
+      mockCreateSAMPLEAssessment = typia.random<EmsPatient.CreateSAMPLEAssessment>();
+
+      prismaService.ems_SAMPLE_Assessment.create = jest.fn().mockResolvedValue(mockCreateSAMPLEAssessment);
+      prismaService.ems_Patient.findUnique = jest.fn().mockResolvedValue(typia.random<ems_Patient>());
+    });
+    afterEach(() => {
+      jest.resetAllMocks();
+    });
+    it('should create an SAMPLE assessment', async () => {
+      prismaService.ems_Patient.findUnique = jest.fn().mockResolvedValue({
+        ...typia.random<ems_Patient>(),
+        patient_id: mockCreateSAMPLEAssessment.patient_id,
+        ems_employee_id: mockCreateSAMPLEAssessment.ems_employee_id,
+      });
+      const result = await service.createSAMPLEAssessment(mockCreateSAMPLEAssessment);
+      expect(result).toEqual(mockCreateSAMPLEAssessment);
+    });
+
+    it('should return EMS_PATIENT_ERROR.PATIENT_NOT_FOUND', async () => {
+      prismaService.ems_Patient.findUnique = jest.fn().mockResolvedValue(null);
+
+      const result = await service.createSAMPLEAssessment({
+        ...mockCreateSAMPLEAssessment,
+      });
+      expect(result).toEqual(typia.random<EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>());
+    });
+
+    it('should return EMS_PATIENT_ERROR.FORBIDDEN', async () => {
+      prismaService.ems_Patient.findUnique = jest.fn().mockResolvedValue({
+        ...typia.random<ems_Patient>(),
+        patient_id: v4(),
+        ems_employee_id: v4(),
+      });
+      const result = await service.createSAMPLEAssessment(mockCreateSAMPLEAssessment);
+      expect(result).toEqual(typia.random<EMS_PATIENT_ERROR.FORBIDDEN>());
+    });
+  });
+
+  describe('createOPQRSTAssessment', () => {
+    let mockCreateOPQRSTAssessment: EmsPatient.CreateOPQRSTAssessment;
+    beforeEach(() => {
+      mockCreateOPQRSTAssessment = typia.random<EmsPatient.CreateOPQRSTAssessment>();
+
+      prismaService.ems_OPQRST_Assessment.create = jest.fn().mockResolvedValue(mockCreateOPQRSTAssessment);
+      prismaService.ems_Patient.findUnique = jest.fn().mockResolvedValue(typia.random<ems_Patient>());
+    });
+    afterEach(() => {
+      jest.resetAllMocks();
+    });
+
+    it('should create an OPQRST assessment', async () => {
+      prismaService.ems_Patient.findUnique = jest.fn().mockResolvedValue({
+        ...typia.random<ems_Patient>(),
+        patient_id: mockCreateOPQRSTAssessment.patient_id,
+        ems_employee_id: mockCreateOPQRSTAssessment.ems_employee_id,
+      });
+      const result = await service.createOPQRSTAssessment(mockCreateOPQRSTAssessment);
+      expect(result).toEqual(mockCreateOPQRSTAssessment);
+    });
+    it('should return EMS_PATIENT_ERROR.PATIENT_NOT_FOUND', async () => {
+      prismaService.ems_Patient.findUnique = jest.fn().mockResolvedValue(null);
+
+      const result = await service.createOPQRSTAssessment({
+        ...mockCreateOPQRSTAssessment,
+      });
+      expect(result).toEqual(typia.random<EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>());
+    });
+    it('should return EMS_PATIENT_ERROR.FORBIDDEN', async () => {
+      prismaService.ems_Patient.findUnique = jest.fn().mockResolvedValue({
+        ...typia.random<ems_Patient>(),
+        patient_id: v4(),
+        ems_employee_id: v4(),
+      });
+      const result = await service.createOPQRSTAssessment(mockCreateOPQRSTAssessment);
+      expect(result).toEqual(typia.random<EMS_PATIENT_ERROR.FORBIDDEN>());
+    });
+  });
+
+  describe('checkPaitentIncharge', () => {
+    let patient_id: string;
+    let ems_employee_id: string;
+    beforeEach(() => {
+      const mock = typia.random<ems_Patient>();
+      patient_id = mock.patient_id;
+      ems_employee_id = mock.ems_employee_id;
+      prismaService.ems_Patient.findUnique = jest.fn().mockResolvedValue(mock);
+    });
+    afterEach(() => {
+      jest.resetAllMocks();
+    });
+    it('should return true', async () => {
+      const result = await service.checkPaitentIncharge(patient_id, ems_employee_id);
+      expect(result).toEqual(true);
+    });
+    it('should return EMS_PATIENT_ERROR.PATIENT_NOT_FOUND', async () => {
+      prismaService.ems_Patient.findUnique = jest.fn().mockResolvedValue(null);
+      const result = await service.checkPaitentIncharge(patient_id, ems_employee_id);
+      expect(result).toEqual(typia.random<EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>());
+    });
+    it('should return EMS_PATIENT_ERROR.FORBIDDEN', async () => {
+      prismaService.ems_Patient.findUnique = jest.fn().mockResolvedValue({
+        ...typia.random<ems_Patient>(),
+        patient_id: v4(),
+        ems_employee_id: v4(),
+      });
+      const result = await service.checkPaitentIncharge(patient_id, ems_employee_id);
+      expect(result).toEqual(typia.random<EMS_PATIENT_ERROR.FORBIDDEN>());
     });
   });
 });

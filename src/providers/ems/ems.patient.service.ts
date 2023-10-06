@@ -1,6 +1,6 @@
 import { CryptoService } from '@common/crypto/crypto.service';
 import { PrismaService } from '@common/prisma/prisma.service';
-import { EMS_PATIENT_ERROR } from '@config/errors';
+import { EMS_PATIENT_ERROR, isError } from '@config/errors';
 import { Injectable } from '@nestjs/common';
 import { ems_Patient } from '@prisma/client';
 import typia from 'typia';
@@ -145,5 +145,84 @@ export class EmsPatientService {
       patient_list,
       count,
     };
+  }
+
+  async createABCDEAssessment({ ems_employee_id, patient_id, abcde_assessment }: EmsPatient.CreateABCDEAssessment) {
+    const checkExistAndIncharge = await this.checkPaitentIncharge(patient_id, ems_employee_id);
+    if (isError(checkExistAndIncharge)) return checkExistAndIncharge;
+    const newAssessment = await this.prismaService.ems_ABCDE_Assessment.create({
+      data: {
+        ...abcde_assessment,
+        patient_id,
+      },
+    });
+    return newAssessment;
+  }
+
+  async createDCAP_BTLSAssessment({
+    ems_employee_id,
+    patient_id,
+    dcap_btls_assessment,
+  }: EmsPatient.CreateDCAP_BTLSAssessment) {
+    const checkExistAndIncharge = await this.checkPaitentIncharge(patient_id, ems_employee_id);
+    if (isError(checkExistAndIncharge)) return checkExistAndIncharge;
+
+    const newAssessment = await this.prismaService.ems_DCAP_BTLS_Assessment.create({
+      data: {
+        ...dcap_btls_assessment,
+        patient_id,
+      },
+    });
+    return newAssessment;
+  }
+  async createVSAssessment({ ems_employee_id, patient_id, vs_assessment }: EmsPatient.CreateVSAssessment) {
+    const checkExistAndIncharge = await this.checkPaitentIncharge(patient_id, ems_employee_id);
+    if (isError(checkExistAndIncharge)) return checkExistAndIncharge;
+
+    const newAssessment = await this.prismaService.ems_VS_Assessment.create({
+      data: {
+        ...vs_assessment,
+        patient_id,
+      },
+    });
+    return newAssessment;
+  }
+  async createSAMPLEAssessment({ ems_employee_id, patient_id, sample_assessment }: EmsPatient.CreateSAMPLEAssessment) {
+    const checkExistAndIncharge = await this.checkPaitentIncharge(patient_id, ems_employee_id);
+    if (isError(checkExistAndIncharge)) return checkExistAndIncharge;
+    const newAssessment = await this.prismaService.ems_SAMPLE_Assessment.create({
+      data: {
+        patient_id,
+        ...sample_assessment,
+      },
+    });
+    return newAssessment;
+  }
+  async createOPQRSTAssessment({ ems_employee_id, patient_id, opqrst_assessment }: EmsPatient.CreateOPQRSTAssessment) {
+    const checkExistAndIncharge = await this.checkPaitentIncharge(patient_id, ems_employee_id);
+    if (isError(checkExistAndIncharge)) return checkExistAndIncharge;
+
+    const newAssessment = await this.prismaService.ems_OPQRST_Assessment.create({
+      data: {
+        ...opqrst_assessment,
+        patient_id,
+      },
+    });
+    return newAssessment;
+  }
+
+  async checkPaitentIncharge(patient_id: string, employee_id: string) {
+    const existPatient = await this.prismaService.ems_Patient.findUnique({
+      where: {
+        patient_id,
+      },
+    });
+    if (!existPatient) {
+      return typia.random<EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>();
+    }
+    if (existPatient.ems_employee_id !== employee_id) {
+      return typia.random<EMS_PATIENT_ERROR.FORBIDDEN>();
+    }
+    return true;
   }
 }
