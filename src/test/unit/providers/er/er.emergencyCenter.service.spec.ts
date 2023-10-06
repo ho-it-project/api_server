@@ -1,5 +1,4 @@
 import { PrismaService } from '@common/prisma/prisma.service';
-import { calculateDistance } from '@common/util/calculateDistance';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ErEmergencyCenterService } from '@src/providers/er/er.emergencyCenter.service';
 import { ErEmergencyCenter } from '@src/providers/interface/er/er.emergencyCenter.interface';
@@ -35,8 +34,6 @@ describe('ErEmergencyCenterService', () => {
     expect(service).toBeDefined();
     expect(service.getEmergencyCenterListByQuery).toBeDefined();
     expect(service.getEmergencyCenterListByQuery).toBeInstanceOf(Function);
-    expect(service.sortEmergencyCenterListByDistance).toBeDefined();
-    expect(service.sortEmergencyCenterListByDistance).toBeInstanceOf(Function);
   });
 
   describe('getEmergencyCenterListByQuery', () => {
@@ -106,56 +103,6 @@ describe('ErEmergencyCenterService', () => {
       });
       expect(result.emergency_center_list.length).toBeLessThan(10);
       expect(result.count).toEqual(pageMockData.length);
-    });
-  });
-
-  describe('sortEmergencyCenterListByDistance', () => {
-    it('should be defined', () => {
-      expect(service.sortEmergencyCenterListByDistance).toBeDefined();
-      expect(service.sortEmergencyCenterListByDistance).toBeInstanceOf(Function);
-    });
-    afterEach(() => {
-      jest.clearAllMocks();
-    });
-    beforeEach(() => {
-      mockPrismaService.er_EmergencyCenter.findMany = jest.fn().mockResolvedValue([]);
-    });
-
-    it('should be return empty array', async () => {
-      // const result = await service.sortEmergencyCenterListByDistance(37.123, 127.123, []);
-      const result = service.sortEmergencyCenterListByDistance({
-        latitude: 37.123,
-        longitude: 127.123,
-        emergencyCenterList: [],
-      });
-      expect(result).toEqual([]);
-    });
-
-    const mockData = typia.random<ErEmergencyCenter.GetEmergentcyCenterListQueryFindManyOuput[] & tags.MinItems<10>>();
-    it('should return sorted emergency center data', async () => {
-      mockPrismaService.er_EmergencyCenter.findMany = jest.fn().mockResolvedValue(mockData);
-
-      // const result = service.sortEmergencyCenterListByDistance(37.123, 127.123, []);
-      const result = service.sortEmergencyCenterListByDistance({
-        latitude: 37.123,
-        longitude: 127.123,
-        emergencyCenterList: mockData,
-      });
-      const mockDataWithDistance = mockData
-        .map((data) => {
-          const distance = calculateDistance(
-            37.123,
-            127.123,
-            data.emergency_center_latitude,
-            data.emergency_center_longitude,
-          );
-          return {
-            ...data,
-            distance,
-          };
-        })
-        .sort((a, b) => a.distance - b.distance);
-      expect(result).toEqual(mockDataWithDistance);
     });
   });
 });

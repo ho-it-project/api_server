@@ -9,6 +9,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { EmsModule } from './modules/ems.module';
 import { ErModule } from './modules/er.module';
+import { ReqModule } from './modules/req.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -41,6 +42,7 @@ import { ErModule } from './modules/er.module';
     CryptoModule,
     ErModule,
     EmsModule,
+    ReqModule,
   ],
   controllers: [AppController],
   providers: [AppService, Logger, DbInit],
