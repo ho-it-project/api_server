@@ -286,7 +286,6 @@ export class EmsPatientController {
    * @param patient_id
    * @returns 생성된 OPQRST 평가
    */
-
   @TypedRoute.Post('/:patient_id/opqrst')
   @TypedException<EMS_PATIENT_ERROR.FORBIDDEN>(403, 'EMS_PATIENT_ERROR.FORBIDDEN')
   @TypedException<EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>(404, 'EMS_PATIENT_ERROR.PATIENT_NOT_FOUND')
