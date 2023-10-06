@@ -43,9 +43,6 @@ export class EmsPatientService {
 
     // TODO : 주석 제거
     const newPatient = await this.prismaService.ems_Patient.create({
-      select: {
-        patient_id: true,
-      },
       data: {
         ...patient,
         ems_employee_id: employee_id,
@@ -63,8 +60,8 @@ export class EmsPatientService {
         }),
       },
     });
-
-    return newPatient;
+    const { patient_id } = newPatient;
+    return { patient_id };
   }
 
   async getPatientDetail(patient_id: string) {

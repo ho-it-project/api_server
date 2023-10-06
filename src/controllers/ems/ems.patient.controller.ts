@@ -61,7 +61,6 @@ export class EmsPatientController {
    * @param patient_id
    * @returns
    */
-
   @TypedRoute.Get('/:patient_id')
   @TypedException<EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>(404, 'EMS_PATIENT_ERROR.PATIENT_NOT_FOUND')
   @UseGuards(EmsJwtAccessAuthGuard)
@@ -72,4 +71,24 @@ export class EmsPatientController {
     if (isError(result)) return throwError(result);
     return createResponse(result);
   }
+
+  @TypedRoute.Post('/:patient_id/abcde')
+  @UseGuards(EmsJwtAccessAuthGuard)
+  async createABCDEAssessment() {}
+
+  @TypedRoute.Post('/:patient_id/dcap_btls')
+  @UseGuards(EmsJwtAccessAuthGuard)
+  async createDCAP_BTLSAssessment() {}
+
+  @TypedRoute.Post('/:patient_id/vs')
+  @UseGuards(EmsJwtAccessAuthGuard)
+  async createVSAssessment() {}
+
+  @TypedRoute.Post('/:patient_id/sample')
+  @UseGuards(EmsJwtAccessAuthGuard)
+  async createSAMPLEAssessment() {}
+
+  @TypedRoute.Post('/:patient_id/opqrst')
+  @UseGuards(EmsJwtAccessAuthGuard)
+  async createOPQRSTAssessment() {}
 }
