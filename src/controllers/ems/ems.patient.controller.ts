@@ -110,23 +110,58 @@ export class EmsPatientController {
     return createResponse(result);
   }
 
-  // @TypedRoute.Post('/:patient_id/abcde')
-  // @UseGuards(EmsJwtAccessAuthGuard)
-  // async createABCDEAssessment() {}
+  @TypedRoute.Post('/:patient_id/abcde')
+  @UseGuards(EmsJwtAccessAuthGuard)
+  async createABCDEAssessment(
+    @TypedBody() createABCDEAssessmentDTO: EmsPatientRequest.CreateABCDEAssessmentDTO,
+    @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
+    @Param('patient_id') patient_id: string,
+  ) {
+    console.log(createABCDEAssessmentDTO);
+    console.log(user, patient_id);
+  }
 
-  // @TypedRoute.Post('/:patient_id/dcap_btls')
-  // @UseGuards(EmsJwtAccessAuthGuard)
-  // async createDCAP_BTLSAssessment() {}
+  @TypedRoute.Post('/:patient_id/dcap_btls')
+  @UseGuards(EmsJwtAccessAuthGuard)
+  async createDCAP_BTLSAssessment(
+    @TypedBody() createDCAP_BTLSAssessmentDTO: EmsPatientRequest.CreateDCAP_BTLSAssessmentDTO,
+    @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
+    @Param('patient_id') patient_id: string,
+  ) {
+    console.log(createDCAP_BTLSAssessmentDTO);
+    console.log(user, patient_id);
+  }
 
-  // @TypedRoute.Post('/:patient_id/vs')
-  // @UseGuards(EmsJwtAccessAuthGuard)
-  // async createVSAssessment() {}
+  @TypedRoute.Post('/:patient_id/vs')
+  @UseGuards(EmsJwtAccessAuthGuard)
+  async createVSAssessment(
+    @TypedBody() createVSAssessmentDTO: EmsPatientRequest.CreateVSAssessmentDTO,
+    @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
+    @Param('patient_id') patient_id: string,
+  ) {
+    console.log(createVSAssessmentDTO);
+    console.log(user, patient_id);
+  }
 
-  // @TypedRoute.Post('/:patient_id/sample')
-  // @UseGuards(EmsJwtAccessAuthGuard)
-  // async createSAMPLEAssessment() {}
+  @TypedRoute.Post('/:patient_id/sample')
+  @UseGuards(EmsJwtAccessAuthGuard)
+  async createSAMPLEAssessment(
+    @TypedBody() createSAMPLEAssessmentDTO: EmsPatientRequest.CreateSAMPLEAssessmentDTO,
+    @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
+    @Param('patient_id') patient_id: string,
+  ) {
+    console.log(createSAMPLEAssessmentDTO);
+    console.log(user, patient_id);
+  }
 
-  // @TypedRoute.Post('/:patient_id/opqrst')
-  // @UseGuards(EmsJwtAccessAuthGuard)
-  // async createOPQRSTAssessment() {}
+  @TypedRoute.Post('/:patient_id/opqrst')
+  @UseGuards(EmsJwtAccessAuthGuard)
+  async createOPQRSTAssessment(
+    @TypedBody() createOPQRSTAssessmentDTO: EmsPatientRequest.CreateOPQRSTAssessmentDTO,
+    @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
+    @Param('patient_id') patient_id: string,
+  ) {
+    console.log(createOPQRSTAssessmentDTO);
+    console.log(user, patient_id);
+  }
 }

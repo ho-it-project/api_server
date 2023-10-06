@@ -1,6 +1,10 @@
 import {
   Gender,
+  ems_AffectedArea,
+  ems_AirwayStatus,
   ems_AmbulanceType,
+  ems_BreathingQuality,
+  ems_DisabilityAVPU,
   ems_Employee,
   ems_EmployeeRole,
   ems_GuardianRelation,
@@ -327,5 +331,257 @@ export namespace EmsPatientRequest {
     patient_severity?: ems_Severity[]; // 환자 중증도 필터
     patient_emergency_cause?: ems_IncidentCause[]; // 환자 응급사유 필터
     gender?: Gender; // 환자 성별 필터
+  }
+
+  export interface CreateABCDEAssessmentDTO {
+    airway_status: ems_AirwayStatus;
+    /**
+     * 호흡수 //단위 횟수/분
+     * @type number
+     * @title 분당 호흡수
+     * @minimum 0
+     */
+    breathing_rate: number & tags.Type<'int32'> & tags.Minimum<0>;
+    /**
+     * 호흡 품질 //정상, 불규칙, 얕음, 느림, 빠름, 기타호흡에 대한 상세 내용
+     * @type ems_BreathingQuality
+     * @title 호흡 품질
+     * @enum NORMAL, IRREGULAR, SHALLOW, SLOW, FAST, OTHER
+     */
+    breathing_quality: ems_BreathingQuality;
+
+    /**
+     * 심장박동수 //단위 횟수/분
+     * @type number
+     * @title 분당 심장박동수
+     * @minimum 0
+     */
+    circulation_pulse: number & tags.Type<'int32'> & tags.Minimum<0>;
+    /**
+     * 수축기 혈압 //단위 mmHg
+     * @type number
+     * @title 수축기 혈압
+     * @minimum 0
+     * @maximum 300
+     */
+    circulation_systolic_blood_pressure: number & tags.Type<'int32'> & tags.Minimum<0>;
+    /**
+     * 이완기 혈압 //단위 mmHg
+     * @type number
+     * @title 이완기 혈압
+     * @minimum 0
+     * @maximum 300
+     */
+    circulation_diastolic_blood_pressure: number & tags.Type<'int32'> & tags.Minimum<0>;
+    /**
+     * 의식 상태
+     * @type ems_DisabilityAVPU
+     * @title 의식 상태
+     * @enum ALERT, VERBAL, PAIN, UNRESPONSIVE
+     * @description 의식 상태
+     */
+    disability_avpu: ems_DisabilityAVPU;
+    /**
+     * 노출 상태 : 외상, 화상, 발진, 저체온, 기타노출에 대한 상세 내용
+     * @type string
+     * @title 노출 상태
+     * @description 노출 상태
+     */
+    exposure_notes: string;
+  }
+
+  export interface CreateDCAP_BTLSAssessmentDTO {
+    /**
+     * 부위
+     * @type ems_AffectedArea
+     * @title 부위
+     */
+    affected_area: ems_AffectedArea;
+    /**
+     * 변형
+     * @type string
+     * @title 변형
+     */
+    deformity: string;
+    /**
+     * 멍
+     * @type string
+     * @title 멍
+     */
+    contusion: string;
+    /**
+     * 찰과상
+     * @type string
+     * @title 찰과상
+     */
+    abrasion: string;
+    /**
+     * 찔림상
+     * @type string
+     * @title 찔림상
+     */
+    puncture: string;
+    /**
+     * 화상
+     * @type string
+     * @title 화상
+     */
+    burn: string;
+    /**
+     * 통증
+     * @type string
+     * @title 통증
+     */
+    tenderness: string;
+    /**
+     * 찢김상
+     * @type string
+     * @title 찢김상
+     */
+    laceration: string;
+    /**
+     * 부어오름
+     * @type string
+     * @title 부어오름
+     */
+    swelling: string;
+  }
+
+  export interface CreateOPQRSTAssessmentDTO {
+    /**
+     * 증상이 시작되었을 때 와 무엇을 하고있었는지
+     * @type string
+     * @title 발병상황 - 증상이 시작되었을 때 와 무엇을 하고있었고, 통증은 언제부터 시작됬는지
+     */
+    onset: string;
+
+    /**
+     * 유발요인
+     * @type string
+     * @title 유발요인
+     */
+    provocation: string;
+
+    /**
+     * 통증의 특징
+     * @type string
+     * @title 통증의 특징
+     */
+    quality: string;
+
+    /**
+     * 통증의 위치
+     * @type string
+     * @title 통증의 위치
+     */
+    radiation: string;
+
+    /**
+     * 통증의 강도
+     * 심각도 1~10
+     * @type string
+     * @title 통증의 강도
+     * @minimum 1
+     * @maximum 10
+     */
+    severity: number & tags.Type<'int32'> & tags.Minimum<1> & tags.Maximum<10>;
+
+    /**
+     * 통증 발현시간 //유닉스 타임스탬프 "1970-01-01T00:00:00Z" = 미상
+     * @type string
+     * @title 통증 발현시간
+     */
+    time: Date;
+  }
+
+  export interface CreateSAMPLEAssessmentDTO {
+    /**
+     *증상 및 증후
+     * @type string
+     * @title 증상 및 증후
+     */
+    sings_symptoms: string;
+
+    /**
+     * 알레르기
+     * @type string
+     * @title 알레르기
+     */
+    allergies: string;
+
+    /**
+     * 복용중인 약물
+     * @type string
+     * @title 복용중인 약물
+     */
+    medications: string;
+
+    /**
+     * 과거 병력
+     * @type string
+     * @title 과거 병력
+     */
+    past_medical_history: string;
+
+    /**
+     * 마지막 경구 섭취
+     * @type string
+     * @title 마지막 경구 섭취
+     */
+    last_oral_intake: Date;
+
+    /**
+     * 발병 전 사건 - 무엇을 하고있었는지.
+     * @type string
+     * @title 발병 전 사건
+     */
+    events_leading_to_illness: string;
+  }
+
+  export interface CreateVSAssessmentDTO {
+    // heart_rate               Int /// 심박수 맥박 //단위 횟수/분
+    // respiratory_rate         Int /// 호흡수  //단위 횟수/분
+    // systolic_blood_pressure  Int /// 수축기 혈압 //단위 mmHg
+    // diastolic_blood_pressure Int /// 이완기 혈압 //단위 mmHg
+    // temperature              Float /// 체온 //단위 ℃
+
+    /**
+     * 심박수 맥박 //단위 횟수/분
+     * @type number
+     * @title 심박수 맥박
+     * @minimum 0
+     */
+    heart_rate: number & tags.Type<'int32'> & tags.Minimum<0>;
+    /**
+     * 호흡수  //단위 횟수/분
+     * @type number
+     * @title 호흡수
+     * @minimum 0
+     */
+    respiratory_rate: number & tags.Type<'int32'> & tags.Minimum<0>;
+    /**
+     * 수축기 혈압 //단위 mmHg
+     * @type number
+     * @title 수축기 혈압
+     * @minimum 0
+     * @maximum 300
+     */
+    systolic_blood_pressure: number & tags.Type<'int32'> & tags.Minimum<0>;
+    /**
+     * 이완기 혈압 //단위 mmHg
+     * @type number
+     * @title 이완기 혈압
+     * @minimum 0
+     * @maximum 300
+     */
+    diastolic_blood_pressure: number & tags.Type<'int32'> & tags.Minimum<0>;
+    /**
+     * 체온 //단위 ℃
+     * @type number
+     * @title 체온
+     * @minimum 0
+     * @maximum 50
+     */
+    temperature: number & tags.Type<'float'> & tags.Minimum<0>;
   }
 }
