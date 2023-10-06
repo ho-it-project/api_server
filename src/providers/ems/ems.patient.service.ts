@@ -97,10 +97,53 @@ export class EmsPatientService {
     return patientWithoutIdNumber;
   }
 
-  async getPatientList() {
-    const patientList = await this.prismaService.ems_Patient.findMany({
-      include: {},
-    });
-    return patientList;
+  async getPatientList({ query, user }: EmsPatient.GetPatientListDTO): Promise<EmsPatient.GetPatientListReturn> {
+    const {
+      page = 1,
+      limit = 10,
+      patient_emergency_cause = [],
+      patient_severity = [],
+      patient_status = [],
+      search_type,
+      search,
+      gender,
+    } = query;
+    const skip = (page - 1) * limit;
+    const { employee_id } = user;
+
+    const where = {
+      ems_employee_id: employee_id,
+      ...(patient_status.length > 0 && {
+        patient_status: {
+          in: patient_status,
+        },
+      }),
+      ...(patient_emergency_cause.length > 0 && {
+        patient_emergency_cause: {
+          in: patient_emergency_cause,
+        },
+      }),
+      ...(patient_severity.length > 0 && {
+        patient_severity: {
+          in: patient_severity,
+        },
+      }),
+      ...(search_type &&
+        search && {
+          [search_type]: {
+            contains: search,
+          },
+        }),
+      ...(gender && {
+        patient_gender: gender,
+      }),
+    };
+    const patientList = await this.prismaService.ems_Patient.findMany({ where, skip, take: limit });
+    const count = await this.prismaService.ems_Patient.count({ where });
+    const patient_list = assertPrune<EmsPatient.GetPatientListReturn['patient_list']>(patientList);
+    return {
+      patient_list,
+      count,
+    };
   }
 }

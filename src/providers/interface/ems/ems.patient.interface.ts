@@ -24,4 +24,15 @@ export namespace EmsPatient {
     sample: ems_SAMPLE_Assessment[];
     opqrst: ems_OPQRST_Assessment[];
   }
+
+  export interface GetPatientListDTO {
+    query: EmsPatientRequest.GetPatientListQuery;
+    user: EmsAuth.AccessTokenSignPayload;
+  }
+
+  // export type GetPatientListReturn = Omit<ems_Patient, 'patient_identity_number'>[];
+  export interface GetPatientListReturn {
+    patient_list: Omit<ems_Patient, 'patient_identity_number'>[];
+    count: number;
+  }
 }

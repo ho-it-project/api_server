@@ -106,4 +106,72 @@ describe('EmsPatientService', () => {
       expect(result).toEqual(typia.random<EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>());
     });
   });
+
+  describe('getPatientList', () => {
+    let mockPatientList: EmsPatientResponse.GetPatientList;
+    let query: EmsPatient.GetPatientListDTO['query'];
+    let user: EmsPatient.GetPatientListDTO['user'];
+    beforeEach(() => {
+      mockPatientList = typia.random<EmsPatientResponse.GetPatientList>();
+      query = typia.random<EmsPatient.GetPatientListDTO['query']>();
+      user = typia.random<EmsPatient.GetPatientListDTO['user']>();
+      prismaService.ems_Patient.findMany = jest.fn().mockResolvedValue(mockPatientList.patient_list);
+      prismaService.ems_Patient.count = jest.fn().mockResolvedValue(mockPatientList.count);
+    });
+
+    it('should return a patient list', async () => {
+      const result = await service.getPatientList({ query, user });
+      expect(result).toEqual(mockPatientList);
+    });
+
+    it('should return a patient list with search', async () => {
+      const search = 'test';
+      const search_type = 'patient_name';
+      const result = await service.getPatientList({
+        query: {
+          ...query,
+          search,
+          search_type,
+        },
+        user,
+      });
+      expect(result).toEqual(mockPatientList);
+    });
+
+    it('should return a patient list with patient_status', async () => {
+      const patient_status = typia.random<EmsPatient.GetPatientListDTO['query']['patient_status']>();
+      const result = await service.getPatientList({
+        query: {
+          ...query,
+          patient_status,
+        },
+        user,
+      });
+      expect(result).toEqual(mockPatientList);
+    });
+
+    it('should return a patient list with patient_severity', async () => {
+      const patient_severity = typia.random<EmsPatient.GetPatientListDTO['query']['patient_severity']>();
+      const result = await service.getPatientList({
+        query: {
+          ...query,
+          patient_severity,
+        },
+        user,
+      });
+      expect(result).toEqual(mockPatientList);
+    });
+
+    it('should return a patient list with patient_emergency_cause', async () => {
+      const patient_emergency_cause = typia.random<EmsPatient.GetPatientListDTO['query']['patient_emergency_cause']>();
+      const result = await service.getPatientList({
+        query: {
+          ...query,
+          patient_emergency_cause,
+        },
+        user,
+      });
+      expect(result).toEqual(mockPatientList);
+    });
+  });
 });

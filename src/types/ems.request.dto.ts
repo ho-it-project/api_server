@@ -5,6 +5,7 @@ import {
   ems_EmployeeRole,
   ems_GuardianRelation,
   ems_IncidentCause,
+  ems_PatientStatus,
   ems_Severity,
 } from '@prisma/client';
 import { tags } from 'typia';
@@ -315,5 +316,16 @@ export namespace EmsPatientRequest {
      * @description 보호자 관계
      */
     guardian_relation: ems_GuardianRelation;
+  }
+
+  export interface GetPatientListQuery {
+    page?: number & tags.Minimum<1>;
+    limit?: number & tags.Minimum<1>;
+    search?: string;
+    search_type?: 'patient_name' | 'patient_birth' | 'patient_phone';
+    patient_status?: ems_PatientStatus[]; // 환자 진행상태 필터
+    patient_severity?: ems_Severity[]; // 환자 중증도 필터
+    patient_emergency_cause?: ems_IncidentCause[]; // 환자 응급사유 필터
+    gender?: Gender; // 환자 성별 필터
   }
 }
