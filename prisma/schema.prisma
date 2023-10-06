@@ -726,6 +726,7 @@ enum ems_AffectedArea {
 
 enum RequestStatus {
   REQUESTED /// 요청됨
+  VIEWED /// 확인됨
   ACCEPTED /// 수락됨
   REJECTED /// 거절됨
   CANCELED /// 취소됨
@@ -769,7 +770,6 @@ enum Status {
 model req_EmsToErRequest {
   patient_id     String            @db.VarChar(50)
   emergency_center_id String      @db.VarChar(50)
-  ems_employee_id    String            @db.VarChar(50)
   request_status RequestStatus @default(REQUESTED)
   request_date   DateTime          @default(now())
 
@@ -790,7 +790,19 @@ model req_Patient {
   patient_name   String           @default("익명") @db.VarChar(50) /// 익명으로 기본값
   patient_birth  String           @default("0000-00-00") @db.VarChar(50) /// 생년월일 0000-00-00 형식 0000-00-00은 미상
   patient_gender Gender
+  patient_severity       ems_Severity /// 중증, 경증, 정상, 미상
+
   patient_symptom_summary String            @db.VarChar(255)
+  patient_latitude        Float /// 위도 - 사고지점
+  patient_longitude       Float /// 경도 - 사고지점
+
+  /// 요청한 곳
+  ambulance_company_id String           @db.VarChar(50)
+  ambulance_company_name String         @db.VarChar(50)
+  ems_employee_id String          @db.VarChar(50)
+  ems_employee_name String        @db.VarChar(50)
+
+  
 
   /// default
   created_at     DateTime         @default(now())
@@ -799,6 +811,7 @@ model req_Patient {
 
   /// relation
   ems_to_er_request req_EmsToErRequest[]
+  @@map("patient")
   @@schema("request")
 }
 

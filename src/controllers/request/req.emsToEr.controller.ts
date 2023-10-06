@@ -1,9 +1,14 @@
 import { CurrentUser } from '@common/decorators/CurrentUser';
+import { createResponse } from '@common/interceptor/createResponse';
+import { isError, throwError } from '@config/errors';
+import { REQ_EMS_TO_ER_ERROR } from '@config/errors/req.error';
 import { TypedRoute } from '@nestia/core';
 import { Controller, UseGuards } from '@nestjs/common';
 import { EmsJwtAccessAuthGuard } from '@src/auth/guard/ems.jwt.access.guard';
 import { EmsAuth } from '@src/auth/interface';
 import { ReqEmsToErService } from '@src/providers/req/req.emsToEr.service';
+import { TryCatch } from '@src/types';
+import { ReqEmsToErResponse } from '@src/types/req.response.dto';
 
 @Controller('request/ems-to-er')
 export class ReqEmsToErController {
@@ -31,9 +36,21 @@ export class ReqEmsToErController {
    */
   @TypedRoute.Post('/')
   @UseGuards(EmsJwtAccessAuthGuard)
-  createEmsToErRequest(@CurrentUser() user: EmsAuth.AccessTokenSignPayload): string {
-    this.reqEmsToErService;
-    console.log(user);
-    return 'Hello World!';
+  async createEmsToErRequest(
+    @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
+  ): Promise<
+    TryCatch<
+      ReqEmsToErResponse.createEmsToErRequest,
+      | REQ_EMS_TO_ER_ERROR.PENDING_PATIENT_NOT_FOUND
+      | REQ_EMS_TO_ER_ERROR.AMBULANCE_COMPANY_NOT_FOUND
+      | REQ_EMS_TO_ER_ERROR.AMBULANCE_COMPANY_NOT_FOUND
+    >
+  > {
+    const result = await this.reqEmsToErService.createEmsToErRequest(user);
+    if (isError(result)) {
+      return throwError(result);
+    }
+
+    return createResponse(result);
   }
 }
