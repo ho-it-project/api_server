@@ -1,8 +1,8 @@
 import { CurrentUser } from '@common/decorators/CurrentUser';
 import { createResponse } from '@common/interceptor/createResponse';
-import { isError, throwError } from '@config/errors';
+import { AUTH_ERROR, isError, throwError } from '@config/errors';
 import { REQ_EMS_TO_ER_ERROR } from '@config/errors/req.error';
-import { TypedRoute } from '@nestia/core';
+import { TypedException, TypedRoute } from '@nestia/core';
 import { Controller, UseGuards } from '@nestjs/common';
 import { EmsJwtAccessAuthGuard } from '@src/auth/guard/ems.jwt.access.guard';
 import { EmsAuth } from '@src/auth/interface';
@@ -35,15 +35,16 @@ export class ReqEmsToErController {
    * @return string
    */
   @TypedRoute.Post('/')
+  @TypedException<REQ_EMS_TO_ER_ERROR.PENDING_PATIENT_NOT_FOUND>(404, 'PENDING_PATIENT_NOT_FOUND')
+  @TypedException<REQ_EMS_TO_ER_ERROR.AMBULANCE_COMPANY_NOT_FOUND>(404, 'AMBULANCE_COMPANY_NOT_FOUND')
+  @TypedException<AUTH_ERROR.FORBIDDEN>(403, 'FORBIDDEN')
   @UseGuards(EmsJwtAccessAuthGuard)
   async createEmsToErRequest(
     @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
   ): Promise<
     TryCatch<
       ReqEmsToErResponse.createEmsToErRequest,
-      | REQ_EMS_TO_ER_ERROR.PENDING_PATIENT_NOT_FOUND
-      | REQ_EMS_TO_ER_ERROR.AMBULANCE_COMPANY_NOT_FOUND
-      | REQ_EMS_TO_ER_ERROR.AMBULANCE_COMPANY_NOT_FOUND
+      REQ_EMS_TO_ER_ERROR.PENDING_PATIENT_NOT_FOUND | REQ_EMS_TO_ER_ERROR.AMBULANCE_COMPANY_NOT_FOUND
     >
   > {
     const result = await this.reqEmsToErService.createEmsToErRequest(user);
