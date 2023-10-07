@@ -1,13 +1,15 @@
 import { DbInit } from '@common/database/db.init';
+import { KafkaModule } from '@common/kafka/kafka.module';
+import { PrismaModule } from '@common/prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppController } from '../../../app.controller';
-import { AppService } from '../../../app.service';
-import { PrismaModule } from '../../../common/prisma/prisma.module';
+import { AppController } from '@src/app.controller';
+import { AppService } from '@src/app.service';
+import { v4 } from 'uuid';
 
 describe('AppController', () => {
   let appController: AppController;
-  // jest.mock('./common/kafka/kafka.module', () => ({
+  // jest.mock('../../../common/kafka/kafka.module', () => ({
   //   KafkaModule: {
   //     register: jest.fn().mockReturnValue({
   //       clientId: v4(),
@@ -25,11 +27,11 @@ describe('AppController', () => {
           isGlobal: true,
           envFilePath: '.env',
         }),
-        // KafkaModule.register({
-        //   clientId: v4(),
-        //   brokers: process.env.KAFKA_BOOTSTRAP_SERVERS?.split(',').map((a) => a.trim()) as string[],
-        //   groupId: 'hoit',
-        // }),
+        KafkaModule.register({
+          clientId: v4(),
+          brokers: process.env.KAFKA_BOOTSTRAP_SERVERS?.split(',').map((a) => a.trim()) as string[],
+          groupId: 'hoit',
+        }),
         PrismaModule,
       ],
     }).compile();
