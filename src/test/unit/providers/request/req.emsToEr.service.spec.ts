@@ -2,7 +2,7 @@ import { PrismaService } from '@common/prisma/prisma.service';
 import { REQ_EMS_TO_ER_ERROR } from '@config/errors/req.error';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ems_AmbulanceCompany, ems_Employee, ems_Patient, er_EmergencyCenter } from '@prisma/client';
-import { EmsAuth } from '@src/auth/interface';
+import { EmsAuth, ErAuth } from '@src/auth/interface';
 import { EmsPatient } from '@src/providers/interface/ems/ems.patient.interface';
 import { ReqEmsToErService } from '@src/providers/req/req.emsToEr.service';
 import typia, { tags } from 'typia';
@@ -29,8 +29,15 @@ describe('RequestEmsToErService', () => {
             },
             req_Patient: {
               create: jest.fn().mockResolvedValue({}),
+              findMany: jest.fn().mockResolvedValue([]),
+              count: jest.fn().mockResolvedValue(0),
             },
-            $transaction: jest.fn().mockResolvedValue({}),
+            req_EmsToErRequest: {
+              create: jest.fn().mockResolvedValue({}),
+              findMany: jest.fn().mockResolvedValue([]),
+              count: jest.fn().mockResolvedValue(0),
+            },
+            $transaction: jest.fn().mockResolvedValue([]),
           },
         },
       ],
@@ -100,6 +107,40 @@ describe('RequestEmsToErService', () => {
               distance: expect.any(Number),
             }),
           ]),
+        }),
+      );
+    });
+  });
+
+  describe('getEmsToErRequestList', () => {
+    const emsUser = typia.random<EmsAuth.AccessTokenSignPayload>();
+    const erUesr = typia.random<ErAuth.AccessTokenSignPayload>();
+    erUesr;
+    beforeEach(() => {
+      jest.spyOn(prismaService.req_Patient, 'findMany').mockResolvedValue([]);
+      jest.spyOn(prismaService.req_Patient, 'count').mockResolvedValue(0);
+      jest.spyOn(prismaService, '$transaction').mockResolvedValue([[], 0]);
+    });
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('should return request_list, count if user is ems user', async () => {
+      const result = await requestEmsToErService.getEmsToErRequestList({ user: emsUser, query: {}, type: 'ems' });
+      expect(result).toEqual(
+        expect.objectContaining({
+          request_list: expect.any(Array),
+          count: expect.any(Number),
+        }),
+      );
+    });
+
+    it('should return request_list, count if user is er user', async () => {
+      const result = await requestEmsToErService.getEmsToErRequestList({ user: erUesr, query: {}, type: 'er' });
+      expect(result).toEqual(
+        expect.objectContaining({
+          request_list: expect.any(Array),
+          count: expect.any(Number),
         }),
       );
     });
