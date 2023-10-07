@@ -227,4 +227,74 @@ export class ReqEmsToErService {
       return;
     }
   }
+
+  async respondEmsToErRequest({
+    user,
+    patient_id,
+    response,
+  }: ReqEmsToEr.RespondErToEmsRequest): Promise<
+    { success: true } | REQ_EMS_TO_ER_ERROR.REQUEST_NOT_FOUND | REQ_EMS_TO_ER_ERROR.REQUEST_ALREADY_PROCESSED
+  > {
+    const { emergency_center_id } = user;
+    console.log('respondEmsToErRequest', user, patient_id);
+    const reqEmsToErRequest = await this.prismaService.req_EmsToErRequest.findFirst({
+      where: {
+        patient_id,
+        emergency_center_id,
+      },
+    });
+
+    if (!reqEmsToErRequest) {
+      return typia.random<REQ_EMS_TO_ER_ERROR.REQUEST_NOT_FOUND>();
+    }
+    const { request_status } = reqEmsToErRequest;
+    // 이미 처리된 요청이거나, 취소된 요청이거나 완료된 요청이면 에러
+
+    if (request_status === 'ACCEPTED' || request_status === 'CANCELED' || request_status === 'COMPLETED') {
+      return typia.random<REQ_EMS_TO_ER_ERROR.REQUEST_ALREADY_PROCESSED>();
+    }
+    const update =
+      response === RequestStatus.ACCEPTED
+        ? [
+            //요청이 수락되면 다른 요청들은 모두 완료처리
+            this.prismaService.req_EmsToErRequest.updateMany({
+              where: {
+                patient_id,
+                NOT: {
+                  emergency_center_id,
+                },
+              },
+              data: {
+                request_status: RequestStatus.COMPLETED,
+              },
+            }),
+            //환자 상태 변경
+            this.prismaService.ems_Patient.update({
+              where: {
+                patient_id,
+              },
+              data: {
+                patient_status: ems_PatientStatus.ACCEPTED,
+              },
+            }),
+          ]
+        : [];
+
+    await this.prismaService.$transaction([
+      this.prismaService.req_EmsToErRequest.update({
+        where: {
+          patient_id_emergency_center_id: {
+            patient_id,
+            emergency_center_id,
+          },
+        },
+        data: {
+          request_status: response,
+        },
+      }),
+      ...update,
+    ]);
+
+    return { success: true };
+  }
 }

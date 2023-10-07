@@ -2,7 +2,7 @@ import { CurrentUser } from '@common/decorators/CurrentUser';
 import { createResponse } from '@common/interceptor/createResponse';
 import { AUTH_ERROR, isError, throwError } from '@config/errors';
 import { REQ_EMS_TO_ER_ERROR } from '@config/errors/req.error';
-import { TypedException, TypedQuery, TypedRoute } from '@nestia/core';
+import { TypedBody, TypedException, TypedParam, TypedQuery, TypedRoute } from '@nestia/core';
 import { Controller, UseGuards } from '@nestjs/common';
 import { RequestStatus } from '@prisma/client';
 import { EmsJwtAccessAuthGuard } from '@src/auth/guard/ems.jwt.access.guard';
@@ -91,5 +91,24 @@ export class ReqEmsToErController {
       status: RequestStatus.VIEWED,
     });
     return createResponse(result);
+  }
+
+  @TypedRoute.Post('/:patient_id')
+  @UseGuards(ErJwtAccessAuthGuard)
+  async respondEmsToErRequest(
+    @TypedParam('patient_id') patient_id: string,
+    @TypedBody() respondErToEmsRequestDto: ReqEmsToErRequest.RespondEmsToErRequestDto,
+    @CurrentUser() user: ErAuth.AccessTokenSignPayload,
+  ): Promise<TryCatch<null, REQ_EMS_TO_ER_ERROR.REQUEST_ALREADY_PROCESSED | REQ_EMS_TO_ER_ERROR.REQUEST_NOT_FOUND>> {
+    const { response } = respondErToEmsRequestDto;
+    const result = await this.reqEmsToErService.respondEmsToErRequest({
+      user,
+      response,
+      patient_id,
+    });
+    if (isError(result)) {
+      return throwError(result);
+    }
+    return createResponse(null);
   }
 }

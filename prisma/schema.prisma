@@ -731,7 +731,7 @@ enum RequestStatus {
   REJECTED /// 거절됨
   CANCELED /// 취소됨
   COMPLETED /// 완료됨
-
+  
   @@schema("request")
 }
 

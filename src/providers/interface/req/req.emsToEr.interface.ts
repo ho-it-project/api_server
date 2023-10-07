@@ -29,4 +29,10 @@ export namespace ReqEmsToEr {
     request_list: (req_EmsToErRequest & { patient: req_Patient })[];
     count: number;
   };
+
+  export type RespondErToEmsRequest = {
+    user: ErAuth.AccessTokenSignPayload;
+    response: 'ACCEPTED' | 'REJECTED';
+    patient_id: string;
+  };
 }
