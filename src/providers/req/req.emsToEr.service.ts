@@ -236,7 +236,6 @@ export class ReqEmsToErService {
     { success: true } | REQ_EMS_TO_ER_ERROR.REQUEST_NOT_FOUND | REQ_EMS_TO_ER_ERROR.REQUEST_ALREADY_PROCESSED
   > {
     const { emergency_center_id } = user;
-    console.log('respondEmsToErRequest', user, patient_id);
     const reqEmsToErRequest = await this.prismaService.req_EmsToErRequest.findFirst({
       where: {
         patient_id,

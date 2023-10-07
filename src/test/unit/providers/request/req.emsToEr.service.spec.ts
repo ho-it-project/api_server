@@ -1,7 +1,13 @@
 import { PrismaService } from '@common/prisma/prisma.service';
 import { REQ_EMS_TO_ER_ERROR } from '@config/errors/req.error';
 import { Test, TestingModule } from '@nestjs/testing';
-import { ems_AmbulanceCompany, ems_Employee, ems_Patient, er_EmergencyCenter } from '@prisma/client';
+import {
+  ems_AmbulanceCompany,
+  ems_Employee,
+  ems_Patient,
+  er_EmergencyCenter,
+  req_EmsToErRequest,
+} from '@prisma/client';
 import { EmsAuth, ErAuth } from '@src/auth/interface';
 import { EmsPatient } from '@src/providers/interface/ems/ems.patient.interface';
 import { ReqEmsToErService } from '@src/providers/req/req.emsToEr.service';
@@ -36,6 +42,9 @@ describe('RequestEmsToErService', () => {
               create: jest.fn().mockResolvedValue({}),
               findMany: jest.fn().mockResolvedValue([]),
               count: jest.fn().mockResolvedValue(0),
+              findFirst: jest.fn().mockResolvedValue({}),
+              updateMany: jest.fn().mockResolvedValue({}),
+              update: jest.fn().mockResolvedValue({}),
             },
             $transaction: jest.fn().mockResolvedValue([]),
           },
@@ -143,6 +152,50 @@ describe('RequestEmsToErService', () => {
           count: expect.any(Number),
         }),
       );
+    });
+  });
+
+  describe('respondErToEmsRequest', () => {
+    const user = typia.random<ErAuth.AccessTokenSignPayload>();
+    const patient_id = typia.random<string>();
+    const response = typia.random<'ACCEPTED' | 'REJECTED'>();
+    const patientMock = typia.random<ems_Patient>();
+    const emsToErRequestMock = typia.random<req_EmsToErRequest>();
+    beforeEach(() => {
+      jest.spyOn(prismaService.ems_Patient, 'update').mockResolvedValue(patientMock);
+      jest
+        .spyOn(prismaService.req_EmsToErRequest, 'findFirst')
+        .mockResolvedValue({ ...emsToErRequestMock, request_status: 'REQUESTED' });
+      jest.spyOn(prismaService.req_Patient, 'findMany').mockResolvedValue([]);
+      jest.spyOn(prismaService, '$transaction').mockResolvedValue([]);
+    });
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('should return error if patient not found', async () => {
+      jest.spyOn(prismaService.req_EmsToErRequest, 'findFirst').mockResolvedValue(null);
+      const result = await requestEmsToErService.respondEmsToErRequest({ user, patient_id, response });
+      expect(result).toEqual(typia.random<REQ_EMS_TO_ER_ERROR.REQUEST_NOT_FOUND>());
+    });
+
+    it('should return error if request already processed', async () => {
+      jest.spyOn(prismaService.req_EmsToErRequest, 'findFirst').mockResolvedValue({
+        ...emsToErRequestMock,
+        request_status: 'ACCEPTED',
+      });
+      const result = await requestEmsToErService.respondEmsToErRequest({ user, patient_id, response });
+      expect(result).toEqual(typia.random<REQ_EMS_TO_ER_ERROR.REQUEST_ALREADY_PROCESSED>());
+    });
+
+    it('should return success if request is accepted', async () => {
+      const result = await requestEmsToErService.respondEmsToErRequest({ user, patient_id, response: 'ACCEPTED' });
+      expect(result).toEqual({ success: true });
+    });
+
+    it('should return success if request is rejected', async () => {
+      const result = await requestEmsToErService.respondEmsToErRequest({ user, patient_id, response: 'REJECTED' });
+      expect(result).toEqual({ success: true });
     });
   });
 });
