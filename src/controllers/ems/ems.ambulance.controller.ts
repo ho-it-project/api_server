@@ -20,7 +20,7 @@ export class EmsAmbulanceController {
    * @summary 2023-10-02 구급차 상세 조회 API
    *
    * @param ambulanceId
-   * @returns {EmsAmbulanceResponse.GetAmbulanceDetail} 구급차 상세 정보
+   * @returns 구급차 상세 정보
    */
   @TypedRoute.Get('/:ambulance_id')
   @TypedException<EMS_AMBULANCE_ERROR.AMBULANCE_NOT_FOUND>(404, '구급차량을 찾을 수 없습니다.')

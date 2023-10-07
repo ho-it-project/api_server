@@ -1,9 +1,6 @@
 import { ERROR } from '@config/errors';
 import { ErrorHttpStatusCode } from '@nestjs/common/utils/http-error-by-code.util';
 
-export * from './er.request.dto';
-export * from './er.response.dto';
-
 export interface ResponseDTO<T> {
   /**
    * @type T
@@ -30,6 +27,12 @@ export interface ResponseDTO<T> {
 }
 
 export type Try<T> = ResponseDTO<T>;
-export type TryCatch<T, E extends ERROR<string, ErrorHttpStatusCode>> = Try<T> | E;
+export type TryCatch<T, E extends ERROR<string, ErrorHttpStatusCode>> = E extends any ? ResponseDTO<T> : ResponseDTO<T>;
 
 export type ArrayElement<T extends unknown[]> = T[number];
+export * from './ems.request.dto';
+export * from './ems.response.dto';
+export * from './er.request.dto';
+export * from './er.response.dto';
+export * from './req.request.dto';
+export * from './req.response.dto';

@@ -34,8 +34,7 @@ export class EmsAuthController {
    * @summary 2023-09-30 - 로그인 상태 확인 및 토큰 재발급 API
    *
    * @security refresh_token
-   *
-   * @returns {EmsAuthResponse.CheckAuthStatus} 로그인 상태 확인 및 토큰 재발급
+   * @returns 로그인 상태 확인 및 토큰 재발급
    */
   @TypedRoute.Get('/')
   @UseGuards(EmsJwtRefreshuthGuard)
@@ -90,7 +89,7 @@ export class EmsAuthController {
    * @tag ems_auth
    * @summary 2023-09-30 - 로그인 API
    * @param {EmsAuthRequest.LoginDTO} loginDto.body.required - 로그인 정보
-   * @return {EmsAuthResponse.Login} 로그인 성공
+   * @return 로그인 성공
    */
   @TypedRoute.Post('/login')
   @TypedException<AUTH_ERROR.EMPLOYEE_NOT_FOUND>(400, '직원 아이디가 존재하지 않음.')

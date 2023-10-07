@@ -41,7 +41,7 @@ export class EmsEmployeeController {
    * @param query
    * @param user
    * @security access_token
-   * @returns {EmsEmployeeResponse.GetEmployeeList} 직원 리스트 및 총 직원 수
+   * @returns 직원 리스트 및 총 직원 수
    */
   @TypedRoute.Get('/')
   @UseGuards(EmsJwtAccessAuthGuard)
@@ -74,7 +74,7 @@ export class EmsEmployeeController {
    * @param createManyDto
    * @param user
    * @security access_token
-   * @return {EmsEmployeeResponse.CreateEmployee}
+   * @return 생성된 직원수
    */
   @TypedRoute.Post('/')
   @UseGuards(EmsJwtAccessAuthGuard, AdminGuard)
@@ -86,12 +86,7 @@ export class EmsEmployeeController {
   async createManyEmployee(
     @TypedBody() createManyDto: EmsEmployeeRequest.CreateManyDTO,
     @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
-  ): Promise<
-    TryCatch<
-      EmsEmployeeResponse.CreateManyEmployee,
-      AUTH_ERROR.FORBIDDEN | EMS_EMPLOYEE_ERROR.EMPLOYEE_MULTIPLE_ALREADY_EXIST
-    >
-  > {
+  ): Promise<TryCatch<EmsEmployeeResponse.CreateManyEmployee, EMS_EMPLOYEE_ERROR.EMPLOYEE_MULTIPLE_ALREADY_EXIST>> {
     const result = await this.emsEmployeeService.createManyEmployee({
       ...createManyDto,
       user,
@@ -151,10 +146,13 @@ export class EmsEmployeeController {
    * @param updateDto
    * @param user
    * @security access_token
-   * @returns {EmsEmployeeResponse.UpdatePassword} 비밀번호 변경 성공 여부
+   * @returns 비밀번호 변경 성공 여부
    */
-
   @TypedRoute.Patch('/')
+  @TypedException<AUTH_ERROR.FORBIDDEN>(403, 'AUTH_ERROR.FORBIDDEN')
+  @TypedException<EMS_EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND>(404, 'EMS_EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND')
+  @TypedException<EMS_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_INVALID>(400.1, 'EMS_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_INVALID')
+  @TypedException<EMS_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_SAME>(400.2, 'EMS_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_SAME')
   @UseGuards(EmsJwtAccessAuthGuard)
   async updatePassword(
     @TypedBody() updateDto: EmsEmployeeRequest.UpdatePasswordDTO,

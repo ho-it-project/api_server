@@ -93,4 +93,6 @@ export namespace EmsPatientResponse {
   }
 
   export interface GetPatientDetail extends EmsPatient.GetPatientDetailReturn {}
+
+  export interface GetPatientList extends EmsPatient.GetPatientListReturn {}
 }

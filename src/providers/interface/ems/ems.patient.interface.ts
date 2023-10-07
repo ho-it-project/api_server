@@ -24,4 +24,45 @@ export namespace EmsPatient {
     sample: ems_SAMPLE_Assessment[];
     opqrst: ems_OPQRST_Assessment[];
   }
+
+  export interface GetPatientListDTO {
+    query: EmsPatientRequest.GetPatientListQuery;
+    user: EmsAuth.AccessTokenSignPayload;
+  }
+
+  // export type GetPatientListReturn = Omit<ems_Patient, 'patient_identity_number'>[];
+  export interface GetPatientListReturn {
+    patient_list: Omit<ems_Patient, 'patient_identity_number'>[];
+    count: number;
+  }
+
+  export interface CreateABCDEAssessment {
+    patient_id: string;
+    ems_employee_id: string;
+    abcde_assessment: EmsPatientRequest.CreateABCDEAssessmentDTO;
+  }
+
+  export interface CreateDCAP_BTLSAssessment {
+    patient_id: string;
+    ems_employee_id: string;
+    dcap_btls_assessment: EmsPatientRequest.CreateDCAP_BTLSAssessmentDTO;
+  }
+
+  export interface CreateVSAssessment {
+    patient_id: string;
+    ems_employee_id: string;
+    vs_assessment: EmsPatientRequest.CreateVSAssessmentDTO;
+  }
+
+  export interface CreateSAMPLEAssessment {
+    patient_id: string;
+    ems_employee_id: string;
+    sample_assessment: EmsPatientRequest.CreateSAMPLEAssessmentDTO;
+  }
+
+  export interface CreateOPQRSTAssessment {
+    patient_id: string;
+    ems_employee_id: string;
+    opqrst_assessment: EmsPatientRequest.CreateOPQRSTAssessmentDTO;
+  }
 }
