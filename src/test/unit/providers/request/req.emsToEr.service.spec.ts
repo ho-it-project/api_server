@@ -1,3 +1,4 @@
+import { PrismaService } from '@common/prisma/prisma.service';
 import { REQ_EMS_TO_ER_ERROR } from '@config/errors/req.error';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ems_AmbulanceCompany, ems_Employee, ems_Patient, er_EmergencyCenter } from '@prisma/client';
@@ -5,7 +6,6 @@ import { EmsAuth } from '@src/auth/interface';
 import { EmsPatient } from '@src/providers/interface/ems/ems.patient.interface';
 import { ReqEmsToErService } from '@src/providers/req/req.emsToEr.service';
 import typia, { tags } from 'typia';
-import { PrismaService } from './../../../../common/prisma/prisma.service';
 
 describe('RequestEmsToErService', () => {
   let requestEmsToErService: ReqEmsToErService;
@@ -74,7 +74,7 @@ describe('RequestEmsToErService', () => {
       expect(result).toEqual(typia.random<REQ_EMS_TO_ER_ERROR.AMBULANCE_COMPANY_NOT_FOUND>());
     });
 
-    it('should return target emergency center', async () => {
+    it('should return target emergency center info with distance', async () => {
       const result = await requestEmsToErService.createEmsToErRequest(user);
 
       expect(result).toEqual(

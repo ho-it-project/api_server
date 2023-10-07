@@ -2,10 +2,10 @@ import { PrismaService } from '@common/prisma/prisma.service';
 import { sortByDistanceFromCurrentLocation } from '@common/util/sortByDistanceFromCurrentLocation';
 import { REQ_EMS_TO_ER_ERROR } from '@config/errors/req.error';
 import { Injectable } from '@nestjs/common';
-import { ems_PatientStatus } from '@prisma/client';
+import { Prisma, RequestStatus, ems_PatientStatus } from '@prisma/client';
 import { EmsAuth } from '@src/auth/interface';
 import typia from 'typia';
-import { ReqEmsToErRequest } from '../interface/req/req.emsToEr.interface';
+import { ReqEmsToEr } from '../interface/req/req.emsToEr.interface';
 
 @Injectable()
 export class ReqEmsToErService {
@@ -14,9 +14,10 @@ export class ReqEmsToErService {
   async createEmsToErRequest(
     user: EmsAuth.AccessTokenSignPayload,
   ): Promise<
-    | ReqEmsToErRequest.createEmsToErRequestReturn
+    | ReqEmsToEr.createEmsToErRequestReturn
     | REQ_EMS_TO_ER_ERROR.PENDING_PATIENT_NOT_FOUND
     | REQ_EMS_TO_ER_ERROR.AMBULANCE_COMPANY_NOT_FOUND
+    | REQ_EMS_TO_ER_ERROR.REQUEST_ALREADY_PROCESSED
   > {
     const { employee_id, ambulance_company_id } = user;
 
@@ -43,6 +44,9 @@ export class ReqEmsToErService {
     });
     if (!patient) {
       return typia.random<REQ_EMS_TO_ER_ERROR.PENDING_PATIENT_NOT_FOUND>();
+    }
+    if (patient.patient_status !== ems_PatientStatus.PENDING) {
+      return typia.random<REQ_EMS_TO_ER_ERROR.REQUEST_ALREADY_PROCESSED>();
     }
 
     if (!ambulanceCompany) {
@@ -96,21 +100,111 @@ export class ReqEmsToErService {
       ems_employee_name: patient.employee.employee_name,
     };
 
-    await this.prismaService.req_Patient.create({
+    const createReqPatient = this.prismaService.req_Patient.create({
       data: {
         ...createReqPatientInput,
         ems_to_er_request: {
           createMany: {
-            data: createManyRequestInput.map(({ emergency_center_id }) => ({
+            data: createManyRequestInput.map(({ emergency_center_id, distance }) => ({
               emergency_center_id,
+              distance,
             })),
           },
         },
       },
     });
+    const updateEmsPatient = this.prismaService.ems_Patient.update({
+      where: {
+        patient_id: patient.patient_id,
+      },
+      data: {
+        patient_status: ems_PatientStatus.REQUESTED,
+      },
+    });
+
+    await this.prismaService.$transaction([createReqPatient, updateEmsPatient]);
 
     // TODO: 카프카로 전송 필요
 
     return { target_emergency_center_list: createManyRequestInput };
+  }
+
+  async getEmsToErRequestList({
+    user,
+    query,
+    type,
+  }: ReqEmsToEr.GetEmsToErRequestList): Promise<ReqEmsToEr.GetEmsToErRequestListReturn> {
+    const {
+      page = 1,
+      limit = 10,
+      search,
+      search_type,
+      request_status,
+      patient_gender,
+      patient_severity,
+      request_start_date,
+    } = query;
+    const skip = (page - 1) * limit;
+    const patientWhere = {
+      patient_gender: patient_gender && {
+        in: patient_gender,
+      },
+      patient_severity: patient_severity && {
+        in: patient_severity,
+      },
+      ...(search_type &&
+        search && {
+          [search_type]: {
+            contains: search,
+          },
+        }),
+    };
+    const targetWhere: Prisma.req_EmsToErRequestFindManyArgs['where'] =
+      type === 'ems'
+        ? {
+            patient: {
+              ems_employee_id: user.employee_id,
+              ...patientWhere,
+            },
+          }
+        : {
+            emergency_center_id: user.emergency_center_id,
+          };
+
+    const where: Prisma.req_EmsToErRequestFindManyArgs['where'] = {
+      request_status: request_status && {
+        in: request_status,
+      },
+      request_date: request_start_date && {
+        gte: new Date(request_start_date),
+      },
+      patient: patientWhere,
+      ...targetWhere,
+    };
+    const findmanyEmsToErRequest = this.prismaService.req_EmsToErRequest.findMany({
+      where,
+      skip,
+      take: limit,
+      include: {
+        patient: true,
+      },
+    });
+    const getCount = this.prismaService.req_EmsToErRequest.count({
+      where,
+    });
+    const update =
+      type === 'er'
+        ? [
+            this.prismaService.req_EmsToErRequest.updateMany({
+              where: { ...where, request_status: RequestStatus.REQUESTED },
+              data: {
+                request_status: 'VIEWED',
+              },
+            }),
+          ]
+        : [];
+
+    const [request_list, count] = await this.prismaService.$transaction([findmanyEmsToErRequest, getCount, ...update]);
+    return { request_list, count };
   }
 }

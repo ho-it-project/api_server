@@ -2,12 +2,13 @@ import { CurrentUser } from '@common/decorators/CurrentUser';
 import { createResponse } from '@common/interceptor/createResponse';
 import { AUTH_ERROR, isError, throwError } from '@config/errors';
 import { REQ_EMS_TO_ER_ERROR } from '@config/errors/req.error';
-import { TypedException, TypedRoute } from '@nestia/core';
+import { TypedException, TypedQuery, TypedRoute } from '@nestia/core';
 import { Controller, UseGuards } from '@nestjs/common';
 import { EmsJwtAccessAuthGuard } from '@src/auth/guard/ems.jwt.access.guard';
-import { EmsAuth } from '@src/auth/interface';
+import { ErJwtAccessAuthGuard } from '@src/auth/guard/er.jwt.access.guard';
+import { EmsAuth, ErAuth } from '@src/auth/interface';
 import { ReqEmsToErService } from '@src/providers/req/req.emsToEr.service';
-import { TryCatch } from '@src/types';
+import { ReqEmsToErRequest, TryCatch } from '@src/types';
 import { ReqEmsToErResponse } from '@src/types/req.response.dto';
 
 @Controller('request/ems-to-er')
@@ -38,13 +39,16 @@ export class ReqEmsToErController {
   @TypedException<AUTH_ERROR.FORBIDDEN>(403, 'AUTH_ERROR.FORBIDDEN')
   @TypedException<REQ_EMS_TO_ER_ERROR.PENDING_PATIENT_NOT_FOUND>(404.1, 'PENDING_PATIENT_NOT_FOUND')
   @TypedException<REQ_EMS_TO_ER_ERROR.AMBULANCE_COMPANY_NOT_FOUND>(404.2, 'AMBULANCE_COMPANY_NOT_FOUND')
+  @TypedException<REQ_EMS_TO_ER_ERROR.REQUEST_ALREADY_PROCESSED>(400.1, 'REQUEST_ALREADY_PROCESSED')
   @UseGuards(EmsJwtAccessAuthGuard)
   async createEmsToErRequest(
     @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
   ): Promise<
     TryCatch<
       ReqEmsToErResponse.createEmsToErRequest,
-      REQ_EMS_TO_ER_ERROR.PENDING_PATIENT_NOT_FOUND | REQ_EMS_TO_ER_ERROR.AMBULANCE_COMPANY_NOT_FOUND
+      | REQ_EMS_TO_ER_ERROR.PENDING_PATIENT_NOT_FOUND
+      | REQ_EMS_TO_ER_ERROR.AMBULANCE_COMPANY_NOT_FOUND
+      | REQ_EMS_TO_ER_ERROR.REQUEST_ALREADY_PROCESSED
     >
   > {
     const result = await this.reqEmsToErService.createEmsToErRequest(user);
@@ -52,6 +56,32 @@ export class ReqEmsToErController {
       return throwError(result);
     }
 
+    return createResponse(result);
+  }
+
+  @TypedRoute.Get('/ems')
+  @UseGuards(EmsJwtAccessAuthGuard)
+  async getEmsToErRequestListEms(
+    @TypedQuery() query: ReqEmsToErRequest.GetEmsToErRequestListQuery,
+    @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
+  ) {
+    const result = await this.reqEmsToErService.getEmsToErRequestList({ query, user, type: 'ems' });
+    if (isError(result)) {
+      return throwError(result);
+    }
+    return createResponse(result);
+  }
+
+  @TypedRoute.Get('/er')
+  @UseGuards(ErJwtAccessAuthGuard)
+  async getEmsToErRequestList(
+    @TypedQuery() query: ReqEmsToErRequest.GetEmsToErRequestListQuery,
+    @CurrentUser() user: ErAuth.AccessTokenSignPayload,
+  ) {
+    const result = await this.reqEmsToErService.getEmsToErRequestList({ query, user, type: 'er' });
+    if (isError(result)) {
+      return throwError(result);
+    }
     return createResponse(result);
   }
 }
