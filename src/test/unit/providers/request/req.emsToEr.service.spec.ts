@@ -19,6 +19,7 @@ describe('RequestEmsToErService', () => {
           useValue: {
             ems_Patient: {
               findFirst: jest.fn().mockResolvedValue({} as ems_Patient),
+              update: jest.fn().mockResolvedValue({}),
             },
             ems_AmbulanceCompany: {
               findFirst: jest.fn().mockResolvedValue({}),
@@ -29,6 +30,7 @@ describe('RequestEmsToErService', () => {
             req_Patient: {
               create: jest.fn().mockResolvedValue({}),
             },
+            $transaction: jest.fn().mockResolvedValue({}),
           },
         },
       ],
@@ -55,7 +57,9 @@ describe('RequestEmsToErService', () => {
     }));
     const user = typia.random<EmsAuth.AccessTokenSignPayload>();
     beforeEach(() => {
-      jest.spyOn(prismaService.ems_Patient, 'findFirst').mockResolvedValue(patientMock);
+      jest
+        .spyOn(prismaService.ems_Patient, 'findFirst')
+        .mockResolvedValue({ ...patientMock, patient_status: 'PENDING' });
       jest.spyOn(prismaService.ems_AmbulanceCompany, 'findFirst').mockResolvedValue(ambulanceCompanyMock);
       jest.spyOn(prismaService.er_EmergencyCenter, 'findMany').mockResolvedValue(emergencyCenterListMock);
     });
@@ -66,6 +70,14 @@ describe('RequestEmsToErService', () => {
       jest.spyOn(prismaService.ems_Patient, 'findFirst').mockResolvedValue(null);
       const result = await requestEmsToErService.createEmsToErRequest(user);
       expect(result).toEqual(typia.random<REQ_EMS_TO_ER_ERROR.PENDING_PATIENT_NOT_FOUND>());
+    });
+
+    it('should return error if patient status is not pending', async () => {
+      jest
+        .spyOn(prismaService.ems_Patient, 'findFirst')
+        .mockResolvedValue({ ...patientMock, patient_status: 'REQUESTED' });
+      const result = await requestEmsToErService.createEmsToErRequest(user);
+      expect(result).toEqual(typia.random<REQ_EMS_TO_ER_ERROR.REQUEST_ALREADY_PROCESSED>());
     });
 
     it('should return error if ambulance company not found', async () => {

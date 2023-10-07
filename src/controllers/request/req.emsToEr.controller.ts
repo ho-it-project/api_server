@@ -4,6 +4,7 @@ import { AUTH_ERROR, isError, throwError } from '@config/errors';
 import { REQ_EMS_TO_ER_ERROR } from '@config/errors/req.error';
 import { TypedException, TypedQuery, TypedRoute } from '@nestia/core';
 import { Controller, UseGuards } from '@nestjs/common';
+import { RequestStatus } from '@prisma/client';
 import { EmsJwtAccessAuthGuard } from '@src/auth/guard/ems.jwt.access.guard';
 import { ErJwtAccessAuthGuard } from '@src/auth/guard/er.jwt.access.guard';
 import { EmsAuth, ErAuth } from '@src/auth/interface';
@@ -82,6 +83,13 @@ export class ReqEmsToErController {
     if (isError(result)) {
       return throwError(result);
     }
+    // ER이 조회시 REQUESTED 상태인 요청은 VIEWED로 변경
+    await this.reqEmsToErService.updateEmsToErRequestStatusAfterView({
+      reqList: result.request_list
+        .filter((r) => r.request_status === 'REQUESTED')
+        .map((r) => ({ patient_id: r.patient_id, emergency_center_id: r.emergency_center_id })),
+      status: RequestStatus.VIEWED,
+    });
     return createResponse(result);
   }
 }

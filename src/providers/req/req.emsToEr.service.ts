@@ -1,7 +1,7 @@
 import { PrismaService } from '@common/prisma/prisma.service';
 import { sortByDistanceFromCurrentLocation } from '@common/util/sortByDistanceFromCurrentLocation';
 import { REQ_EMS_TO_ER_ERROR } from '@config/errors/req.error';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Prisma, RequestStatus, ems_PatientStatus } from '@prisma/client';
 import { EmsAuth } from '@src/auth/interface';
 import typia from 'typia';
@@ -9,6 +9,8 @@ import { ReqEmsToEr } from '../interface/req/req.emsToEr.interface';
 
 @Injectable()
 export class ReqEmsToErService {
+  private readonly logger = new Logger(ReqEmsToErService.name);
+
   constructor(private readonly prismaService: PrismaService) {}
 
   async createEmsToErRequest(
@@ -192,19 +194,37 @@ export class ReqEmsToErService {
     const getCount = this.prismaService.req_EmsToErRequest.count({
       where,
     });
-    const update =
-      type === 'er'
-        ? [
-            this.prismaService.req_EmsToErRequest.updateMany({
-              where: { ...where, request_status: RequestStatus.REQUESTED },
-              data: {
-                request_status: 'VIEWED',
-              },
-            }),
-          ]
-        : [];
 
-    const [request_list, count] = await this.prismaService.$transaction([findmanyEmsToErRequest, getCount, ...update]);
+    const [request_list, count] = await this.prismaService.$transaction([findmanyEmsToErRequest, getCount]);
+    //ER 요청일 경우 조회된 요청들중 요청상태가 REQUESTED인 요청들은 VIEWED로 변경
     return { request_list, count };
+  }
+
+  async updateEmsToErRequestStatusAfterView({
+    reqList,
+    status,
+  }: {
+    reqList: { patient_id: string; emergency_center_id: string }[];
+    status: RequestStatus;
+  }) {
+    //요청 상태 변경은 실패해도 무시
+    //실패해도 무시하는 이유는 이미 요청이 처리되었거나, 요청이 취소되었을 수 있기 때문
+
+    //TODO: reqList 카프카로 전송 필요
+    //변경된 요청 상태를 카프카로 전송하여 ER에게 알림
+
+    try {
+      await this.prismaService.req_EmsToErRequest.updateMany({
+        where: {
+          OR: reqList,
+        },
+        data: {
+          request_status: status,
+        },
+      });
+    } catch {
+      this.logger.error('updateEmsToErRequestStatusAfterView error');
+      return;
+    }
   }
 }
