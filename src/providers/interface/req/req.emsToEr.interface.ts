@@ -4,13 +4,8 @@ import { ReqEmsToErRequest } from '@src/types';
 
 export namespace ReqEmsToEr {
   export type createEmsToErRequestReturn = {
-    target_emergency_center_list: {
-      emergency_center_id: string;
-      emergency_center_name: string;
-      emergency_center_latitude: number;
-      emergency_center_longitude: number;
-      distance: number;
-    }[];
+    target_emergency_center_list: req_EmsToErRequest[];
+    patient: req_Patient;
   };
 
   export type GetEmsToErRequestListEms = {
@@ -35,4 +30,12 @@ export namespace ReqEmsToEr {
     response: 'ACCEPTED' | 'REJECTED';
     patient_id: string;
   };
+}
+
+export namespace ReqEmsToErMessage {
+  export type SendEmsToErNewRequest = {
+    request_list: req_EmsToErRequest[];
+    patient: req_Patient;
+  };
+  export type SendEmsToErNewRequestMessage = req_EmsToErRequest & { patient: req_Patient };
 }

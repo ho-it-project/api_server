@@ -11,10 +11,14 @@ import { EmsAuth, ErAuth } from '@src/auth/interface';
 import { ReqEmsToErService } from '@src/providers/req/req.emsToEr.service';
 import { ReqEmsToErRequest, Try, TryCatch } from '@src/types';
 import { ReqEmsToErResponse } from '@src/types/req.response.dto';
+import { ReqEmsToErProducer } from './../../providers/req/req.emsToEr.producer';
 
 @Controller('request/ems-to-er')
 export class ReqEmsToErController {
-  constructor(private readonly reqEmsToErService: ReqEmsToErService) {}
+  constructor(
+    private readonly reqEmsToErService: ReqEmsToErService,
+    private readonly reqEmsToErProducer: ReqEmsToErProducer,
+  ) {}
 
   /**
    * EMS to ER 수용요청 API
@@ -56,6 +60,10 @@ export class ReqEmsToErController {
     if (isError(result)) {
       return throwError(result);
     }
+
+    const { target_emergency_center_list, patient } = result;
+
+    await this.reqEmsToErProducer.sendEmsToErNewRequest({ request_list: target_emergency_center_list, patient });
 
     return createResponse(result);
   }
@@ -155,11 +163,13 @@ export class ReqEmsToErController {
     if (isError(result)) {
       return throwError(result);
     }
+
+    const reqList = result.request_list
+      .filter((r) => r.request_status === 'REQUESTED')
+      .map((r) => ({ patient_id: r.patient_id, emergency_center_id: r.emergency_center_id }));
     // ER이 조회시 REQUESTED 상태인 요청은 VIEWED로 변경
     await this.reqEmsToErService.updateEmsToErRequestStatusAfterView({
-      reqList: result.request_list
-        .filter((r) => r.request_status === 'REQUESTED')
-        .map((r) => ({ patient_id: r.patient_id, emergency_center_id: r.emergency_center_id })),
+      reqList,
       status: RequestStatus.VIEWED,
     });
     return createResponse(result);

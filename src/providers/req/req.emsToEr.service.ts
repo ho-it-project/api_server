@@ -77,6 +77,7 @@ export class ReqEmsToErService {
         distance,
       } = emergencyCenter;
       return {
+        patient_id: patient.patient_id,
         emergency_center_id,
         emergency_center_name,
         emergency_center_latitude,
@@ -107,12 +108,26 @@ export class ReqEmsToErService {
         ...createReqPatientInput,
         ems_to_er_request: {
           createMany: {
-            data: createManyRequestInput.map(({ emergency_center_id, distance }) => ({
-              emergency_center_id,
-              distance,
-            })),
+            data: createManyRequestInput.map(
+              ({
+                emergency_center_id,
+                distance,
+                emergency_center_latitude,
+                emergency_center_longitude,
+                emergency_center_name,
+              }) => ({
+                emergency_center_latitude,
+                emergency_center_longitude,
+                emergency_center_name,
+                emergency_center_id,
+                distance,
+              }),
+            ),
           },
         },
+      },
+      include: {
+        ems_to_er_request: true,
       },
     });
     const updateEmsPatient = this.prismaService.ems_Patient.update({
@@ -124,11 +139,11 @@ export class ReqEmsToErService {
       },
     });
 
-    await this.prismaService.$transaction([createReqPatient, updateEmsPatient]);
-
+    const [req_patient] = await this.prismaService.$transaction([createReqPatient, updateEmsPatient]);
+    const { ems_to_er_request, ...patient_info } = req_patient;
     // TODO: 카프카로 전송 필요
 
-    return { target_emergency_center_list: createManyRequestInput };
+    return { target_emergency_center_list: ems_to_er_request, patient: patient_info };
   }
 
   async getEmsToErRequestList({
