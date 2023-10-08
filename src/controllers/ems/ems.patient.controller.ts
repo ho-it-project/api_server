@@ -1,7 +1,7 @@
 import { CurrentUser } from '@common/decorators/CurrentUser';
 import { createResponse } from '@common/interceptor/createResponse';
 import { AUTH_ERROR, EMS_PATIENT_ERROR, isError, throwError } from '@config/errors';
-import { TypedBody, TypedException, TypedQuery, TypedRoute } from '@nestia/core';
+import { TypedBody, TypedException, TypedParam, TypedQuery, TypedRoute } from '@nestia/core';
 import { Controller, Param, UseGuards } from '@nestjs/common';
 import {
   ems_ABCDE_Assessment,
@@ -306,5 +306,22 @@ export class EmsPatientController {
     });
     if (isError(result)) return throwError(result);
     return createResponse(result);
+  }
+
+  @TypedRoute.Post('/:patient_id')
+  @TypedException<EMS_PATIENT_ERROR.FORBIDDEN>(403, 'EMS_PATIENT_ERROR.FORBIDDEN')
+  @UseGuards(EmsJwtAccessAuthGuard)
+  async completePatient(
+    @TypedParam('patient_id') patient_id: string,
+    @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
+  ): Promise<
+    TryCatch<
+      undefined,
+      EMS_PATIENT_ERROR.PATIENT_NOT_FOUND | EMS_PATIENT_ERROR.FORBIDDEN | EMS_PATIENT_ERROR.PATIENT_NOT_ACCEPTED
+    >
+  > {
+    const result = await this.emsPatientService.completePatient({ user, patient_id });
+    if (isError(result)) return throwError(result);
+    return createResponse(undefined);
   }
 }

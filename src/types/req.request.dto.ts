@@ -16,5 +16,6 @@ export namespace ReqEmsToErRequest {
 
   export interface RespondEmsToErRequestDto {
     response: 'ACCEPTED' | 'REJECTED';
+    reject_reason?: string;
   }
 }

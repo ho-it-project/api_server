@@ -2,7 +2,7 @@ import { PrismaService } from '@common/prisma/prisma.service';
 import { sortByDistanceFromCurrentLocation } from '@common/util/sortByDistanceFromCurrentLocation';
 import { REQ_EMS_TO_ER_ERROR } from '@config/errors/req.error';
 import { Injectable, Logger } from '@nestjs/common';
-import { Prisma, RequestStatus, ems_PatientStatus } from '@prisma/client';
+import { Prisma, RequestStatus, ems_PatientStatus, req_Patient } from '@prisma/client';
 import { EmsAuth } from '@src/auth/interface';
 import typia from 'typia';
 import { ReqEmsToEr } from '../interface/req/req.emsToEr.interface';
@@ -246,9 +246,10 @@ export class ReqEmsToErService {
   async respondEmsToErRequest({
     user,
     patient_id,
+    reject_reason,
     response,
   }: ReqEmsToEr.RespondErToEmsRequest): Promise<
-    { success: true } | REQ_EMS_TO_ER_ERROR.REQUEST_NOT_FOUND | REQ_EMS_TO_ER_ERROR.REQUEST_ALREADY_PROCESSED
+    { patient: req_Patient } | REQ_EMS_TO_ER_ERROR.REQUEST_NOT_FOUND | REQ_EMS_TO_ER_ERROR.REQUEST_ALREADY_PROCESSED
   > {
     const { emergency_center_id } = user;
     const reqEmsToErRequest = await this.prismaService.req_EmsToErRequest.findFirst({
@@ -256,12 +257,15 @@ export class ReqEmsToErService {
         patient_id,
         emergency_center_id,
       },
+      include: {
+        patient: true,
+      },
     });
 
     if (!reqEmsToErRequest) {
       return typia.random<REQ_EMS_TO_ER_ERROR.REQUEST_NOT_FOUND>();
     }
-    const { request_status } = reqEmsToErRequest;
+    const { request_status, patient } = reqEmsToErRequest;
     // 이미 처리된 요청이거나, 취소된 요청이거나 완료된 요청이면 에러
 
     if (request_status === 'ACCEPTED' || request_status === 'CANCELED' || request_status === 'COMPLETED') {
@@ -304,11 +308,15 @@ export class ReqEmsToErService {
         },
         data: {
           request_status: response,
+          response_date: new Date().toISOString(),
+          ...(reject_reason && {
+            reject_reason,
+          }),
         },
       }),
       ...update,
     ]);
 
-    return { success: true };
+    return { patient };
   }
 }

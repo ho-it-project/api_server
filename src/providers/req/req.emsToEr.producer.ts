@@ -28,4 +28,27 @@ export class ReqEmsToErProducer {
 
     return;
   }
+
+  async sendEmsToErResponse({
+    patient,
+    response,
+    reject_reason,
+    emergency_center_id,
+  }: ReqEmsToErMessage.SendEmsToErResponse) {
+    await this.kafkaService.sendMessage('er.response.ems', {
+      message: createKafkaPayload(
+        {
+          patient_id: patient.patient_id,
+          ems_employee_id: patient.ems_employee_id,
+          reject_reason,
+          response,
+          emergency_center_id,
+        },
+        {
+          messageType: 'er.response.ems',
+          topicName: 'er.response.ems',
+        },
+      ),
+    });
+  }
 }

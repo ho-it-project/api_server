@@ -28,6 +28,7 @@ export namespace ReqEmsToEr {
   export type RespondErToEmsRequest = {
     user: ErAuth.AccessTokenSignPayload;
     response: 'ACCEPTED' | 'REJECTED';
+    reject_reason?: string;
     patient_id: string;
   };
 }
@@ -38,4 +39,11 @@ export namespace ReqEmsToErMessage {
     patient: req_Patient;
   };
   export type SendEmsToErNewRequestMessage = req_EmsToErRequest & { patient: req_Patient };
+
+  export type SendEmsToErResponse = {
+    emergency_center_id: string;
+    patient: req_Patient;
+    response: string;
+    reject_reason?: string;
+  };
 }

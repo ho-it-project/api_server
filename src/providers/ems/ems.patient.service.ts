@@ -225,4 +225,42 @@ export class EmsPatientService {
     }
     return true;
   }
+
+  async completePatient({
+    user,
+    patient_id,
+  }: EmsPatient.CompletePatient): Promise<
+    true | EMS_PATIENT_ERROR.PATIENT_NOT_FOUND | EMS_PATIENT_ERROR.FORBIDDEN | EMS_PATIENT_ERROR.PATIENT_NOT_ACCEPTED
+  > {
+    const { employee_id } = user;
+
+    const existPatient = await this.prismaService.ems_Patient.findUnique({
+      where: {
+        patient_id,
+      },
+    });
+
+    if (!existPatient) {
+      return typia.random<EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>();
+    }
+    const { ems_employee_id, patient_status } = existPatient;
+    if (ems_employee_id !== employee_id) {
+      return typia.random<EMS_PATIENT_ERROR.FORBIDDEN>();
+    }
+    if (patient_status !== 'ACCEPTED') {
+      return typia.random<EMS_PATIENT_ERROR.PATIENT_NOT_ACCEPTED>();
+    }
+
+    await this.prismaService.ems_Patient.update({
+      where: {
+        patient_id,
+      },
+      data: {
+        patient_status: 'COMPLETED',
+        complete_date: new Date().toISOString(),
+      },
+    });
+
+    return true;
+  }
 }

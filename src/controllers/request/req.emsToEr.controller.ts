@@ -213,18 +213,21 @@ export class ReqEmsToErController {
   ): Promise<
     TryCatch<undefined, REQ_EMS_TO_ER_ERROR.REQUEST_ALREADY_PROCESSED | REQ_EMS_TO_ER_ERROR.REQUEST_NOT_FOUND>
   > {
-    const { response } = respondErToEmsRequestDto;
+    const { response, reject_reason } = respondErToEmsRequestDto;
+    const { emergency_center_id } = user;
     const result = await this.reqEmsToErService.respondEmsToErRequest({
       user,
       response,
+      reject_reason,
       patient_id,
     });
     if (isError(result)) {
       return throwError(result);
     }
+    const { patient } = result;
     // TODO: 카프카로 전송 필요
     // 변경된 요청 상태를 카프카로 전송하여 EMS에게 알림
-
+    await this.reqEmsToErProducer.sendEmsToErResponse({ patient, emergency_center_id, response, reject_reason });
     return createResponse(undefined);
   }
 }

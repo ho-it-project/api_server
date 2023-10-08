@@ -65,4 +65,9 @@ export namespace EmsPatient {
     ems_employee_id: string;
     opqrst_assessment: EmsPatientRequest.CreateOPQRSTAssessmentDTO;
   }
+
+  export interface CompletePatient {
+    user: EmsAuth.AccessTokenSignPayload;
+    patient_id: string;
+  }
 }
