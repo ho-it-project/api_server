@@ -226,11 +226,18 @@ export class EmsPatientService {
     return true;
   }
 
-  async completePatient({
+  async updatePatientStatus({
     user,
     patient_id,
-  }: EmsPatient.CompletePatient): Promise<
-    true | EMS_PATIENT_ERROR.PATIENT_NOT_FOUND | EMS_PATIENT_ERROR.FORBIDDEN | EMS_PATIENT_ERROR.PATIENT_NOT_ACCEPTED
+    patient_status,
+  }: EmsPatient.UpdatePatientStatus): Promise<
+    | true
+    | EMS_PATIENT_ERROR.PATIENT_NOT_FOUND
+    | EMS_PATIENT_ERROR.FORBIDDEN
+    | EMS_PATIENT_ERROR.PATIENT_NOT_ACCEPTED
+    | EMS_PATIENT_ERROR.PATIENT_CANCEL_NOT_ALLOWED
+    | EMS_PATIENT_ERROR.PATIENT_CANCEL_ALREADY
+    | EMS_PATIENT_ERROR.PATIENT_COMPLETE_ALREADY
   > {
     const { employee_id } = user;
 
@@ -243,22 +250,37 @@ export class EmsPatientService {
     if (!existPatient) {
       return typia.random<EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>();
     }
-    const { ems_employee_id, patient_status } = existPatient;
+    const { ems_employee_id, patient_status: exist_patient_status } = existPatient;
     if (ems_employee_id !== employee_id) {
       return typia.random<EMS_PATIENT_ERROR.FORBIDDEN>();
     }
-    if (patient_status !== 'ACCEPTED') {
+    if (patient_status === 'COMPLETED' && exist_patient_status !== 'ACCEPTED') {
       return typia.random<EMS_PATIENT_ERROR.PATIENT_NOT_ACCEPTED>();
     }
+    if (patient_status === 'CANCELED' && exist_patient_status === 'REQUESTED') {
+      // 요청진행중인 환자 취소는 불가능 하다.
+      return typia.random<EMS_PATIENT_ERROR.PATIENT_CANCEL_NOT_ALLOWED>();
+    }
+    if (exist_patient_status === 'CANCELED') {
+      // 이미 취소된 환자는 상태를 변경할 수 없다.
+      return typia.random<EMS_PATIENT_ERROR.PATIENT_CANCEL_ALREADY>();
+    }
+    if (exist_patient_status === 'COMPLETED') {
+      return typia.random<EMS_PATIENT_ERROR.PATIENT_COMPLETE_ALREADY>();
+    }
+
+    const updateData = {
+      patient_status: patient_status,
+      ...(patient_status === 'COMPLETED' && {
+        complete_date: new Date().toISOString(),
+      }),
+    };
 
     await this.prismaService.ems_Patient.update({
       where: {
         patient_id,
       },
-      data: {
-        patient_status: 'COMPLETED',
-        complete_date: new Date().toISOString(),
-      },
+      data: updateData,
     });
 
     return true;

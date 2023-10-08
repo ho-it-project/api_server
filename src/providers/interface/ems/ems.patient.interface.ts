@@ -4,6 +4,7 @@ import {
   ems_Guardian,
   ems_OPQRST_Assessment,
   ems_Patient,
+  ems_PatientStatus,
   ems_SAMPLE_Assessment,
   ems_VS_Assessment,
 } from '@prisma/client';
@@ -69,5 +70,16 @@ export namespace EmsPatient {
   export interface CompletePatient {
     user: EmsAuth.AccessTokenSignPayload;
     patient_id: string;
+  }
+
+  export interface CanclePatient {
+    user: EmsAuth.AccessTokenSignPayload;
+    patient_id: string;
+  }
+
+  export interface UpdatePatientStatus {
+    user: EmsAuth.AccessTokenSignPayload;
+    patient_id: string;
+    patient_status: ems_PatientStatus;
   }
 }
