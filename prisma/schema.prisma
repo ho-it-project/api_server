@@ -455,7 +455,7 @@ model ems_Patient {
   patient_emergency_cause ems_IncidentCause /// 사고원인
   guardian_id             String?           @unique @db.VarChar(50)
   ems_employee_id         String            @db.VarChar(50)
-
+  complete_date           DateTime?         @default("1970-01-01T00:00:00Z") /// 유닉스 타임스탬프 "1970-01-01T00:00:00Z" = 아직 완료 안함
   patient_status ems_PatientStatus @default(PENDING) /// 대기중 // 요청전 단계
   /// default 
   created_at     DateTime          @default(now())
@@ -731,7 +731,7 @@ enum RequestStatus {
   REJECTED /// 거절됨
   CANCELED /// 취소됨
   COMPLETED /// 완료됨
-
+  
   @@schema("request")
 }
 
@@ -766,14 +766,21 @@ enum Status {
 /// request schema
 /// ////
 
-
 model req_EmsToErRequest {
   patient_id     String            @db.VarChar(50)
   emergency_center_id String      @db.VarChar(50)
   request_status RequestStatus @default(REQUESTED)
   request_date   DateTime          @default(now())
-
+  reject_reason  String?           @db.VarChar(255)
   response_date        DateTime    @default("1970-01-01T00:00:00Z") /// 유닉스 타임스탬프 "1970-01-01T00:00:00Z" = 아직 응답 안함
+  
+  emergency_center_name       String      @db.VarChar(50)
+  emergency_center_latitude   Float
+  emergency_center_longitude  Float
+  distance            Float       @default(0) /// 응급차와 응급실 사이의 거리
+
+
+
   /// default
   created_at         DateTime     @default(now())
   updated_at         DateTime     @default(now()) @updatedAt
@@ -801,8 +808,6 @@ model req_Patient {
   ambulance_company_name String         @db.VarChar(50)
   ems_employee_id String          @db.VarChar(50)
   ems_employee_name String        @db.VarChar(50)
-
-  
 
   /// default
   created_at     DateTime         @default(now())

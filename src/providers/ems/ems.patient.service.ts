@@ -175,6 +175,7 @@ export class EmsPatientService {
     });
     return newAssessment;
   }
+
   async createVSAssessment({ ems_employee_id, patient_id, vs_assessment }: EmsPatient.CreateVSAssessment) {
     const checkExistAndIncharge = await this.checkPaitentIncharge(patient_id, ems_employee_id);
     if (isError(checkExistAndIncharge)) return checkExistAndIncharge;
@@ -187,6 +188,7 @@ export class EmsPatientService {
     });
     return newAssessment;
   }
+
   async createSAMPLEAssessment({ ems_employee_id, patient_id, sample_assessment }: EmsPatient.CreateSAMPLEAssessment) {
     const checkExistAndIncharge = await this.checkPaitentIncharge(patient_id, ems_employee_id);
     if (isError(checkExistAndIncharge)) return checkExistAndIncharge;
@@ -198,6 +200,7 @@ export class EmsPatientService {
     });
     return newAssessment;
   }
+
   async createOPQRSTAssessment({ ems_employee_id, patient_id, opqrst_assessment }: EmsPatient.CreateOPQRSTAssessment) {
     const checkExistAndIncharge = await this.checkPaitentIncharge(patient_id, ems_employee_id);
     if (isError(checkExistAndIncharge)) return checkExistAndIncharge;
@@ -223,6 +226,67 @@ export class EmsPatientService {
     if (existPatient.ems_employee_id !== employee_id) {
       return typia.random<EMS_PATIENT_ERROR.FORBIDDEN>();
     }
+    return true;
+  }
+
+  async updatePatientStatus({
+    user,
+    patient_id,
+    patient_status,
+  }: EmsPatient.UpdatePatientStatus): Promise<
+    | true
+    | EMS_PATIENT_ERROR.PATIENT_NOT_FOUND
+    | EMS_PATIENT_ERROR.FORBIDDEN
+    | EMS_PATIENT_ERROR.PATIENT_NOT_ACCEPTED
+    | EMS_PATIENT_ERROR.PATIENT_CANCEL_NOT_ALLOWED
+    | EMS_PATIENT_ERROR.PATIENT_CANCEL_ALREADY
+    | EMS_PATIENT_ERROR.PATIENT_COMPLETE_ALREADY
+  > {
+    const { employee_id } = user;
+
+    const existPatient = await this.prismaService.ems_Patient.findUnique({
+      where: {
+        patient_id,
+      },
+    });
+
+    if (!existPatient) {
+      return typia.random<EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>();
+    }
+    const { ems_employee_id, patient_status: exist_patient_status } = existPatient;
+    if (ems_employee_id !== employee_id) {
+      return typia.random<EMS_PATIENT_ERROR.FORBIDDEN>();
+    }
+
+    if (exist_patient_status === 'CANCELED') {
+      // 이미 취소된 환자는 상태를 변경할 수 없다.
+      return typia.random<EMS_PATIENT_ERROR.PATIENT_CANCEL_ALREADY>();
+    }
+    if (exist_patient_status === 'COMPLETED') {
+      return typia.random<EMS_PATIENT_ERROR.PATIENT_COMPLETE_ALREADY>();
+    }
+    if (patient_status === 'COMPLETED' && exist_patient_status !== 'ACCEPTED') {
+      return typia.random<EMS_PATIENT_ERROR.PATIENT_NOT_ACCEPTED>();
+    }
+    if (patient_status === 'CANCELED' && exist_patient_status === 'REQUESTED') {
+      // 요청진행중인 환자 취소는 불가능 하다.
+      return typia.random<EMS_PATIENT_ERROR.PATIENT_CANCEL_NOT_ALLOWED>();
+    }
+
+    const updateData = {
+      patient_status: patient_status,
+      ...(patient_status === 'COMPLETED' && {
+        complete_date: new Date().toISOString(),
+      }),
+    };
+
+    await this.prismaService.ems_Patient.update({
+      where: {
+        patient_id,
+      },
+      data: updateData,
+    });
+
     return true;
   }
 }

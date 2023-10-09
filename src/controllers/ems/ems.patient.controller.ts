@@ -1,7 +1,7 @@
 import { CurrentUser } from '@common/decorators/CurrentUser';
 import { createResponse } from '@common/interceptor/createResponse';
 import { AUTH_ERROR, EMS_PATIENT_ERROR, isError, throwError } from '@config/errors';
-import { TypedBody, TypedException, TypedQuery, TypedRoute } from '@nestia/core';
+import { TypedBody, TypedException, TypedParam, TypedQuery, TypedRoute } from '@nestia/core';
 import { Controller, Param, UseGuards } from '@nestjs/common';
 import {
   ems_ABCDE_Assessment,
@@ -306,5 +306,95 @@ export class EmsPatientController {
     });
     if (isError(result)) return throwError(result);
     return createResponse(result);
+  }
+
+  /**
+   * 환자 완료 처리 API
+   *
+   *
+   * 환자를 완료처리합니다.
+   * 완료처리된 환자는 더이상 수정할 수 없습니다.
+   *
+   *
+   * # 주의
+   *
+   * - 환자를 완료처리 하기 위해서는 병원으로부터 승인을 받아야합니다.
+   * - 만약 승인을 받지 않은 상태에서 완료처리를 하면 400 에러가 발생합니다.
+   *
+   * - 담당 환자에대한 취소는 취소 API를 이용해주세요.
+   *
+   * @author de-novo
+   * @tag ems_patient
+   * @summary 2023-10-08 - 환자 완료 처리 API
+   *
+   * @security access_token
+   * @param user
+   * @returns 없음
+   */
+  @TypedRoute.Post('/:patient_id')
+  @TypedException<EMS_PATIENT_ERROR.FORBIDDEN>(403, 'EMS_PATIENT_ERROR.FORBIDDEN')
+  @TypedException<EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>(404, 'EMS_PATIENT_ERROR.PATIENT_NOT_FOUND')
+  @TypedException<EMS_PATIENT_ERROR.PATIENT_NOT_ACCEPTED>(400, 'EMS_PATIENT_ERROR.PATIENT_NOT_ACCEPTED')
+  @TypedException<EMS_PATIENT_ERROR.PATIENT_CANCEL_NOT_ALLOWED>(400, 'EMS_PATIENT_ERROR.PATIENT_CANCEL_NOT_ALLOWED')
+  @TypedException<EMS_PATIENT_ERROR.PATIENT_CANCEL_ALREADY>(400, 'EMS_PATIENT_ERROR.PATIENT_CANCEL_ALREADY')
+  @TypedException<EMS_PATIENT_ERROR.PATIENT_COMPLETE_ALREADY>(400, 'EMS_PATIENT_ERROR.PATIENT_COMPLETE_ALREADY')
+  @UseGuards(EmsJwtAccessAuthGuard)
+  async completePatient(
+    @TypedParam('patient_id') patient_id: string,
+    @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
+  ): Promise<
+    TryCatch<
+      undefined,
+      | EMS_PATIENT_ERROR.PATIENT_NOT_FOUND
+      | EMS_PATIENT_ERROR.FORBIDDEN
+      | EMS_PATIENT_ERROR.PATIENT_NOT_ACCEPTED
+      | EMS_PATIENT_ERROR.PATIENT_CANCEL_NOT_ALLOWED
+      | EMS_PATIENT_ERROR.PATIENT_CANCEL_ALREADY
+      | EMS_PATIENT_ERROR.PATIENT_COMPLETE_ALREADY
+    >
+  > {
+    const result = await this.emsPatientService.updatePatientStatus({ user, patient_id, patient_status: 'COMPLETED' });
+    if (isError(result)) return throwError(result);
+    return createResponse(undefined);
+  }
+
+  /**
+   * 환자 취소 처리 API
+   *
+   *
+   * 부득이하게 환자를 취소해야하는 경우 사용합니다.
+   * - 환자 정보는 수정할 수 없습니다. (환자 정보 수정은 별도의 API를 사용해주세요)
+   *
+   *
+   *
+   * @param patient_id
+   * @param user
+   * @returns
+   */
+  @TypedRoute.Put('/:patient_id')
+  @TypedException<EMS_PATIENT_ERROR.FORBIDDEN>(403, 'EMS_PATIENT_ERROR.FORBIDDEN')
+  @TypedException<EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>(404, 'EMS_PATIENT_ERROR.PATIENT_NOT_FOUND')
+  @TypedException<EMS_PATIENT_ERROR.PATIENT_NOT_ACCEPTED>(400, 'EMS_PATIENT_ERROR.PATIENT_NOT_ACCEPTED')
+  @TypedException<EMS_PATIENT_ERROR.PATIENT_CANCEL_NOT_ALLOWED>(400, 'EMS_PATIENT_ERROR.PATIENT_CANCEL_NOT_ALLOWED')
+  @TypedException<EMS_PATIENT_ERROR.PATIENT_CANCEL_ALREADY>(400, 'EMS_PATIENT_ERROR.PATIENT_CANCEL_ALREADY')
+  @TypedException<EMS_PATIENT_ERROR.PATIENT_COMPLETE_ALREADY>(400, 'EMS_PATIENT_ERROR.PATIENT_COMPLETE_ALREADY')
+  @UseGuards(EmsJwtAccessAuthGuard)
+  async cancelPatient(
+    @TypedParam('patient_id') patient_id: string,
+    @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
+  ): Promise<
+    TryCatch<
+      undefined,
+      | EMS_PATIENT_ERROR.PATIENT_NOT_FOUND
+      | EMS_PATIENT_ERROR.FORBIDDEN
+      | EMS_PATIENT_ERROR.PATIENT_NOT_ACCEPTED
+      | EMS_PATIENT_ERROR.PATIENT_CANCEL_NOT_ALLOWED
+      | EMS_PATIENT_ERROR.PATIENT_CANCEL_ALREADY
+      | EMS_PATIENT_ERROR.PATIENT_COMPLETE_ALREADY
+    >
+  > {
+    const result = await this.emsPatientService.updatePatientStatus({ user, patient_id, patient_status: 'CANCELED' });
+    if (isError(result)) return throwError(result);
+    return createResponse(undefined);
   }
 }
