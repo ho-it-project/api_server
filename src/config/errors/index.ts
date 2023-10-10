@@ -22,7 +22,7 @@ export interface ERROR<T extends string, H extends ErrorHttpStatusCode> {
 }
 
 export const isError = (error: any): error is ERROR<string, ErrorHttpStatusCode> => {
-  if (error.is_success === false && HttpStatus[error.http_status_code]) {
+  if (error?.is_success === false && HttpStatus[error?.http_status_code]) {
     return true;
   }
   return false;

@@ -1,4 +1,11 @@
-import { er_EmergencyRoomType, er_Employee, er_EmployeeRole, er_MedicalInstitutionType } from '@prisma/client';
+import {
+  er_Department,
+  er_EmergencyRoomType,
+  er_Employee,
+  er_EmployeeRole,
+  er_HospitalDepartment,
+  er_MedicalInstitutionType,
+} from '@prisma/client';
 import { tags } from 'typia';
 
 export namespace ErAuthRequest {
@@ -189,4 +196,11 @@ export namespace ErEmergencyCenterRequest {
   export type GetEmergencyCenterListQuery = GetEmergencyCenterListQueryDefault &
     GetEmergencyCenterListByCityQuery &
     GetEmergencyCenterListByLocationQuery;
+}
+
+export namespace ErDepartmentRequest {
+  export type UpdateAvailableDepartmentDto = {
+    department_id: er_Department['department_id'];
+    status: er_HospitalDepartment['status'];
+  }[];
 }

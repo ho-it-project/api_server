@@ -1,4 +1,5 @@
 import { er_Employee } from '@prisma/client';
+import { ErDepartment } from '@src/providers/interface/er/er.department.interface';
 import { ErEmergencyCenter } from '@src/providers/interface/er/er.emergencyCenter.interface';
 import { ErAuth } from '../auth/interface/er.auth.interface';
 export namespace ErAuthResponse {
@@ -30,4 +31,9 @@ export namespace ErEmployeeResponse {
 
 export namespace ErEmergencyCenterResponse {
   export type GetEmergencyCenterList = ErEmergencyCenter.GetEmergencyCenterListQueryReturn;
+}
+
+export namespace ErDepartmentResponse {
+  export type UpdateAvailableDepartment = ErDepartment.UpdateAvailableDepartmentReturn;
+  export type GetDepartmentStatusListDto = ErDepartment.GetDepartmentStatusListReturn;
 }
