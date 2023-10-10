@@ -48,7 +48,7 @@ export class EmsAmbulanceCompanyController {
    *
    *
    * @param query
-   * @returns {EmsAmbulanceCompanyResponse.GetAmbulanceCompanyList} 구급업체 리스트 및 총 구급업체 수
+   * @returns 구급업체 리스트 및 총 구급업체 수
    */
   @TypedRoute.Get('/')
   async getAmbulanceCompanyList(
@@ -71,7 +71,7 @@ export class EmsAmbulanceCompanyController {
    * @summary 2023-10-02 구급업체 상세 조회 API
    *
    * @param ems_ambulance_company_id
-   * @returns {EmsAmbulanceCompanyResponse.GetAmbulanceCompanyDetail} 구급업체 상세 정보
+   * @returns 구급업체 상세 정보
    */
   @TypedRoute.Get('/:ems_ambulance_company_id')
   @TypedException<EMS_AMBULANCE_COMPANY_ERROR.AMBULANCE_COMPANY_NOT_FOUND>(

@@ -158,6 +158,7 @@ export namespace ErEmergencyCenterRequest {
      */
     longitude: number & tags.Minimum<-180> & tags.Maximum<180>;
   }
+
   export interface GetEmergencyCenterListQueryDefault {
     /**
      * @default 1

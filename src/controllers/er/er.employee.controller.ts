@@ -21,7 +21,7 @@ export class ErEmployeeController {
    * 한번에 여러명의 직원을 생성할 수 있다.
    *
    * ADMIN 권한이 필요하다.
-   * 
+   *
    * 필수값 : [id_card, name, password, role]
    *
    * - 병원마다 id_card는 중복될 수 없다.
@@ -35,15 +35,15 @@ export class ErEmployeeController {
    * @param body
    * @param user
    * @security access_token
-   * @returns {ErEmployeeResponse.CreateEmployee}
+   * @returns 생성된 직원 수
    */
   @TypedRoute.Post('/')
-  @UseGuards(ErJwtAccessAuthGuard)
   @TypedException<AUTH_ERROR.FORBIDDEN>(403, 'AUTH_ERROR.FORBIDDEN')
   @TypedException<ER_EMPLOYEE_ERROR.EMPLOYEE_MULTIPLE_ALREADY_EXIST>(
     400,
     'ER_EMPLOYEE_ERROR.EMPLOYEE_MULTIPLE_ALREADY_EXIST_RETURN',
   )
+  @UseGuards(ErJwtAccessAuthGuard)
   async createManyEmployee(
     @TypedBody() body: ErEmployeeRequest.CreateManyDTO,
     @CurrentUser() user: ErAuth.AccessTokenSignPayload,
@@ -59,7 +59,7 @@ export class ErEmployeeController {
    * 한번에 여러명의 직원을 중복체크할 수 있다.
    *
    * ADMIN 권한이 필요하다.
-   * 
+   *
    * 필수값 : [id_card]
    *
    * @author de-novo
@@ -69,11 +69,11 @@ export class ErEmployeeController {
    * @param body
    * @param user
    * @security access_token
-   * @returns {ErEmployeeResponse.CheckManyEmployeeExist} 중복체크 결과
+   * @returns 중복체크 결과
    */
   @TypedRoute.Post('/exists')
-  @UseGuards(ErJwtAccessAuthGuard, AdminGuard)
   @TypedException<AUTH_ERROR.FORBIDDEN>(403, 'AUTH_ERROR.FORBIDDEN')
+  @UseGuards(ErJwtAccessAuthGuard, AdminGuard)
   async checkManyEmployeeExist(
     @TypedBody() body: ErEmployeeRequest.CheckManyExistDTO,
     @CurrentUser() user: ErAuth.AccessTokenSignPayload,
@@ -102,18 +102,17 @@ export class ErEmployeeController {
    * @returns
    */
   @TypedRoute.Patch('/')
-  @UseGuards(ErJwtAccessAuthGuard)
   @TypedException<AUTH_ERROR.FORBIDDEN>(403, 'AUTH_ERROR.FORBIDDEN')
   @TypedException<ER_EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND>(400, 'ER_EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND')
   @TypedException<ER_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_INVALID>(400, 'ER_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_INVALID')
   @TypedException<ER_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_SAME>(400, 'ER_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_SAME')
+  @UseGuards(ErJwtAccessAuthGuard)
   async updatePassword(
     @TypedBody() body: ErEmployeeRequest.UpdatePasswordDTO,
     @CurrentUser() user: ErAuth.AccessTokenSignPayload,
   ): Promise<
     TryCatch<
       ErEmployeeResponse.UpdatePassword,
-      | AUTH_ERROR.FORBIDDEN
       | ER_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_INVALID
       | ER_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_INVALID
       | ER_EMPLOYEE_ERROR.EMPLOYEE_PASSWORD_SAME
@@ -157,8 +156,8 @@ export class ErEmployeeController {
    * @returns {ErEmployeeResponse.GetEmployeeList} 직원 리스트 조회
    */
   @TypedRoute.Get('/')
-  @UseGuards(ErJwtAccessAuthGuard, AdminGuard)
   @TypedException<AUTH_ERROR.FORBIDDEN>(403, 'AUTH_ERROR.FORBIDDEN')
+  @UseGuards(ErJwtAccessAuthGuard, AdminGuard)
   async getEmployeeList(
     @TypedQuery()
     query: ErEmployeeRequest.GetEmployeeListQuery,

@@ -1,9 +1,5 @@
 import { ERROR } from '@config/errors';
-import { HttpStatus } from '@nestjs/common';
 import { ErrorHttpStatusCode } from '@nestjs/common/utils/http-error-by-code.util';
-
-export * from './er.request.dto';
-export * from './er.response.dto';
 
 export interface ResponseDTO<T> {
   /**
@@ -31,42 +27,12 @@ export interface ResponseDTO<T> {
 }
 
 export type Try<T> = ResponseDTO<T>;
-export type TryCatch<T, E extends ERROR<string, ErrorHttpStatusCode>> = Try<T> | E;
+export type TryCatch<T, E extends ERROR<string, ErrorHttpStatusCode>> = E extends any ? ResponseDTO<T> : ResponseDTO<T>;
 
-/**
- * Union of HttpStatus' keys. "OK" | "CONTINUE" | "NO_CONTENTS" |...
- */
-export type HttpStatusKey = keyof typeof HttpStatus;
-/**
- * HTTP Status type(converted HttpStatus enum)
- *
- * Mostly used in ResponseDto where controller's response body is null.
- *
- * @template T - A generic type that specifies the type of the status message.
- * @note `T` must `extends HttpStatusKey`.
- *
- * @property {T} statusMessage - A property representing the HTTP status message.
- * @property {HttpStatusCode} statusCode - A property representing the HTTP status code.
- */
-export type HttpStatus_<T extends HttpStatusKey> = {
-  statusMessage: T;
-  statusCode: (typeof HttpStatus)[T];
-};
-
-/**
- * Extract Utility Type with suggestion on generic U.
- *
- * Result can't be type `never` cause U extends T.
- *
- * @template T - The base type.
- * @template U - Type that suggests possible values.
- *
- * Example usage:
- *
- * ```typescript
- * // Extract possible values from '1' | '2' | '3'
- * // Provide suggestions for U here: ''
- * type extracted = Extract_<'1' | '2' | '3', ''>; // Auto-suggestions: '1', '2', '3'
- * ```
- */
-export type Extract_<T, U extends T> = T extends U ? T : never;
+export type ArrayElement<T extends unknown[]> = T[number];
+export * from './ems.request.dto';
+export * from './ems.response.dto';
+export * from './er.request.dto';
+export * from './er.response.dto';
+export * from './req.request.dto';
+export * from './req.response.dto';

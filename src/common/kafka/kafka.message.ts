@@ -1,3 +1,5 @@
+import { v4 } from 'uuid';
+
 export interface KafkaPayload<T> {
   /**
    * @type T
@@ -12,7 +14,7 @@ export interface KafkaPayload<T> {
   /**
    * @type string
    */
-  messageType: string; 
+  messageType: string;
 
   /**
    * @type string
@@ -48,3 +50,22 @@ export class KafkaConfig {
     this.groupId = groupId;
   }
 }
+
+export const createKafkaPayload = <T>(
+  body: T,
+  arg: {
+    messageId?: string;
+    messageType: string;
+    topicName: string;
+    createdTime?: string;
+  },
+): KafkaPayload<T> => {
+  const { messageId = v4(), messageType, topicName, createdTime = new Date().toISOString() } = arg;
+  return {
+    body,
+    messageId,
+    messageType,
+    topicName,
+    createdTime,
+  };
+};

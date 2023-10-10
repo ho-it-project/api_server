@@ -1,5 +1,5 @@
 import { PrismaService } from '@common/prisma/prisma.service';
-import { calculateDistance } from '@common/util/calculateDistance';
+import { sortByDistanceFromCurrentLocation } from '@common/util/sortByDistanceFromCurrentLocation';
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { ErEmergencyCenter } from '../interface/er/er.emergencyCenter.interface';
@@ -13,9 +13,12 @@ export class ErEmergencyCenterService {
     query: ErEmergencyCenter.GetEmergencyCenterListQuery,
   ): Promise<ErEmergencyCenter.GetEmergencyCenterListQueryReturn> {
     const { emergency_center_type, emergency_room_available, page = 1, limit = 10 } = query;
+
     const skip = (page - 1) * limit;
+
     const { city = '' } = query;
     const { latitude, longitude } = query;
+
     const emergency_center_type_where = emergency_center_type
       ? {
           emergency_center_type: {
@@ -60,36 +63,17 @@ export class ErEmergencyCenterService {
         },
       },
     });
-    // // location query
+    // location query
 
-    const emergency_center_list = this.sortEmergencyCenterListByDistance(
+    const emergency_center_list = sortByDistanceFromCurrentLocation({
       latitude,
       longitude,
-      emergencyCenterList,
-    ).slice(skip, skip + limit);
+      list: emergencyCenterList,
+      objLatitudeKey: 'emergency_center_latitude',
+      objLongitudeKey: 'emergency_center_longitude',
+    }).slice(skip, skip + limit);
 
     const emergency_center_count = emergencyCenterList.length;
     return { emergency_center_list, count: emergency_center_count };
-  }
-
-  sortEmergencyCenterListByDistance(
-    latitude: number,
-    longitude: number,
-    emergencyCenterList: ErEmergencyCenter.GetEmergentcyCenterListQueryFindManyOuput[],
-  ): ErEmergencyCenter.SortEmergencyCenterByDistanceRetrun {
-    const sortedEmergencyCenterList = emergencyCenterList
-      .map((emergencyCenter) => {
-        return {
-          ...emergencyCenter,
-          distance: calculateDistance(
-            latitude,
-            longitude,
-            emergencyCenter.emergency_center_latitude,
-            emergencyCenter.emergency_center_longitude,
-          ),
-        };
-      })
-      .sort((a, b) => a.distance - b.distance);
-    return sortedEmergencyCenterList;
   }
 }

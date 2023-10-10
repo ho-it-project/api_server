@@ -1,13 +1,13 @@
 import { DbInit } from '@common/database/db.init';
+import { PrismaModule } from '@common/prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppController } from '../../../app.controller';
-import { AppService } from '../../../app.service';
-import { PrismaModule } from '../../../common/prisma/prisma.module';
+import { AppController } from '@src/app.controller';
+import { AppService } from '@src/app.service';
 
 describe('AppController', () => {
   let appController: AppController;
-  // jest.mock('./common/kafka/kafka.module', () => ({
+  // jest.mock('../../../common/kafka/kafka.module', () => ({
   //   KafkaModule: {
   //     register: jest.fn().mockReturnValue({
   //       clientId: v4(),

@@ -15,3 +15,8 @@ export namespace ER_DEPARTMENT_ERROR {
   export interface DEPARTMENT_NOT_EXIST extends ERROR<"Department doesn't exist: ", HttpStatus.BAD_REQUEST> {}
   export const departmentNotExist = typia.random<DEPARTMENT_NOT_EXIST>();
 }
+
+export namespace ER_EMERGENCY_CENTER_ERROR {
+  export interface EMERGENCY_CENTER_QUERY_INVAILD
+    extends ERROR<'hospital_id or (latitude, longitude) is required', HttpStatus.BAD_REQUEST> {}
+}
