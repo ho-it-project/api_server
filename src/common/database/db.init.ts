@@ -40,22 +40,33 @@ export class DbInit {
   }
   async deleteAll() {
     this.logger.debug('delete all');
-    await this.prismaService.er_Patient.deleteMany({ where: {} });
-    await this.prismaService.er_EmergencyRoomBedLog.deleteMany({ where: {} });
-    await this.prismaService.er_EmergencyRoomBed.deleteMany({ where: {} });
-    await this.prismaService.er_EmergencyRoom.deleteMany({ where: {} });
-    await this.prismaService.er_EmergencyCenter.deleteMany({ where: {} });
-    await this.prismaService.er_HospitalDepartment.deleteMany({ where: {} });
-    await this.prismaService.er_HospitalMedicalEquipment.deleteMany({ where: {} });
-    await this.prismaService.er_HospitalServereIllness.deleteMany({ where: {} });
-    await this.prismaService.er_Employee.deleteMany({ where: {} });
-    await this.prismaService.er_Hospital.deleteMany({ where: {} });
-    await this.prismaService.er_MedicalEquipment.deleteMany({ where: {} });
-    await this.prismaService.er_Department.deleteMany({ where: {} });
-
-    await this.prismaService.ems_Ambulance.deleteMany({ where: {} });
-    await this.prismaService.ems_Employee.deleteMany({ where: {} });
-    await this.prismaService.ems_AmbulanceCompany.deleteMany({ where: {} });
+    await this.prismaService.$transaction([
+      this.prismaService.er_Patient.deleteMany({ where: {} }),
+      this.prismaService.er_EmergencyRoomBedLog.deleteMany({ where: {} }),
+      this.prismaService.er_EmergencyRoomBed.deleteMany({ where: {} }),
+      this.prismaService.er_EmergencyRoom.deleteMany({ where: {} }),
+      this.prismaService.er_EmergencyCenter.deleteMany({ where: {} }),
+      this.prismaService.er_HospitalDepartment.deleteMany({ where: {} }),
+      this.prismaService.er_HospitalMedicalEquipment.deleteMany({ where: {} }),
+      this.prismaService.er_HospitalServereIllness.deleteMany({ where: {} }),
+      this.prismaService.er_Employee.deleteMany({ where: {} }),
+      this.prismaService.er_Hospital.deleteMany({ where: {} }),
+      this.prismaService.er_MedicalEquipment.deleteMany({ where: {} }),
+      this.prismaService.er_Department.deleteMany({ where: {} }),
+      this.prismaService.ems_DCAP_BTLS_Assessment.deleteMany({ where: {} }),
+      this.prismaService.ems_ABCDE_Assessment.deleteMany({ where: {} }),
+      this.prismaService.ems_SAMPLE_Assessment.deleteMany({ where: {} }),
+      this.prismaService.ems_VS_Assessment.deleteMany({ where: {} }),
+      this.prismaService.ems_OPQRST_Assessment.deleteMany({ where: {} }),
+      this.prismaService.ems_Guardian.deleteMany({ where: {} }),
+      this.prismaService.ems_PatientSalt.deleteMany({ where: {} }),
+      this.prismaService.ems_Patient.deleteMany({ where: {} }),
+      this.prismaService.ems_Ambulance.deleteMany({ where: {} }),
+      this.prismaService.ems_Employee.deleteMany({ where: {} }),
+      this.prismaService.ems_AmbulanceCompany.deleteMany({ where: {} }),
+      this.prismaService.req_EmsToErRequest.deleteMany({ where: {} }),
+      this.prismaService.req_Patient.deleteMany({ where: {} }),
+    ]);
   }
   async hospitalSetup() {
     this.logger.debug('hospitalSetup');
