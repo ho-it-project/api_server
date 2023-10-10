@@ -1,6 +1,6 @@
 import { HttpStatus } from '@nestjs/common';
-import { ERROR } from '.';
 import typia from 'typia';
+import { ERROR } from '.';
 
 export namespace ER_EMPLOYEE_ERROR {
   export interface EMPLOYEE_MULTIPLE_ALREADY_EXIST
@@ -12,6 +12,6 @@ export namespace ER_EMPLOYEE_ERROR {
 }
 
 export namespace ER_DEPARTMENT_ERROR {
-  export interface DEPARTMENT_NOT_EXIST extends ERROR<'해당 진료과가 존재하지 않습니다.', HttpStatus.BAD_REQUEST> {}
+  export interface DEPARTMENT_NOT_EXIST extends ERROR<"Department doesn't exist: ", HttpStatus.BAD_REQUEST> {}
   export const departmentNotExist = typia.random<DEPARTMENT_NOT_EXIST>();
 }

@@ -1,36 +1,42 @@
 import { ER_DEPARTMENT_ERROR } from '@config/errors';
-import { Prisma, er_Department } from '@prisma/client';
+import { er_Department } from '@prisma/client';
 import { ErAuth } from '@src/auth/interface';
-import { Extract_, HttpStatusKey } from '@src/types';
+import { ErDepartmentRequest, Extract_, HttpStatusKey } from '@src/types';
 
-export namespace ErDepartmentI {
-  export interface AddAvailableDepartmentRequest {
+export namespace ErDepartment {
+  export type DepartmentReturn = Pick<er_Department, 'department_id' | 'department_name'> & {
+    status: er_Department['status'];
+  };
+
+  export interface UpdateAvailableDepartmentArg {
     user: ErAuth.AccessTokenSignPayload;
-    department_id: er_Department['department_id'];
+    data: ErDepartmentRequest.UpdateAvailableDepartmentDto;
   }
-  export type AddAvailableDepartmentResponse =
+
+  // export type UpdateResponseDto<T> = {
+  //   data?: T;
+  //   status: ERROR<string, number> | 'SUCCESS';
+  // };
+
+  export type UpdateAvailableDepartmentReturn =
     | ER_DEPARTMENT_ERROR.DEPARTMENT_NOT_EXIST
-    | Pick<er_Department, 'department_id' | 'department_name' | 'parent_department_id'>;
+    | Pick<er_Department, 'department_id' | 'department_name' | 'status'>[];
 
-  export interface RemoveAvailableDepartmentRequest {
+  export interface RemoveAvailableDepartmentArg {
     user: ErAuth.AccessTokenSignPayload;
     department_id: er_Department['department_id'];
   }
-  export type RemoveAvailableDepartmentResponse =
+  export type RemoveAvailableDepartmentReturn =
     | ER_DEPARTMENT_ERROR.DEPARTMENT_NOT_EXIST
     | Extract_<HttpStatusKey, 'NO_CONTENT'>;
 
-  export type GetFullDepartmentListRequest = '';
-  export type GetFullDepartmentListReturn = Pick<
-    Prisma.er_DepartmentGetPayload<{
-      include: { sub_departments: { select: { department_id: true; department_name: true } } };
-    }>,
-    'department_id' | 'department_name' | 'sub_departments'
-  >[];
+  export type GetFullDepartmentListArg = '';
+  export type GetFullDepartmentListReturn = Array<
+    DepartmentReturn & {
+      sub_departments?: DepartmentReturn[];
+    }
+  >;
 
-  export type GetDepartmentStatusListRequest = { user: ErAuth.AccessTokenSignPayload };
-  export type GetDepartmentStatusListReturn = Pick<
-    er_Department,
-    'department_id' | 'department_name' | 'parent_department_id'
-  >[];
+  export type GetDepartmentStatusListArg = { user: ErAuth.AccessTokenSignPayload };
+  export type GetDepartmentStatusListReturn = GetFullDepartmentListReturn;
 }
