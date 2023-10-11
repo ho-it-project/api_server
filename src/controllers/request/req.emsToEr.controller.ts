@@ -8,10 +8,10 @@ import { RequestStatus } from '@prisma/client';
 import { EmsJwtAccessAuthGuard } from '@src/auth/guard/ems.jwt.access.guard';
 import { ErJwtAccessAuthGuard } from '@src/auth/guard/er.jwt.access.guard';
 import { EmsAuth, ErAuth } from '@src/auth/interface';
+import { ReqEmsToErProducer } from '@src/providers/req/req.emsToEr.producer';
 import { ReqEmsToErService } from '@src/providers/req/req.emsToEr.service';
 import { ReqEmsToErRequest, Try, TryCatch } from '@src/types';
 import { ReqEmsToErResponse } from '@src/types/req.response.dto';
-import { ReqEmsToErProducer } from './../../providers/req/req.emsToEr.producer';
 
 @Controller('request/ems-to-er')
 export class ReqEmsToErController {
@@ -62,7 +62,8 @@ export class ReqEmsToErController {
     }
 
     const { target_emergency_center_list, patient } = result;
-
+    target_emergency_center_list;
+    patient;
     await this.reqEmsToErProducer.sendEmsToErNewRequest({ request_list: target_emergency_center_list, patient });
 
     return createResponse(result);
@@ -225,6 +226,8 @@ export class ReqEmsToErController {
       return throwError(result);
     }
     const { patient } = result;
+    patient;
+    emergency_center_id;
     // TODO: 카프카로 전송 필요
     // 변경된 요청 상태를 카프카로 전송하여 EMS에게 알림
     await this.reqEmsToErProducer.sendEmsToErResponse({ patient, emergency_center_id, response, reject_reason });

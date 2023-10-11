@@ -1,5 +1,3 @@
-import { v4 } from 'uuid';
-
 export interface KafkaPayload<T> {
   /**
    * @type T
@@ -51,21 +49,14 @@ export class KafkaConfig {
   }
 }
 
-export const createKafkaPayload = <T>(
-  body: T,
-  arg: {
-    messageId?: string;
-    messageType: string;
-    topicName: string;
-    createdTime?: string;
-  },
-): KafkaPayload<T> => {
-  const { messageId = v4(), messageType, topicName, createdTime = new Date().toISOString() } = arg;
+type option = {
+  key?: string | null;
+  headers?: Record<string, string>;
+};
+
+export const createKafkaMessage = <T>(payload: T, option?: option) => {
   return {
-    body,
-    messageId,
-    messageType,
-    topicName,
-    createdTime,
+    value: payload,
+    ...option,
   };
 };
