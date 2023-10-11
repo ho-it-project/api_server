@@ -1,12 +1,19 @@
 import { PrismaService } from '@common/prisma/prisma.service';
 import { sortByDistanceFromCurrentLocation } from '@common/util/sortByDistanceFromCurrentLocation';
-import { Injectable } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Inject, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { ErEmergencyCenter } from '../interface/er/er.emergencyCenter.interface';
+import { Cache } from 'cache-manager';
 
+import { RedisStore } from 'cache-manager-redis-store';
+import { ErEmergencyCenter } from '../interface/er/er.emergencyCenter.interface';
 @Injectable()
 export class ErEmergencyCenterService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    @Inject(CACHE_MANAGER)
+    private readonly cache: Cache & RedisStore,
+  ) {}
 
   // TODO : redis cache 적용
   async getEmergencyCenterListByQuery(
@@ -51,6 +58,22 @@ export class ErEmergencyCenterService {
         emergency_room_available_where,
       ],
     };
+
+    //cache key
+    const key = Buffer.from(JSON.stringify({ where, latitude, longitude })).toString('base64');
+    // cache get
+    const cached = await this.cache.get<ErEmergencyCenter.GetEmergentcyCenterListQueryFindManyOuputWithDistance>(key);
+    if (cached) {
+      console.log('cache hit');
+      const cached_emergency_center_list = <ErEmergencyCenter.GetEmergentcyCenterListQueryFindManyOuputWithDistance>(
+        cached
+      );
+      const cached_emergency_center_count = cached.length;
+      return {
+        emergency_center_list: cached_emergency_center_list.slice(skip, skip + limit),
+        count: cached_emergency_center_count,
+      };
+    }
     const emergencyCenterList = await this.prismaService.er_EmergencyCenter.findMany({
       where,
       include: {
@@ -63,16 +86,18 @@ export class ErEmergencyCenterService {
         },
       },
     });
-    // location query
 
-    const emergency_center_list = sortByDistanceFromCurrentLocation({
+    // location query
+    const sorted_emergency_center_list = sortByDistanceFromCurrentLocation({
       latitude,
       longitude,
       list: emergencyCenterList,
       objLatitudeKey: 'emergency_center_latitude',
       objLongitudeKey: 'emergency_center_longitude',
-    }).slice(skip, skip + limit);
-
+    });
+    // cache set
+    await this.cache.set(key, sorted_emergency_center_list, { ttl: 60 } as any);
+    const emergency_center_list = sorted_emergency_center_list.slice(skip, skip + limit);
     const emergency_center_count = emergencyCenterList.length;
     return { emergency_center_list, count: emergency_center_count };
   }

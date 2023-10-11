@@ -20,7 +20,6 @@ export class ReqEmsToErProducer {
         this.kafka.emit('ems.request.er', createKafkaMessage({ ...req, patient }, { key: req.emergency_center_id }));
       }),
     );
-
     return;
   }
 

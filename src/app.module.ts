@@ -3,9 +3,11 @@ import { DbInit } from '@common/database/db.init';
 import { LoggerMiddleware } from '@common/middlewares/logger.middleware';
 import { PrismaModule } from '@common/prisma/prisma.module';
 import { KAFAKA_CLIENT } from '@config/constant';
+import { CacheModule, CacheStore } from '@nestjs/cache-manager';
 import { Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { redisStore } from 'cache-manager-redis-store';
 import Joi from 'joi';
 import { v4 } from 'uuid';
 import { AppController } from './app.controller';
@@ -53,6 +55,26 @@ import { ReqModule } from './modules/req.module';
         },
       ],
       isGlobal: true,
+    }),
+    // CacheModule.registerAsync({
+    //   isGlobal: true,
+    //   imports: [ConfigModule],
+    //   useFactory: async (configService: ConfigService) => ({
+    //     store: (await redisStore({
+    //       url: configService.get('REDIS_URL') || 'redis://localhost:6379/',
+    //     })) as unknown as CacheStore,
+    //   }),
+    //   inject: [ConfigService],
+    // }),
+    CacheModule.registerAsync({
+      isGlobal: true,
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        store: (await redisStore({
+          url: configService.get('REDIS_URL') || 'redis://localhost:6379/',
+        })) as unknown as CacheStore,
+      }),
+      inject: [ConfigService],
     }),
     PrismaModule,
     CryptoModule,

@@ -1,6 +1,7 @@
 import { er_Employee } from '@prisma/client';
 import { ErDepartment } from '@src/providers/interface/er/er.department.interface';
 import { ErEmergencyCenter } from '@src/providers/interface/er/er.emergencyCenter.interface';
+import { DateToString } from '.';
 import { ErAuth } from '../auth/interface/er.auth.interface';
 export namespace ErAuthResponse {
   export interface Login {
@@ -30,7 +31,7 @@ export namespace ErEmployeeResponse {
 }
 
 export namespace ErEmergencyCenterResponse {
-  export type GetEmergencyCenterList = ErEmergencyCenter.GetEmergencyCenterListQueryReturn;
+  export type GetEmergencyCenterList = DateToString<ErEmergencyCenter.GetEmergencyCenterListQueryReturn>;
 }
 
 export namespace ErDepartmentResponse {

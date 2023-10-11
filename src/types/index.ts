@@ -1,7 +1,15 @@
 import { ERROR } from '@config/errors';
 import { HttpStatus } from '@nestjs/common';
 import { ErrorHttpStatusCode } from '@nestjs/common/utils/http-error-by-code.util';
-
+export type DateToString<T> = {
+  [K in keyof T]: T[K] extends Date
+    ? string | Date
+    : T[K] extends object
+    ? DateToString<T[K]>
+    : T[K] extends (infer U)[]
+    ? DateToString<U>[]
+    : T[K];
+};
 export interface ResponseDTO<T> {
   /**
    * @type T
