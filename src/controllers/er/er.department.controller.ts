@@ -10,7 +10,7 @@ import { ErDepartmentService } from '@src/providers/er/er.department.service';
 import { ErDepartmentRequest, ErDepartmentResponse } from '@src/types';
 import { Try } from './../../types/index';
 
-@Controller('/er/hospital/current/departments')
+@Controller('/er/hospitals/current/departments')
 export class ErDepartmentController {
   constructor(private readonly erDepartmentService: ErDepartmentService) {}
 
