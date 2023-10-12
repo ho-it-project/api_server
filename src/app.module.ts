@@ -56,16 +56,6 @@ import { ReqModule } from './modules/req.module';
       ],
       isGlobal: true,
     }),
-    // CacheModule.registerAsync({
-    //   isGlobal: true,
-    //   imports: [ConfigModule],
-    //   useFactory: async (configService: ConfigService) => ({
-    //     store: (await redisStore({
-    //       url: configService.get('REDIS_URL') || 'redis://localhost:6379/',
-    //     })) as unknown as CacheStore,
-    //   }),
-    //   inject: [ConfigService],
-    // }),
     CacheModule.registerAsync({
       isGlobal: true,
       imports: [ConfigModule],

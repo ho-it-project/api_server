@@ -10,6 +10,7 @@ export type DateToString<T> = {
     ? DateToString<U>[]
     : T[K];
 };
+
 export interface ResponseDTO<T> {
   /**
    * @type T

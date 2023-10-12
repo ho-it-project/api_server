@@ -96,3 +96,4 @@ export class ErDepartmentController {
     return createResponse(result);
   }
 }
+
