@@ -20,3 +20,8 @@ export namespace ER_EMERGENCY_CENTER_ERROR {
   export interface EMERGENCY_CENTER_QUERY_INVAILD
     extends ERROR<'hospital_id or (latitude, longitude) is required', HttpStatus.BAD_REQUEST> {}
 }
+
+export namespace ER_EQUIPMENT_ERROR {
+  export interface EQUIPMENT_NOT_EXIST extends ERROR<'Equipment not exist: ', HttpStatus.BAD_REQUEST> {}
+  export const equipmentNotExist = typia.random<EQUIPMENT_NOT_EXIST>();
+}
