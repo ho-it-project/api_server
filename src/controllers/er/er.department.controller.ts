@@ -1,4 +1,5 @@
 import { CurrentUser } from '@common/decorators/CurrentUser';
+import { AdminGuard } from '@common/guard/admin.guard';
 import { createResponse } from '@common/interceptor/createResponse';
 import { ER_DEPARTMENT_ERROR, isError, throwError } from '@config/errors';
 import { TypedBody, TypedException, TypedRoute } from '@nestia/core';
@@ -9,7 +10,7 @@ import { ErDepartmentService } from '@src/providers/er/er.department.service';
 import { ErDepartmentRequest, ErDepartmentResponse } from '@src/types';
 import { Try } from './../../types/index';
 
-@Controller('/er/hospital/current/departments')
+@Controller('/er/hospitals/current/departments')
 export class ErDepartmentController {
   constructor(private readonly erDepartmentService: ErDepartmentService) {}
 
@@ -81,7 +82,7 @@ export class ErDepartmentController {
    * @returns 업데이트 이후 진료과 상태.(부모, 자식 계층표현x. flat하게 리턴합니다.)
    */
   @TypedRoute.Patch('/')
-  @UseGuards(ErJwtAccessAuthGuard)
+  @UseGuards(ErJwtAccessAuthGuard, AdminGuard)
   @TypedException<ER_DEPARTMENT_ERROR.DEPARTMENT_NOT_EXIST>(
     ER_DEPARTMENT_ERROR.departmentNotExist.http_status_code,
     ER_DEPARTMENT_ERROR.departmentNotExist.message,

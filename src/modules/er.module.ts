@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from '@src/auth/auth.module';
+import { ErDepartmentModule } from './er/department.module';
 import { ErEmergencyCenterModule } from './er/emergencyCenter.module';
 import { ErEmployeeModule } from './er/employee.module';
-import { ErDepartmentModule } from './er/department.module';
+import { ErEquipmentModule } from './er/equipment.module';
 
 @Module({
-  imports: [ErEmployeeModule, ErEmergencyCenterModule, AuthModule, ErDepartmentModule],
+  imports: [ErEmployeeModule, ErEmergencyCenterModule, AuthModule, ErDepartmentModule, ErEquipmentModule],
 })
 export class ErModule {}
