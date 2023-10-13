@@ -25,8 +25,8 @@ model er_Hospital {
 
   ///
   /// default 
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now()) @updatedAt
+  created_at DateTime @default(now())   @db.Timestamptz /// @format date-time
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamptz /// @format date-time
   status     Status   @default(ACTIVE)
 
   /// relation
@@ -49,8 +49,8 @@ model er_Employee {
   role          er_EmployeeRole
 
   /// default 
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now()) @updatedAt
+  created_at DateTime @default(now())   @db.Timestamptz /// @format date-time
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamptz /// @format date-time
   status     Status   @default(ACTIVE)
 
   /// relation
@@ -67,8 +67,8 @@ model er_Department {
   parent_department_id Int?
 
   /// default 
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now()) @updatedAt
+    created_at DateTime @default(now())   @db.Timestamptz /// @format date-time
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamptz /// @format date-time
   status     Status   @default(ACTIVE)
 
   /// relation
@@ -85,8 +85,8 @@ model er_HospitalDepartment {
   department_id Int
 
   /// default 
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now()) @updatedAt
+    created_at DateTime @default(now())   @db.Timestamptz /// @format date-time
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamptz /// @format date-time
   status     Status   @default(ACTIVE)
 
   /// relation
@@ -111,8 +111,8 @@ model er_EmergencyCenter {
   emergency_center_longitude       Float
 
   /// default 
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now()) @updatedAt
+    created_at DateTime @default(now())   @db.Timestamptz /// @format date-time
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamptz /// @format date-time
   status     Status   @default(ACTIVE)
 
   /// relation
@@ -130,8 +130,8 @@ model er_EmergencyRoom {
   emergency_room_name String               @db.VarChar(50)
 
   /// default 
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now()) @updatedAt
+    created_at DateTime @default(now())   @db.Timestamptz /// @format date-time
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamptz /// @format date-time
   status     Status   @default(ACTIVE)
 
   /// relation
@@ -148,8 +148,8 @@ model er_EmergencyRoomBed {
   emergency_room_bed_status er_EmergencyRoomBedStatus @default(AVAILABLE)
 
   /// default 
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now()) @updatedAt
+    created_at DateTime @default(now())   @db.Timestamptz /// @format date-time
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamptz /// @format date-time
   status     Status   @default(ACTIVE)
 
   /// relation
@@ -165,12 +165,12 @@ model er_EmergencyRoomBedLog {
   emergency_room_id         String                    @db.VarChar(50)
   emergency_room_bed_num    Int
   emergency_room_bed_status er_EmergencyRoomBedStatus
-  log_date                  DateTime                  @default(now())
+  log_date                  DateTime                  @default(now()) @db.Timestamptz /// @format date-time
   patient_id                String
 
   /// default 
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now()) @updatedAt
+    created_at DateTime @default(now())   @db.Timestamptz /// @format date-time
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamptz /// @format date-time
   status     Status   @default(ACTIVE)
 
   /// relation
@@ -192,8 +192,8 @@ model er_Patient {
   patient_address         String @db.VarChar(50)
 
   /// default 
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now()) @updatedAt
+    created_at DateTime @default(now())   @db.Timestamptz /// @format date-time
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamptz /// @format date-time
   status     Status   @default(ACTIVE)
 
   /// relation
@@ -206,13 +206,13 @@ model er_Patient {
 
 model er_PatientLog {
   patient_id String   @db.VarChar(50)
-  log_date   DateTime @default(now())
+  log_date   DateTime @default(now()) @db.Timestamptz /// @format date-time
   log_type   String   @db.VarChar(50)
   log_desc   String   @db.VarChar(255)
 
   /// default 
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now()) @updatedAt
+    created_at DateTime @default(now())   @db.Timestamptz /// @format date-time
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamptz /// @format date-time
   status     Status   @default(ACTIVE)
 
   /// relation
@@ -228,8 +228,8 @@ model er_ServereIllness {
   servere_illness_name String @db.VarChar(50)
 
   /// default 
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now()) @updatedAt
+    created_at DateTime @default(now())   @db.Timestamptz /// @format date-time
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamptz /// @format date-time
   status     Status   @default(ACTIVE)
 
   /// relation
@@ -244,8 +244,8 @@ model er_HospitalServereIllness {
   servere_illness_id String @db.VarChar(50)
 
   /// default 
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now()) @updatedAt
+    created_at DateTime @default(now())   @db.Timestamptz /// @format date-time
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamptz /// @format date-time
   status     Status   @default(ACTIVE)
 
   /// relation
@@ -262,8 +262,8 @@ model er_MedicalEquipment {
   medical_equipment_name String @db.VarChar(50)
 
   /// default 
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now()) @updatedAt
+    created_at DateTime @default(now())   @db.Timestamptz /// @format date-time
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamptz /// @format date-time
   status     Status   @default(ACTIVE)
 
   /// relation
@@ -279,8 +279,8 @@ model er_HospitalMedicalEquipment {
   medical_equipment_count Int
 
   /// default 
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now()) @updatedAt
+    created_at DateTime @default(now())   @db.Timestamptz /// @format date-time
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamptz /// @format date-time
   status     Status   @default(ACTIVE)
 
   /// relation
@@ -301,8 +301,8 @@ model er_Response {
   reject_reason String? @db.VarChar(255)
 
   /// default 
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now()) @updatedAt
+    created_at DateTime @default(now())   @db.Timestamptz /// @format date-time
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamptz /// @format date-time
   status     Status   @default(ACTIVE)
 
   @@id([emergency_center_id, request_id])
@@ -389,8 +389,8 @@ model ems_AmbulanceCompany {
   ambulance_company_phone          String  @db.VarChar(20)
 
   /// default 
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now()) @updatedAt
+    created_at DateTime @default(now())   @db.Timestamptz /// @format date-time
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamptz /// @format date-time
   status     Status   @default(ACTIVE)
 
   /// relation
@@ -408,8 +408,8 @@ model ems_Ambulance {
   ambulance_number     String            @db.VarChar(50)
 
   /// default
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now()) @updatedAt
+    created_at DateTime @default(now())   @db.Timestamptz /// @format date-time
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamptz /// @format date-time
   status     Status   @default(ACTIVE)
 
   ///relation
@@ -428,8 +428,8 @@ model ems_Employee {
   password             String           @db.VarChar(255)
 
   /// default
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now()) @updatedAt
+    created_at DateTime @default(now())   @db.Timestamptz /// @format date-time
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamptz /// @format date-time
   status     Status   @default(ACTIVE)
 
   /// relation
@@ -455,11 +455,11 @@ model ems_Patient {
   patient_emergency_cause ems_IncidentCause /// 사고원인
   guardian_id             String?           @unique @db.VarChar(50)
   ems_employee_id         String            @db.VarChar(50)
-  complete_date           DateTime?         @default("1970-01-01T00:00:00Z") /// 유닉스 타임스탬프 "1970-01-01T00:00:00Z" = 아직 완료 안함
+  complete_date           DateTime?         @default("1970-01-01T00:00:00Z") @db.Timestamptz /// @format date-time/// 유닉스 타임스탬프 "1970-01-01T00:00:00Z" = 아직 완료 안함
   patient_status ems_PatientStatus @default(PENDING) /// 대기중 // 요청전 단계
   /// default 
-  created_at     DateTime          @default(now())
-  updated_at     DateTime          @default(now()) @updatedAt
+  created_at     DateTime          @default(now()) @db.Timestamptz /// @format date-time
+  updated_at     DateTime          @default(now()) @updatedAt @db.Timestamptz /// @format date-time
   status         Status            @default(ACTIVE)
 
   /// relation
@@ -481,8 +481,8 @@ model ems_PatientSalt {
   salt       String @db.VarChar(255)
 
   /// default
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now()) @updatedAt
+    created_at DateTime @default(now())   @db.Timestamptz /// @format date-time
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamptz /// @format date-time
   status     Status   @default(ACTIVE)
 
   /// relation
@@ -499,8 +499,8 @@ model ems_Guardian {
   guardian_relation ems_GuardianRelation /// 환자와의 관계
 
   /// default 
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now()) @updatedAt
+    created_at DateTime @default(now())   @db.Timestamptz /// @format date-time
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamptz /// @format date-time
   status     Status   @default(ACTIVE)
 
   /// relation
@@ -521,8 +521,8 @@ model ems_ABCDE_Assessment {
   disability_avpu                      ems_DisabilityAVPU /// 의식 상태
   exposure_notes                       String               @db.VarChar(255) /// 노출 상태 : 외상, 화상, 발진, 저체온, 기타노출에 대한 상세 내용
   /// default
-  created_at                           DateTime             @default(now())
-  updated_at                           DateTime             @default(now()) @updatedAt
+  created_at                           DateTime             @default(now()) @db.Timestamptz /// @format date-time
+  updated_at                           DateTime             @default(now()) @updatedAt  @db.Timestamptz /// @format date-time
   status                               Status               @default(ACTIVE)
 
   /// relation
@@ -547,8 +547,8 @@ model ems_DCAP_BTLS_Assessment {
   laceration    String           @default("없음") @db.VarChar(50)
   swelling      String           @default("없음") @db.VarChar(50)
   /// default
-  created_at    DateTime         @default(now())
-  updated_at    DateTime         @default(now()) @updatedAt
+  created_at    DateTime         @default(now()) @db.Timestamptz /// @format date-time
+  updated_at    DateTime         @default(now()) @updatedAt @db.Timestamptz /// @format date-time
   status        Status           @default(ACTIVE)
   /// relation
   patient       ems_Patient      @relation(fields: [patient_id], references: [patient_id])
@@ -566,8 +566,8 @@ model ems_VS_Assessment {
   diastolic_blood_pressure Int /// 이완기 혈압 //단위 mmHg
   temperature              Float /// 체온 //단위 ℃
   /// default
-  created_at               DateTime    @default(now())
-  updated_at               DateTime    @default(now()) @updatedAt
+  created_at               DateTime    @default(now()) @db.Timestamptz /// @format date-time
+  updated_at               DateTime    @default(now()) @updatedAt @db.Timestamptz /// @format date-time
   status                   Status      @default(ACTIVE)
   /// relation
   patient                  ems_Patient @relation(fields: [patient_id], references: [patient_id])
@@ -591,11 +591,11 @@ model ems_SAMPLE_Assessment {
   medications               String      @db.VarChar(255) /// 복용중인 약물
   past_medical_history      String      @db.VarChar(255) /// 과거 병력 
   /// "1970-01-01T00:00:00Z" 미상 //유닉스 타임스탬프
-  last_oral_intake          DateTime    @default("1970-01-01T00:00:00Z") /// 마지막 경구 섭취 
+  last_oral_intake          DateTime    @default("1970-01-01T00:00:00Z") @db.Timestamptz /// @format date-time /// 마지막 경구 섭취 
   events_leading_to_illness String      @db.VarChar(255) /// 발병 전 사건 - 무엇을 하고있었는지.
-  /// default
-  created_at                DateTime    @default(now())
-  updated_at                DateTime    @default(now()) @updatedAt
+  /// default 
+  created_at                DateTime    @default(now()) @db.Timestamptz /// @format date-time
+  updated_at                DateTime    @default(now()) @updatedAt @db.Timestamptz /// @format date-time
   status                    Status      @default(ACTIVE)
   /// relation
   patient                   ems_Patient @relation(fields: [patient_id], references: [patient_id])
@@ -612,10 +612,10 @@ model ems_OPQRST_Assessment {
   quality     String      @db.VarChar(255) /// 특징 -- 쥐어짜듯이, 찢어지듯이 ...
   radiation   String      @db.VarChar(255) /// 방사 전이, 아픔이 다른 곳으로 옮겨가거나 다른 관련 증상은 없는지
   severity    Int /// 심각도 1~10
-  time        DateTime    @default("1970-01-01T00:00:00Z") /// 통증 발현시간 //유닉스 타임스탬프 "1970-01-01T00:00:00Z" = 미상
+  time        DateTime    @default("1970-01-01T00:00:00Z") @db.Timestamptz /// @format date-time /// 통증 발현시간 //유닉스 타임스탬프 "1970-01-01T00:00:00Z" = 미상
   /// default
-  created_at  DateTime    @default(now())
-  updated_at  DateTime    @default(now()) @updatedAt
+  created_at  DateTime    @default(now()) @db.Timestamptz /// @format date-time
+  updated_at  DateTime    @default(now()) @updatedAt @db.Timestamptz /// @format date-time
   status      Status      @default(ACTIVE)
   /// relation
   patient     ems_Patient @relation(fields: [patient_id], references: [patient_id])
@@ -770,9 +770,9 @@ model req_EmsToErRequest {
   patient_id     String            @db.VarChar(50)
   emergency_center_id String      @db.VarChar(50)
   request_status RequestStatus @default(REQUESTED)
-  request_date   DateTime          @default(now())
+  request_date   DateTime          @default(now()) @db.Timestamptz /// @format date-time
   reject_reason  String?           @db.VarChar(255)
-  response_date        DateTime    @default("1970-01-01T00:00:00Z") /// 유닉스 타임스탬프 "1970-01-01T00:00:00Z" = 아직 응답 안함
+  response_date        DateTime    @default("1970-01-01T00:00:00Z") @db.Timestamptz /// @format date-time /// 유닉스 타임스탬프 "1970-01-01T00:00:00Z" = 아직 응답 안함
   
   emergency_center_name       String      @db.VarChar(50)
   emergency_center_latitude   Float
@@ -782,8 +782,8 @@ model req_EmsToErRequest {
 
 
   /// default
-  created_at         DateTime     @default(now())
-  updated_at         DateTime     @default(now()) @updatedAt
+  created_at         DateTime     @default(now()) @db.Timestamptz /// @format date-time
+  updated_at         DateTime     @default(now()) @updatedAt @db.Timestamptz /// @format date-time
   status             Status       @default(ACTIVE)
   /// relation
   patient            req_Patient  @relation(fields: [patient_id], references: [patient_id])
@@ -810,8 +810,8 @@ model req_Patient {
   ems_employee_name String        @db.VarChar(50)
 
   /// default
-  created_at     DateTime         @default(now())
-  updated_at     DateTime         @default(now()) @updatedAt
+  created_at     DateTime         @default(now()) @db.Timestamptz /// @format date-time
+  updated_at     DateTime         @default(now()) @updatedAt @db.Timestamptz /// @format date-time
   status         Status           @default(ACTIVE)
 
   /// relation

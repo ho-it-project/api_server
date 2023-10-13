@@ -49,12 +49,14 @@ export class EmsAuthController {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production' ? true : false, //htt
         maxAge: 1000 * 60 * 60 * 24 * 7,
+        domain: `.${process.env.DOMAIN}` || undefined,
       });
       response.cookie('access_token', access_token, {
         sameSite: 'none',
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production' ? true : false, //htt
         maxAge: 1000 * 60 * 60 * 24,
+        domain: `.${process.env.DOMAIN}` || undefined,
       });
       const employee = assertPrune<EmsAuth.AccessTokenSignPayload>(user);
       return createResponse({
@@ -108,14 +110,15 @@ export class EmsAuthController {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production' ? true : false, //htt
       maxAge: 1000 * 60 * 60 * 24 * 7,
+      domain: `.${process.env.DOMAIN}` || undefined,
     });
     response.cookie('access_token', access_token, {
       sameSite: 'none',
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production' ? true : false, //htt
       maxAge: 1000 * 60 * 60 * 24,
+      domain: `.${process.env.DOMAIN}` || undefined,
     });
-
     return createResponse({
       is_login: true,
       employee,

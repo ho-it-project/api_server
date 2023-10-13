@@ -1,10 +1,13 @@
 import { CryptoModule } from '@common/crypto/crypto.module';
 import { DbInit } from '@common/database/db.init';
-import { KafkaModule } from '@common/kafka/kafka.module';
 import { LoggerMiddleware } from '@common/middlewares/logger.middleware';
 import { PrismaModule } from '@common/prisma/prisma.module';
+import { KAFAKA_CLIENT } from '@config/constant';
+import { CacheModule, CacheStore } from '@nestjs/cache-manager';
 import { Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { redisStore } from 'cache-manager-redis-store';
 import Joi from 'joi';
 import { v4 } from 'uuid';
 import { AppController } from './app.controller';
@@ -35,10 +38,33 @@ import { ReqModule } from './modules/req.module';
         SCRYPT_PASSWORD: Joi.string().required(),
       }),
     }),
-    KafkaModule.register({
-      clientId: v4(),
-      brokers: process.env.KAFKA_BOOTSTRAP_SERVERS?.split(',').map((a) => a.trim()) as string[],
-      groupId: 'hoit',
+    ClientsModule.register({
+      clients: [
+        {
+          name: KAFAKA_CLIENT,
+          transport: Transport.KAFKA,
+          options: {
+            client: {
+              clientId: `api-${v4()}`,
+              brokers: process.env.KAFKA_BOOTSTRAP_SERVERS?.split(',').map((a) => a.trim()) as string[],
+            },
+            consumer: {
+              groupId: 'hoit-api-server',
+            },
+          },
+        },
+      ],
+      isGlobal: true,
+    }),
+    CacheModule.registerAsync({
+      isGlobal: true,
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        store: (await redisStore({
+          url: configService.get('REDIS_URL') || 'redis://localhost:6379/',
+        })) as unknown as CacheStore,
+      }),
+      inject: [ConfigService],
     }),
     PrismaModule,
     CryptoModule,

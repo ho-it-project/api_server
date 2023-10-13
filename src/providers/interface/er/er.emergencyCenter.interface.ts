@@ -3,8 +3,13 @@ import { ErEmergencyCenterRequest } from '@src/types';
 
 export namespace ErEmergencyCenter {
   export type GetEmergencyCenterListQuery = ErEmergencyCenterRequest.GetEmergencyCenterListQuery;
+
+  export type GetEmergentcyCenterListQueryFindManyOuputWithDistance = (GetEmergentcyCenterListQueryFindManyOuput & {
+    distance: number;
+  })[];
+
   export interface GetEmergencyCenterListQueryReturn {
-    emergency_center_list: (GetEmergentcyCenterListQueryFindManyOuput & { distance: number })[];
+    emergency_center_list: GetEmergentcyCenterListQueryFindManyOuputWithDistance;
     count: number;
   }
 
