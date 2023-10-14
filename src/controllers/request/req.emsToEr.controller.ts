@@ -4,6 +4,7 @@ import { AUTH_ERROR, isError, throwError } from '@config/errors';
 import { REQ_EMS_TO_ER_ERROR } from '@config/errors/req.error';
 import { TypedBody, TypedException, TypedParam, TypedQuery, TypedRoute } from '@nestia/core';
 import { Controller, UseGuards } from '@nestjs/common';
+import { Cron } from '@nestjs/schedule';
 import { RequestStatus } from '@prisma/client';
 import { EmsJwtAccessAuthGuard } from '@src/auth/guard/ems.jwt.access.guard';
 import { ErJwtAccessAuthGuard } from '@src/auth/guard/er.jwt.access.guard';
@@ -43,7 +44,6 @@ export class ReqEmsToErController {
   @TypedRoute.Post('/')
   @TypedException<AUTH_ERROR.FORBIDDEN>(403, 'AUTH_ERROR.FORBIDDEN')
   @TypedException<REQ_EMS_TO_ER_ERROR.PENDING_PATIENT_NOT_FOUND>(404.1, 'PENDING_PATIENT_NOT_FOUND')
-  @TypedException<REQ_EMS_TO_ER_ERROR.AMBULANCE_COMPANY_NOT_FOUND>(404.2, 'AMBULANCE_COMPANY_NOT_FOUND')
   @TypedException<REQ_EMS_TO_ER_ERROR.REQUEST_ALREADY_PROCESSED>(400.1, 'REQUEST_ALREADY_PROCESSED')
   @UseGuards(EmsJwtAccessAuthGuard)
   async createEmsToErRequest(
@@ -51,19 +51,16 @@ export class ReqEmsToErController {
   ): Promise<
     TryCatch<
       ReqEmsToErResponse.createEmsToErRequest,
-      | REQ_EMS_TO_ER_ERROR.PENDING_PATIENT_NOT_FOUND
-      | REQ_EMS_TO_ER_ERROR.AMBULANCE_COMPANY_NOT_FOUND
-      | REQ_EMS_TO_ER_ERROR.REQUEST_ALREADY_PROCESSED
+      REQ_EMS_TO_ER_ERROR.PENDING_PATIENT_NOT_FOUND | REQ_EMS_TO_ER_ERROR.REQUEST_ALREADY_PROCESSED
     >
   > {
-    const result = await this.reqEmsToErService.createEmsToErRequest(user);
+    const result = await this.reqEmsToErService.createEmsToErRequest({ user });
     if (isError(result)) {
       return throwError(result);
     }
 
     const { target_emergency_center_list, patient } = result;
-    target_emergency_center_list;
-    patient;
+
     await this.reqEmsToErProducer.sendEmsToErNewRequest({ request_list: target_emergency_center_list, patient });
 
     return createResponse(result);
@@ -232,5 +229,20 @@ export class ReqEmsToErController {
     // 변경된 요청 상태를 카프카로 전송하여 EMS에게 알림
     await this.reqEmsToErProducer.sendEmsToErResponse({ patient, emergency_center_id, response, reject_reason });
     return createResponse(undefined);
+  }
+
+  //1분마다 실행
+  @Cron('0 * * * * *')
+  async batchNewEmsToErRequest() {
+    const result = await this.reqEmsToErService.batchNewEmsToErRequest();
+    await Promise.all(
+      result.map(async (r) => {
+        if (isError(r)) {
+          return;
+        }
+        const { target_emergency_center_list, patient } = r;
+        await this.reqEmsToErProducer.sendEmsToErNewRequest({ request_list: target_emergency_center_list, patient });
+      }),
+    );
   }
 }

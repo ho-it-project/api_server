@@ -93,7 +93,7 @@ describe('RequestEmsToErService', () => {
     });
     it('should return error if patient not found', async () => {
       jest.spyOn(prismaService.ems_Patient, 'findFirst').mockResolvedValue(null);
-      const result = await requestEmsToErService.createEmsToErRequest(user);
+      const result = await requestEmsToErService.createEmsToErRequest({ user });
       expect(result).toEqual(typia.random<REQ_EMS_TO_ER_ERROR.PENDING_PATIENT_NOT_FOUND>());
     });
 
@@ -101,18 +101,12 @@ describe('RequestEmsToErService', () => {
       jest
         .spyOn(prismaService.ems_Patient, 'findFirst')
         .mockResolvedValue({ ...patientMock, patient_status: 'REQUESTED' });
-      const result = await requestEmsToErService.createEmsToErRequest(user);
+      const result = await requestEmsToErService.createEmsToErRequest({ user });
       expect(result).toEqual(typia.random<REQ_EMS_TO_ER_ERROR.REQUEST_ALREADY_PROCESSED>());
     });
 
-    it('should return error if ambulance company not found', async () => {
-      jest.spyOn(prismaService.ems_AmbulanceCompany, 'findFirst').mockResolvedValue(null);
-      const result = await requestEmsToErService.createEmsToErRequest(user);
-      expect(result).toEqual(typia.random<REQ_EMS_TO_ER_ERROR.AMBULANCE_COMPANY_NOT_FOUND>());
-    });
-
     it('should return patient and target_emergency_center_list ', async () => {
-      const result = await requestEmsToErService.createEmsToErRequest(user);
+      const result = await requestEmsToErService.createEmsToErRequest({ user });
 
       expect(result).toEqual(
         expect.objectContaining({

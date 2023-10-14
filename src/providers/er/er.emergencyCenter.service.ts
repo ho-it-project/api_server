@@ -2,7 +2,7 @@ import { PrismaService } from '@common/prisma/prisma.service';
 import { sortByDistanceFromCurrentLocation } from '@common/util/sortByDistanceFromCurrentLocation';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject, Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, er_EmergencyCenter } from '@prisma/client';
 import { Cache } from 'cache-manager';
 
 import { RedisStore } from 'cache-manager-redis-store';
@@ -100,5 +100,42 @@ export class ErEmergencyCenterService {
     const emergency_center_list = sorted_emergency_center_list.slice(skip, skip + limit);
     const emergency_center_count = emergencyCenterList.length;
     return { emergency_center_list, count: emergency_center_count };
+  }
+
+  async getEmergencyCenterListAll() {
+    const cached_emergency_center_list = await this.cache.get<er_EmergencyCenter[]>('emergency_center_list');
+    const emergencyCenterList =
+      cached_emergency_center_list || (await this.prismaService.er_EmergencyCenter.findMany({}));
+
+    if (!cached_emergency_center_list) {
+      await this.cache.set('emergency_center_list', emergencyCenterList, { ttl: 24 * 60 * 60 } as any); // 거의 변하지 않는 데이터 24시간
+    }
+    return emergencyCenterList;
+  }
+
+  async getSortedEmergencyCenterListByDistanceFromCurrentLocation({
+    latitude,
+    longitude,
+    ttl = 15 * 60,
+  }: {
+    latitude: number;
+    longitude: number;
+    ttl?: number;
+  }) {
+    const key = `sorted_emergency_center_list_${latitude}_${longitude}`;
+    const cached = await this.cache.get<(er_EmergencyCenter & { distance: number })[]>(key);
+    if (!cached) {
+      const emergencyCenterList = await this.getEmergencyCenterListAll();
+      const sorted_emergency_center_list = sortByDistanceFromCurrentLocation({
+        latitude,
+        longitude: longitude,
+        list: emergencyCenterList,
+        objLatitudeKey: 'emergency_center_latitude',
+        objLongitudeKey: 'emergency_center_longitude',
+      });
+      await this.cache.set(key, sorted_emergency_center_list, { ttl } as any);
+      return sorted_emergency_center_list;
+    }
+    return cached;
   }
 }

@@ -3,11 +3,16 @@ import { EmsAuth, ErAuth } from '@src/auth/interface';
 import { ReqEmsToErRequest } from '@src/types';
 
 export namespace ReqEmsToEr {
-  export type createEmsToErRequestReturn = {
+  export type CreateEmsToErRequestArg = {
+    user: Pick<EmsAuth.AccessTokenSignPayload, 'ambulance_company_id' | 'employee_id'>;
+    n?: number;
+
+  };
+
+  export type CreateEmsToErRequestReturn = {
     target_emergency_center_list: req_EmsToErRequest[];
     patient: req_Patient;
   };
-
   export type GetEmsToErRequestListEms = {
     query: ReqEmsToErRequest.GetEmsToErRequestListQuery;
     user: EmsAuth.AccessTokenSignPayload;
