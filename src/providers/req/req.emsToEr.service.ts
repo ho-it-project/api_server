@@ -4,7 +4,7 @@ import { DEFAULT_REQUEST_DISTANCE } from '@config/constant';
 import { EMS_PATIENT_ERROR, isError } from '@config/errors';
 import { REQ_EMS_TO_ER_ERROR } from '@config/errors/req.error';
 import { Injectable, Logger } from '@nestjs/common';
-import { Prisma, RequestStatus, ems_PatientStatus, req_Patient } from '@prisma/client';
+import { Prisma, RequestStatus, ems_PatientStatus } from '@prisma/client';
 import { ErEmergencyCenterService } from '@src/providers/er/er.emergencyCenter.service';
 import { ReqEmsToEr } from '@src/providers/interface/req/req.emsToEr.interface';
 import typia from 'typia';
@@ -55,7 +55,6 @@ export class ReqEmsToErService {
         latitude: patient_latitude,
         longitude: patient_longitude,
       });
-
     const targetEmergencyCenterList = filterByDistance(emergencyCenterList, n, DEFAULT_REQUEST_DISTANCE);
 
     const createManyRequestInput = targetEmergencyCenterList.map((emergencyCenter) => {
@@ -76,6 +75,7 @@ export class ReqEmsToErService {
       };
     });
 
+    console.log(createManyRequestInput);
     // TODO: 증상 요약 적용 필요
     const createReqPatientInput = {
       patient_id,
@@ -99,9 +99,7 @@ export class ReqEmsToErService {
           ...createReqPatientInput,
           ems_to_er_request: {
             createMany: {
-              ...assertPrune<Prisma.req_EmsToErRequestCreateManyPatientInputEnvelope>({
-                data: createManyRequestInput,
-              }),
+              data: assertPrune<Prisma.req_EmsToErRequestCreateManyPatientInput[]>(createManyRequestInput),
             },
           },
         },
@@ -263,7 +261,9 @@ export class ReqEmsToErService {
     reject_reason,
     response,
   }: ReqEmsToEr.RespondErToEmsRequest): Promise<
-    { patient: req_Patient } | REQ_EMS_TO_ER_ERROR.REQUEST_NOT_FOUND | REQ_EMS_TO_ER_ERROR.REQUEST_ALREADY_PROCESSED
+    | ReqEmsToEr.ResopndErToEmsRequestReturn
+    | REQ_EMS_TO_ER_ERROR.REQUEST_NOT_FOUND
+    | REQ_EMS_TO_ER_ERROR.REQUEST_ALREADY_PROCESSED
   > {
     const { emergency_center_id } = user;
     const reqEmsToErRequest = await this.prismaService.req_EmsToErRequest.findFirst({
@@ -311,8 +311,7 @@ export class ReqEmsToErService {
             }),
           ]
         : [];
-
-    await this.prismaService.$transaction([
+    const [_response] = await this.prismaService.$transaction([
       this.prismaService.req_EmsToErRequest.update({
         where: {
           patient_id_emergency_center_id: {
@@ -331,7 +330,17 @@ export class ReqEmsToErService {
       ...update,
     ]);
 
-    return { patient };
+    const complete_req_list =
+      response === RequestStatus.ACCEPTED
+        ? await this.prismaService.req_EmsToErRequest.findMany({
+            where: {
+              patient_id,
+              request_status: RequestStatus.COMPLETED,
+            },
+          })
+        : [];
+
+    return { patient, complete_req_list, response: _response };
   }
 
   async batchNewEmsToErRequest() {

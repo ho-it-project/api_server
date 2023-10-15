@@ -170,6 +170,18 @@ export class ReqEmsToErController {
       reqList,
       status: RequestStatus.VIEWED,
     });
+
+    const { request_list } = result;
+    request_list
+      .filter((r) => r.request_status === 'REQUESTED')
+      .forEach(async (r) => {
+        const { patient, ...req } = r;
+        await this.reqEmsToErProducer.sendEmsToErUpdate({
+          patient,
+          updated_list: [{ ...req, request_status: 'VIEWED' }],
+        });
+      });
+
     return createResponse(result);
   }
 
@@ -222,12 +234,21 @@ export class ReqEmsToErController {
     if (isError(result)) {
       return throwError(result);
     }
-    const { patient } = result;
-    patient;
-    emergency_center_id;
+    const { patient, complete_req_list, response: _response } = result;
     // TODO: 카프카로 전송 필요
+    const { ambulance_company_id, ems_employee_id } = patient;
+    const { request_date, request_status } = _response;
     // 변경된 요청 상태를 카프카로 전송하여 EMS에게 알림
-    await this.reqEmsToErProducer.sendEmsToErResponse({ patient, emergency_center_id, response, reject_reason });
+    await this.reqEmsToErProducer.sendEmsToErResponse({
+      patient_id,
+      emergency_center_id,
+      ambulance_company_id,
+      ems_employee_id,
+      request_date,
+      request_status,
+      reject_reason,
+    });
+    await this.reqEmsToErProducer.sendEmsToErUpdate({ patient, updated_list: complete_req_list });
     return createResponse(undefined);
   }
 

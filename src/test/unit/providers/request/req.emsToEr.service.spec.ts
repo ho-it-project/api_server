@@ -196,17 +196,25 @@ describe('RequestEmsToErService', () => {
     });
 
     it('should return success if request is accepted', async () => {
+      jest
+        .spyOn(prismaService, '$transaction')
+        .mockResolvedValue([{ ...emsToErRequestMock, reqeust_status: 'ACCEPTED' }]);
       const result = await requestEmsToErService.respondEmsToErRequest({ user, patient_id, response: 'ACCEPTED' });
       if (isError(result)) {
         throw new Error('test fail');
       }
 
-      expect(result).toEqual({ patient: reqPatientMock });
+      expect(result).toEqual({
+        patient: reqPatientMock,
+        complete_req_list: [],
+        response: { ...emsToErRequestMock, reqeust_status: 'ACCEPTED' },
+      });
     });
 
     it('should return success if request is rejected', async () => {
+      jest.spyOn(prismaService, '$transaction').mockResolvedValue([emsToErRequestMock]);
       const result = await requestEmsToErService.respondEmsToErRequest({ user, patient_id, response: 'REJECTED' });
-      expect(result).toEqual({ patient: reqPatientMock });
+      expect(result).toEqual({ patient: reqPatientMock, complete_req_list: [], response: emsToErRequestMock });
     });
   });
 });
