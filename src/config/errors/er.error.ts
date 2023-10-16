@@ -25,3 +25,8 @@ export namespace ER_EQUIPMENT_ERROR {
   export interface EQUIPMENT_NOT_EXIST extends ERROR<'Equipment not exist: ', HttpStatus.BAD_REQUEST> {}
   export const equipmentNotExist = typia.random<EQUIPMENT_NOT_EXIST>();
 }
+
+export namespace ER_ILLNESS_ERROR {
+  export interface ILLNESS_NOT_EXIST extends ERROR<'Illness not exist: ', HttpStatus.BAD_REQUEST> {}
+  export const illnessNotExist = typia.random<ILLNESS_NOT_EXIST>();
+}
