@@ -13,6 +13,17 @@ import { ErIllnessRequest, ErIllnessResponse, Try } from '@src/types';
 export class ErIllnessController {
   constructor(private readonly illnessService: ErIllnessService) {}
 
+  /**
+   * 치료가능질환 조회
+   *
+   * @author anthony
+   * @tag er_Illness
+   * @summary 2023-10-16 치료가능질환 조회
+   *
+   * @param user
+   * @security access_token
+   * @returns 치료가능질환
+   */
   @TypedRoute.Get('/')
   @UseGuards(ErJwtAccessAuthGuard)
   async getServableIllnessStatus(
@@ -23,6 +34,21 @@ export class ErIllnessController {
     return createResponse(result);
   }
 
+  /**
+   * 치료가능질환 업데이트
+   * admin권한이 필요합니다.
+   * patch document는 JSON Merge Patch방식을 사용합니다.
+   * 업데이트된 치료가능질환 상태를 반환합니다.
+   *
+   * @author anthony
+   * @tag er_Illness
+   * @summary 2023-10-16 치료가능질환 업데이트
+   *
+   * @param user
+   * @param document
+   * @security access_token
+   * @returns 업데이트된 치료가능질환 상태
+   */
   @TypedRoute.Patch('/')
   @UseGuards(ErJwtAccessAuthGuard, AdminGuard)
   async patchServableIllnessStatus(
