@@ -2,7 +2,7 @@ import { CryptoService } from '@common/crypto/crypto.service';
 import { PrismaService } from '@common/prisma/prisma.service';
 import { EMS_PATIENT_ERROR, isError } from '@config/errors';
 import { Injectable } from '@nestjs/common';
-import { ems_Patient } from '@prisma/client';
+import { Prisma, ems_Patient } from '@prisma/client';
 import typia from 'typia';
 import { assertPrune } from 'typia/lib/misc';
 import { v4 } from 'uuid';
@@ -289,4 +289,28 @@ export class EmsPatientService {
 
     return true;
   }
+
+  async getPatientDetailwithEmsEmployee(where: Prisma.ems_PatientFindFirstArgs['where']) {
+    const patient = await this.prismaService.ems_Patient.findFirst({
+      where,
+      include: {
+        employee: {
+          include: {
+            ambulance_company: true,
+          },
+        },
+        abcde: true,
+        sample: true,
+        vs: true,
+        dcap_btls: true,
+        opqrst: true,
+      },
+    });
+    if (!patient) {
+      return typia.random<EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>();
+    }
+    return patient;
+  }
+
+  
 }
