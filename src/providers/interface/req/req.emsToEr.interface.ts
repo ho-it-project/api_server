@@ -1,13 +1,17 @@
-import { req_EmsToErRequest, req_Patient } from '@prisma/client';
+import { RequestStatus, req_EmsToErRequest, req_Patient } from '@prisma/client';
 import { EmsAuth, ErAuth } from '@src/auth/interface';
 import { ReqEmsToErRequest } from '@src/types';
 
 export namespace ReqEmsToEr {
-  export type createEmsToErRequestReturn = {
+  export type CreateEmsToErRequestArg = {
+    user: Pick<EmsAuth.AccessTokenSignPayload, 'ambulance_company_id' | 'employee_id'>;
+    n?: number;
+  };
+
+  export type CreateEmsToErRequestReturn = {
     target_emergency_center_list: req_EmsToErRequest[];
     patient: req_Patient;
   };
-
   export type GetEmsToErRequestListEms = {
     query: ReqEmsToErRequest.GetEmsToErRequestListQuery;
     user: EmsAuth.AccessTokenSignPayload;
@@ -31,6 +35,12 @@ export namespace ReqEmsToEr {
     reject_reason?: string;
     patient_id: string;
   };
+
+  export type ResopndErToEmsRequestReturn = {
+    patient: req_Patient;
+    complete_req_list: req_EmsToErRequest[];
+    response: req_EmsToErRequest;
+  };
 }
 
 export namespace ReqEmsToErMessage {
@@ -41,9 +51,17 @@ export namespace ReqEmsToErMessage {
   export type SendEmsToErNewRequestMessage = req_EmsToErRequest & { patient: req_Patient };
 
   export type SendEmsToErResponse = {
+    patient_id: string;
     emergency_center_id: string;
+    request_status: RequestStatus;
+    request_date: string | Date;
+    reject_reason?: string | null;
+    ambulance_company_id: string;
+    ems_employee_id: string;
+  };
+
+  export type SendEmsToErUpdate = {
+    updated_list: req_EmsToErRequest[];
     patient: req_Patient;
-    response: string;
-    reject_reason?: string;
   };
 }

@@ -23,15 +23,31 @@ export class ReqEmsToErProducer {
     return;
   }
 
-  async sendEmsToErResponse({
-    patient,
-    response,
-    reject_reason,
-    emergency_center_id,
-  }: ReqEmsToErMessage.SendEmsToErResponse) {
-    this.kafka.emit(
-      'er.response.ems',
-      createKafkaMessage({ patient, response, reject_reason, emergency_center_id }, { key: emergency_center_id }),
+  async sendEmsToErResponse(payload: ReqEmsToErMessage.SendEmsToErResponse) {
+    const { emergency_center_id } = payload;
+    this.kafka.emit('ems.request.er.response', createKafkaMessage(payload, { key: emergency_center_id }));
+  }
+
+  async sendEmsToErUpdate({ patient, updated_list }: ReqEmsToErMessage.SendEmsToErUpdate) {
+    await Promise.all(
+      updated_list.map(async (req) => {
+        const { ambulance_company_id, ambulance_company_name, ems_employee_id } = patient;
+        const { patient_id, emergency_center_id, request_status } = req;
+        this.kafka.emit(
+          'ems.request.er.update',
+          createKafkaMessage(
+            {
+              ambulance_company_id,
+              ambulance_company_name,
+              ems_employee_id,
+              patient_id,
+              emergency_center_id,
+              request_status,
+            },
+            { key: req.emergency_center_id },
+          ),
+        );
+      }),
     );
   }
 }

@@ -7,6 +7,7 @@ import { CacheModule, CacheStore } from '@nestjs/cache-manager';
 import { Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ScheduleModule } from '@nestjs/schedule';
 import { redisStore } from 'cache-manager-redis-store';
 import Joi from 'joi';
 import { v4 } from 'uuid';
@@ -66,6 +67,7 @@ import { ReqModule } from './modules/req.module';
       }),
       inject: [ConfigService],
     }),
+    ScheduleModule.forRoot(),
     PrismaModule,
     CryptoModule,
     ErModule,
