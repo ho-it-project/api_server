@@ -23,5 +23,5 @@ export namespace ErEquipment {
 
   //Validation
   export type ValidatePatchDocumentArg = UpdateEquipmentStatusArg;
-  export type ValidatePatchDocumentReturn = true | string;
+  export type ValidatePatchDocumentReturn = true | number[];
 }

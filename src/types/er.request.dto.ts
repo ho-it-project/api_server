@@ -5,8 +5,10 @@ import {
   er_EmployeeRole,
   er_HospitalDepartment,
   er_HospitalMedicalEquipment,
+  er_HospitalServereIllness,
   er_MedicalEquipment,
   er_MedicalInstitutionType,
+  er_ServereIllness,
 } from '@prisma/client';
 import { tags } from 'typia';
 
@@ -33,7 +35,6 @@ export namespace ErAuthRequest {
     password: string;
   }
 }
-
 
 export namespace ErEmployeeRequest {
   export interface CreateDTO extends Partial<er_Employee> {
@@ -212,5 +213,12 @@ export namespace ErEquipmentRequest {
   export type UpdateEquipmentStatusDto = {
     equipment_id: er_MedicalEquipment['medical_equipment_id'];
     equipment_count: er_HospitalMedicalEquipment['medical_equipment_count'];
+  }[];
+}
+
+export namespace ErIllnessRequest {
+  export type UpdateServableIllnessStatusDto = {
+    illness_id: er_ServereIllness['servere_illness_id'];
+    illness_status: er_HospitalServereIllness['status'];
   }[];
 }
