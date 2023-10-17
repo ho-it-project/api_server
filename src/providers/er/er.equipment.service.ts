@@ -36,17 +36,16 @@ export class ErEquipmentService {
         where: { medical_equipment_id: { in: ids } },
       })
     ).map((v) => v.medical_equipment_id);
-    for (const id of ids) {
-      if (!ids_in_db.includes(id)) return id.toString();
-    }
-    return true;
+    const result = ids.filter((v) => !ids_in_db.includes(v));
+    if (result.length == 0) return true;
+    return result;
   }
   async updateEquipmentStatus({
     patchDocument,
     user,
   }: ErEquipment.UpdateEquipmentStatusArg): Promise<ErEquipment.UpdateEquipmentStatusReturn> {
     const validation = await this.validatePatchDocument(patchDocument);
-    if (validation != true) {
+    if (validation !== true) {
       const error = typia.random<ER_EQUIPMENT_ERROR.EQUIPMENT_NOT_EXIST>();
       error.message += validation;
       return error;
