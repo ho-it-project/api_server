@@ -1,29 +1,28 @@
 import { INestApplication } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
+import { AppModule } from '@src/app.module';
 import request from 'supertest';
-import { AppModule } from '../../app.module';
-
 describe('AppController (e2e)', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [
-        AppModule,
-        ConfigModule.forRoot({
-          isGlobal: true,
-          envFilePath: '.env',
-        }),
-      ],
+      imports: [AppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
-
     await app.init();
   });
 
-  it('should return "Hello World!" on GET /', () => {
-    return request(app.getHttpServer()).get('/').expect(200).expect('"Hello World!"');
+  afterAll(async () => {
+    if (app) {
+      await app.close(); // 애플리케이션을 종료합니다.
+    }
+  });
+
+  it('/ (GET)', async () => {
+    const response = await request(app.getHttpServer()).get('/');
+    expect(response.status).toBe(200);
+    expect(response.text).toBe('"Hello World!"');
   });
 });
