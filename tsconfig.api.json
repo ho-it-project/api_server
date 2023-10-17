@@ -59,6 +59,18 @@
     /* Advanced Options */
     "skipLibCheck": true /* Skip type checking of declaration files. */,
     "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */,
+    "paths": {
+      "@ORGANIZATION/PROJECT-api/lib/*": ["./src/api/*"],
+      "@ORGANIZATION/PROJECT-api": ["./src/api"],
+      "@common/*": ["./src/common/*"],
+      "@config/*": ["./src/config/*"],
+      "@app/*": ["./src/app/*"],
+      "@src/*": ["./src/*"],
+      "@providers/*": ["./src/providers/*"],
+      "@controllers/*": ["./src/controllers/*"],
+      "@modules/*": ["./src/modules/*"],
+      "@types/*": ["./src/types/*"]
+    },
     "plugins": [
       {
         "transform": "@nestia/core/lib/transform",

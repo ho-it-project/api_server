@@ -138,5 +138,9 @@ packages/**/*
 
 src/api
 
+test/**/*.ts
+test/**/*.js
+
+bin
 
 *.db.json
