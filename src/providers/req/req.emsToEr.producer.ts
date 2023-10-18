@@ -1,5 +1,5 @@
 import { createKafkaMessage } from '@common/kafka/kafka.message';
-import { KAFAKA_CLIENT } from '@config/constant';
+import { EMS_REQUEST_ER, EMS_REQUEST_ER_RESPONSE, EMS_REQUEST_ER_UPDATE, KAFAKA_CLIENT } from '@config/constant';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientKafka } from '@nestjs/microservices';
 import { ReqEmsToErMessage } from '../interface/req/req.emsToEr.interface';
@@ -17,7 +17,7 @@ export class ReqEmsToErProducer {
   async sendEmsToErNewRequest({ request_list, patient }: ReqEmsToErMessage.SendEmsToErNewRequest) {
     await Promise.all(
       request_list.map(async (req) => {
-        this.kafka.emit('ems.request.er', createKafkaMessage({ ...req, patient }, { key: req.emergency_center_id }));
+        this.kafka.emit(EMS_REQUEST_ER, createKafkaMessage({ ...req, patient }, { key: req.emergency_center_id }));
       }),
     );
     return;
@@ -25,7 +25,7 @@ export class ReqEmsToErProducer {
 
   async sendEmsToErResponse(payload: ReqEmsToErMessage.SendEmsToErResponse) {
     const { emergency_center_id } = payload;
-    this.kafka.emit('ems.request.er.response', createKafkaMessage(payload, { key: emergency_center_id }));
+    this.kafka.emit(EMS_REQUEST_ER_RESPONSE, createKafkaMessage(payload, { key: emergency_center_id }));
   }
 
   async sendEmsToErUpdate({ patient, updated_list }: ReqEmsToErMessage.SendEmsToErUpdate) {
@@ -34,7 +34,7 @@ export class ReqEmsToErProducer {
         const { ambulance_company_id, ambulance_company_name, ems_employee_id } = patient;
         const { patient_id, emergency_center_id, request_status } = req;
         this.kafka.emit(
-          'ems.request.er.update',
+          EMS_REQUEST_ER_UPDATE,
           createKafkaMessage(
             {
               ambulance_company_id,
