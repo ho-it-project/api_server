@@ -10,8 +10,10 @@ export namespace ErDepartment {
 
   export interface UpdateAvailableDepartmentArg {
     user: ErAuth.AccessTokenSignPayload;
-    data: ErDepartmentRequest.UpdateAvailableDepartmentDto;
+    patchDocument: ErDepartmentRequest.UpdateAvailableDepartmentDto;
   }
+
+  export type ValidatePatchDocumentReturn = true | number[];
 
   // export type UpdateResponseDto<T> = {
   //   data?: T;
@@ -19,7 +21,7 @@ export namespace ErDepartment {
   // };
 
   export type UpdateAvailableDepartmentReturn =
-    | ER_DEPARTMENT_ERROR.DEPARTMENT_NOT_EXIST
+    | ER_DEPARTMENT_ERROR.INVALID_PATCH_DATA
     | Pick<er_Department, 'department_id' | 'department_name' | 'status'>[];
 
   export interface RemoveAvailableDepartmentArg {
@@ -27,7 +29,7 @@ export namespace ErDepartment {
     department_id: er_Department['department_id'];
   }
   export type RemoveAvailableDepartmentReturn =
-    | ER_DEPARTMENT_ERROR.DEPARTMENT_NOT_EXIST
+    | ER_DEPARTMENT_ERROR.INVALID_PATCH_DATA
     | Extract_<HttpStatusKey, 'NO_CONTENT'>;
 
   export type GetFullDepartmentListArg = '';

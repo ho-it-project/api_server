@@ -12,8 +12,8 @@ export namespace ER_EMPLOYEE_ERROR {
 }
 
 export namespace ER_DEPARTMENT_ERROR {
-  export interface DEPARTMENT_NOT_EXIST extends ERROR<"Department doesn't exist: ", HttpStatus.BAD_REQUEST> {}
-  export const departmentNotExist = typia.random<DEPARTMENT_NOT_EXIST>();
+  export interface INVALID_PATCH_DATA extends ERROR<'Invalid Patch Data: ', HttpStatus.UNPROCESSABLE_ENTITY> {}
+  export const invalidPatchData = typia.random<INVALID_PATCH_DATA>();
 }
 
 export namespace ER_EMERGENCY_CENTER_ERROR {
