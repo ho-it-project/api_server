@@ -45,18 +45,18 @@ export class ErAuthController {
     if (user) {
       const { access_token, refresh_token } = this.authService.tokenSign(user);
       response.cookie('refresh_token', refresh_token, {
-        sameSite: 'none',
+        sameSite: 'lax',
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production' ? true : false, //htt
         maxAge: 1000 * 60 * 60 * 24 * 7,
-        domain: `.${process.env.DOMAIN}` || undefined,
+        // domain: `.${process.env.DOMAIN}` || undefined,
       });
       response.cookie('access_token', access_token, {
-        sameSite: 'none',
+        sameSite: 'lax',
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production' ? true : false, //htt
         maxAge: 1000 * 60 * 60 * 24,
-        domain: `.${process.env.DOMAIN}` || undefined,
+        // domain: `.${process.env.DOMAIN}` || undefined,
       });
       const employee = assertPrune<ErAuth.AccessTokenSignPayload>(user);
       return createResponse({
@@ -107,18 +107,18 @@ export class ErAuthController {
     const { access_token, refresh_token, employee } = loginResult;
 
     response.cookie('refresh_token', refresh_token, {
-      sameSite: 'none',
+      sameSite: 'lax',
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production' ? true : false, //htt
       maxAge: 1000 * 60 * 60 * 24 * 7,
-      domain: `.${process.env.DOMAIN}` || undefined,
+      // domain: `.${process.env.DOMAIN}` || undefined,
     });
     response.cookie('access_token', access_token, {
-      sameSite: 'none',
+      sameSite: 'lax',
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production' ? true : false, //htt
       maxAge: 1000 * 60 * 60 * 24,
-      domain: `.${process.env.DOMAIN}` || undefined,
+      // domain: `.${process.env.DOMAIN}` || undefined,
     });
 
     return createResponse({

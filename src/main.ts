@@ -35,7 +35,15 @@ async function bootstrap() {
   app.use(passport.initialize());
 
   app.enableCors({
-    origin: '*', //초기 개발환경에서는 모든 요청을 허용하도록 하였습니다.
+    origin: [
+      'https://er.ho-it.me',
+      'https://ems.ho-it.me',
+      'http://er.development.com',
+      'http://ems.development.com',
+      'http://localhost:4000',
+      'http://localhost:3000',
+    ], //초기 개발환경에서는 모든 요청을 허용하도록 하였습니다.
+    credentials: true,
   });
 
   await app.startAllMicroservices();

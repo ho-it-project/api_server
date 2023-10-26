@@ -45,18 +45,18 @@ export class EmsAuthController {
     if (user) {
       const { access_token, refresh_token } = this.authService.tokenSign(user);
       response.cookie('refresh_token', refresh_token, {
-        sameSite: 'none',
+        sameSite: 'lax',
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production' ? true : false, //htt
         maxAge: 1000 * 60 * 60 * 24 * 7,
-        domain: `.${process.env.DOMAIN}` || undefined,
+        // domain: `.${process.env.DOMAIN}` || undefined,
       });
       response.cookie('access_token', access_token, {
-        sameSite: 'none',
+        sameSite: 'lax',
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production' ? true : false, //htt
         maxAge: 1000 * 60 * 60 * 24,
-        domain: `.${process.env.DOMAIN}` || undefined,
+        // domain: `.${process.env.DOMAIN}` || undefined,
       });
       const employee = assertPrune<EmsAuth.AccessTokenSignPayload>(user);
       return createResponse({
@@ -106,18 +106,18 @@ export class EmsAuthController {
     }
     const { access_token, refresh_token, employee } = result;
     response.cookie('refresh_token', refresh_token, {
-      sameSite: 'none',
+      sameSite: 'lax',
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production' ? true : false, //htt
       maxAge: 1000 * 60 * 60 * 24 * 7,
-      domain: `.${process.env.DOMAIN}` || undefined,
+      // domain: `.${process.env.DOMAIN}` || undefined,
     });
     response.cookie('access_token', access_token, {
-      sameSite: 'none',
+      sameSite: 'lax',
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production' ? true : false, //htt
       maxAge: 1000 * 60 * 60 * 24,
-      domain: `.${process.env.DOMAIN}` || undefined,
+      // domain: `.${process.env.DOMAIN}` || undefined,
     });
     return createResponse({
       is_login: true,
