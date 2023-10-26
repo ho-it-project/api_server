@@ -71,7 +71,7 @@ describe('authController', () => {
         'refresh_token',
         expect.any(String),
         expect.objectContaining({
-          sameSite: 'none',
+          sameSite: 'lax',
           httpOnly: true,
           secure: expect.any(Boolean),
         }),
@@ -80,7 +80,7 @@ describe('authController', () => {
         'access_token',
         expect.any(String),
         expect.objectContaining({
-          sameSite: 'none',
+          sameSite: 'lax',
           httpOnly: true,
           secure: expect.any(Boolean),
         }),
@@ -133,7 +133,7 @@ describe('authController', () => {
         'refresh_token',
         expect.any(String),
         expect.objectContaining({
-          sameSite: 'none',
+          sameSite: 'lax',
           httpOnly: true,
           secure: expect.any(Boolean),
         }),
@@ -142,7 +142,7 @@ describe('authController', () => {
         'access_token',
         expect.any(String),
         expect.objectContaining({
-          sameSite: 'none',
+          sameSite: 'lax',
           httpOnly: true,
           secure: expect.any(Boolean),
         }),
