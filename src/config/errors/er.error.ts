@@ -9,6 +9,8 @@ export namespace ER_EMPLOYEE_ERROR {
   export interface EMPLOYEE_NOT_FOUND extends ERROR<"Employee doesn't exist", HttpStatus.BAD_REQUEST> {}
   export interface EMPLOYEE_PASSWORD_INVALID extends ERROR<'Password is invalid', HttpStatus.BAD_REQUEST> {}
   export interface EMPLOYEE_PASSWORD_SAME extends ERROR<'Password is same', HttpStatus.BAD_REQUEST> {}
+  export interface EMPLOYEE_ROLE_SPECIALIZATION_NOT_MATCH
+    extends ERROR<'Role and specialization not match', HttpStatus.BAD_REQUEST> {}
 }
 
 export namespace ER_DEPARTMENT_ERROR {

@@ -43,6 +43,10 @@ export class ErEmployeeController {
     400,
     'ER_EMPLOYEE_ERROR.EMPLOYEE_MULTIPLE_ALREADY_EXIST_RETURN',
   )
+  @TypedException<ER_EMPLOYEE_ERROR.EMPLOYEE_ROLE_SPECIALIZATION_NOT_MATCH>(
+    400,
+    'ER_EMPLOYEE_ERROR.EMPLOYEE_ROLE_SPECIALIZATION_NOT_MATCH',
+  )
   @UseGuards(ErJwtAccessAuthGuard)
   async createManyEmployee(
     @TypedBody() body: ErEmployeeRequest.CreateManyDTO,

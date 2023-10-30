@@ -5,10 +5,12 @@ import {
   ems_AmbulanceCompany,
   ems_EmployeeRole,
   er_Department,
+  er_DoctorSpecialization,
   er_EmergencyCenter,
   er_EmployeeRole,
   er_Hospital,
   er_MedicalEquipment,
+  er_NurseSpecialization,
 } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import fs from 'fs';
@@ -27,6 +29,8 @@ export class DbInit {
     await this.hospitalSetup();
     await this.emergencyCenterSetup();
     await this.departmentSetup();
+    await this.doctorSpecializationSetup();
+    await this.nurseSpecializationSetup();
     await this.medicalEquipmentSetup();
     await this.servereIllnessSetup();
     await this.emergencyRoomSetup();
@@ -49,10 +53,14 @@ export class DbInit {
       this.prismaService.er_HospitalDepartment.deleteMany({ where: {} }),
       this.prismaService.er_HospitalMedicalEquipment.deleteMany({ where: {} }),
       this.prismaService.er_HospitalServereIllness.deleteMany({ where: {} }),
+      this.prismaService.er_EmployeeDoctorSpecialization.deleteMany({ where: {} }),
+      this.prismaService.er_EmployeeNurseSpecialization.deleteMany({ where: {} }),
       this.prismaService.er_Employee.deleteMany({ where: {} }),
       this.prismaService.er_Hospital.deleteMany({ where: {} }),
       this.prismaService.er_MedicalEquipment.deleteMany({ where: {} }),
       this.prismaService.er_Department.deleteMany({ where: {} }),
+      this.prismaService.er_DoctorSpecialization.deleteMany({ where: {} }),
+      this.prismaService.er_NurseSpecialization.deleteMany({ where: {} }),
       this.prismaService.ems_DCAP_BTLS_Assessment.deleteMany({ where: {} }),
       this.prismaService.ems_ABCDE_Assessment.deleteMany({ where: {} }),
       this.prismaService.ems_SAMPLE_Assessment.deleteMany({ where: {} }),
@@ -212,6 +220,25 @@ export class DbInit {
 
     await this.prismaService.ems_Employee.createMany({
       data: employees,
+      skipDuplicates: true,
+    });
+  }
+
+  async doctorSpecializationSetup() {
+    this.logger.debug('doctorSpecializationSetup');
+    const file_path = path.join(__dirname, '../../../src/common/database/doctor_specializations.db.json');
+    const json: er_DoctorSpecialization[] = JSON.parse(fs.readFileSync(file_path, 'utf-8'));
+    await this.prismaService.er_DoctorSpecialization.createMany({
+      data: json,
+      skipDuplicates: true,
+    });
+  }
+  async nurseSpecializationSetup() {
+    this.logger.debug('nurseSpecializationSetup');
+    const file_path = path.join(__dirname, '../../../src/common/database/nurse_specializations.db.json');
+    const json: er_NurseSpecialization[] = JSON.parse(fs.readFileSync(file_path, 'utf-8'));
+    await this.prismaService.er_NurseSpecialization.createMany({
+      data: json,
       skipDuplicates: true,
     });
   }

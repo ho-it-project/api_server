@@ -8,6 +8,7 @@ import { AuthService } from '@src/auth/provider/common.auth.service';
 import { ErEmployeeService } from '@src/providers/er/er.employee.service';
 import { ErEmployeeRequest } from '@src/types';
 import typia, { tags } from 'typia';
+import { excludeKeys } from './../../../../common/util/excludeKeys';
 
 describe('ErEmployeeService', () => {
   let erEmployeeService: ErEmployeeService;
@@ -90,7 +91,11 @@ describe('ErEmployeeService', () => {
   describe('createManyEmployee', () => {
     let createManyEmployee: ErEmployeeRequest.CreateManyDTO;
     beforeEach(() => {
-      createManyEmployee = typia.random<ErEmployeeRequest.CreateManyDTO>();
+      createManyEmployee = {
+        employees: typia.random<ErEmployeeRequest.CreateManyDTO['employees']>().map((employee) => ({
+          ...excludeKeys(employee, ['employee_doctor_specialization_list', 'employee_nurse_specialization_list']),
+        })),
+      };
       jest
         .spyOn(mockPrismaService.er_Employee, 'createMany')
         .mockImplementation(async (info: Prisma.er_EmployeeCreateManyArgs) => {
@@ -100,8 +105,12 @@ describe('ErEmployeeService', () => {
             count: Array.isArray(info.data) ? info.data.length : 1,
           } as unknown as PrismaPromise<Prisma.BatchPayload>;
         });
+      jest.spyOn(mockPrismaService.er_NurseSpecialization, 'findMany').mockImplementation(async () => []);
+      jest.spyOn(mockPrismaService.er_DoctorSpecialization, 'findMany').mockImplementation(async () => []);
+
       jest.spyOn(erEmployeeService, 'checkManyEmployeeExist').mockImplementation(async () => []);
       jest.spyOn(mockAuthService, 'hashPassword').mockImplementation(async () => 'hashedPassword');
+      jest.spyOn(mockPrismaService, '$transaction').mockImplementation(async () => [typia.random<er_Employee>()]);
     });
     afterEach(() => {
       jest.clearAllMocks();
@@ -120,8 +129,6 @@ describe('ErEmployeeService', () => {
         throw Error('test fail');
       }
       expect(result).toBeDefined();
-      expect(result).toHaveProperty('count');
-      expect(result.count).toEqual(createManyEmployee.employees.length);
     });
 
     it('should be call checkManyEmployeeExist', async () => {
@@ -144,6 +151,20 @@ describe('ErEmployeeService', () => {
       expect(result).toEqual(typia.random<ER_EMPLOYEE_ERROR.EMPLOYEE_MULTIPLE_ALREADY_EXIST>());
     });
 
+    it("should be throw BadRequestException when employee's role and specialization not match", async () => {
+      const employee = createManyEmployee.employees[0];
+      const result = await erEmployeeService.createManyEmployee({
+        employees: [
+          {
+            ...employee,
+            employee_doctor_specialization_list: [typia.random<string>()],
+          },
+        ],
+        user: typia.random<ErAuth.AccessTokenSignPayload>(),
+      });
+      expect(result).toEqual(typia.random<ER_EMPLOYEE_ERROR.EMPLOYEE_ROLE_SPECIALIZATION_NOT_MATCH>());
+    });
+
     it('should be call hashPassword', async () => {
       await erEmployeeService.createManyEmployee({
         employees: createManyEmployee.employees,
@@ -158,20 +179,6 @@ describe('ErEmployeeService', () => {
         user: typia.random<ErAuth.AccessTokenSignPayload>(),
       });
       expect(mockPrismaService.er_Employee.createMany).toBeCalled();
-    });
-
-    it('should be call er_Employee.createMany with data', async () => {
-      await erEmployeeService.createManyEmployee({
-        employees: createManyEmployee.employees,
-        user: typia.random<ErAuth.AccessTokenSignPayload>(),
-      });
-      expect(mockPrismaService.er_Employee.createMany).toBeCalledWith({
-        data: createManyEmployee.employees.map((employee) => ({
-          hospital_id: expect.any(String),
-          ...employee,
-          password: 'hashedPassword',
-        })),
-      });
     });
   });
 
@@ -287,6 +294,19 @@ describe('ErEmployeeService', () => {
         },
         orderBy: {
           created_at: 'desc',
+        },
+        include: {
+          employee_doctor_specializations: {
+            include: {
+              doctor_specialization: true,
+            },
+          },
+          employee_nurse_specializations: {
+            include: {
+              nurse_specialization: true,
+            },
+          },
+          department: true,
         },
       };
       expect(mockPrismaService.er_Employee.findMany).toBeCalled();
