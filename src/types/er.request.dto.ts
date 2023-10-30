@@ -1,4 +1,5 @@
 import {
+  Status,
   er_Department,
   er_EmergencyRoomType,
   er_Employee,
@@ -233,6 +234,18 @@ export namespace ErDepartmentRequest {
     department_id: er_Department['department_id'];
     status: er_HospitalDepartment['status'];
   }[];
+
+  export type GetDepartmentListQuery = {
+    status?: Status[];
+  };
+
+  export type UpdateHospitalDepartmentDto = {
+    update_departmet_list: {
+      department_id: number;
+      status: Status;
+    }[] &
+      tags.MinItems<1>;
+  };
 }
 
 export namespace ErEquipmentRequest {

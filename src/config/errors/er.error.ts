@@ -2,6 +2,9 @@ import { HttpStatus } from '@nestjs/common';
 import typia from 'typia';
 import { ERROR } from '.';
 
+export namespace ER_ERROR {
+  export interface ER_NOT_FOUND extends ERROR<"ER doesn't exist", HttpStatus.NOT_FOUND> {}
+}
 export namespace ER_EMPLOYEE_ERROR {
   export interface EMPLOYEE_MULTIPLE_ALREADY_EXIST
     extends ERROR<'EMPLOYEE_MULTIPLE_ALREADY_EXIST', HttpStatus.BAD_REQUEST> {}
@@ -16,6 +19,8 @@ export namespace ER_EMPLOYEE_ERROR {
 export namespace ER_DEPARTMENT_ERROR {
   export interface DEPARTMENT_NOT_EXIST extends ERROR<"Department doesn't exist: ", HttpStatus.BAD_REQUEST> {}
   export const departmentNotExist = typia.random<DEPARTMENT_NOT_EXIST>();
+
+  export interface DEPARTMENT_INVALID extends ERROR<'Department is invalid', HttpStatus.BAD_REQUEST> {}
 }
 
 export namespace ER_EMERGENCY_CENTER_ERROR {

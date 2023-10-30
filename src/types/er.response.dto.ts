@@ -42,6 +42,7 @@ export namespace ErEmergencyCenterResponse {
 export namespace ErDepartmentResponse {
   export type UpdateAvailableDepartment = ErDepartment.UpdateAvailableDepartmentReturn;
   export type GetDepartmentStatusListDto = ErDepartment.GetDepartmentStatusListReturn;
+  export type GetDepartmentList = ErDepartment.GetHospitalDepartmentList;
 }
 
 export namespace ErEquipmentResponse {

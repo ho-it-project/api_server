@@ -1,5 +1,5 @@
 import { ER_DEPARTMENT_ERROR } from '@config/errors';
-import { er_Department } from '@prisma/client';
+import { Status, er_Department } from '@prisma/client';
 import { ErAuth } from '@src/auth/interface';
 import { ErDepartmentRequest, Extract_, HttpStatusKey } from '@src/types';
 
@@ -39,4 +39,24 @@ export namespace ErDepartment {
 
   export type GetDepartmentStatusListArg = { user: ErAuth.AccessTokenSignPayload };
   export type GetDepartmentStatusListReturn = GetFullDepartmentListReturn;
+
+  // 리팩토링 후
+  export type GetHospitalDepartmentList = {
+    department_id: number;
+    status: Status;
+    department: {
+      department_id: number;
+      department_name: string;
+      parent_department_id: number | null;
+    };
+  }[];
+
+  export type UpdateHospitalDepartmentDto = {
+    update_departmet_list: {
+      department_id: number;
+      status: Status;
+    }[];
+    user: ErAuth.AccessTokenSignPayload;
+    er_id: string;
+  };
 }

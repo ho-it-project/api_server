@@ -1,6 +1,9 @@
 import { PrismaService } from '@common/prisma/prisma.service';
-import { ER_DEPARTMENT_ERROR } from '@config/errors';
+import { AUTH_ERROR, ER_DEPARTMENT_ERROR, ER_ERROR } from '@config/errors';
 import { Injectable, Logger } from '@nestjs/common';
+import { Status, er_Department } from '@prisma/client';
+import { ErDepartmentRequest } from '@src/types';
+import typia from 'typia';
 import { ErDepartment } from '../interface/er/er.department.interface';
 
 @Injectable()
@@ -135,5 +138,164 @@ export class ErDepartmentService {
     }
 
     return updated_list;
+  }
+
+  ////////////////////////////////////////////
+
+  async getDepartmentList() {
+    const departmentList = await this.prismaService.er_Department.findMany({
+      include: {
+        doctor_specializations: true,
+      },
+    });
+    return departmentList;
+  }
+
+  async getErDepartmentListByErIdWithQuery({
+    er_id,
+    query,
+  }: {
+    er_id: string;
+    query: ErDepartmentRequest.GetDepartmentListQuery;
+  }) {
+    const { status = [] } = query;
+    const departmentList = await this.prismaService.er_Department.findMany(); // TODO: cache
+    const emergency_center = await this.prismaService.er_EmergencyCenter.findUnique({
+      where: { emergency_center_id: er_id },
+    });
+
+    if (!emergency_center) {
+      return typia.random<ER_ERROR.ER_NOT_FOUND>();
+    }
+
+    const hospital_department = await this.prismaService.er_HospitalDepartment.findMany({
+      where: {
+        hospital_id: emergency_center.hospital_id,
+      },
+      select: {
+        department_id: true,
+        status: true,
+        department: {
+          select: {
+            department_name: true,
+            department_id: true,
+            parent_department_id: true,
+          },
+        },
+      },
+    });
+    if (!hospital_department.length) {
+      // Set default department
+      //첫 조회시 department가 없을 경우, default department를 생성한다.
+      await this.createDefaultDepartments({
+        hospital_id: emergency_center.hospital_id,
+        department_list: departmentList,
+      });
+
+      return departmentList
+        .map((department) => ({
+          department_id: department.department_id,
+          status: 'INACTIVE' as Status,
+          department: {
+            department_name: department.department_name,
+            department_id: department.department_id,
+            parent_department_id: department.parent_department_id,
+          },
+        }))
+        .filter((department) => status.includes(department.status) || status.length === 0);
+    }
+
+    const result = hospital_department.filter(
+      (department) => status.includes(department.status) || status.length === 0,
+    );
+    return result;
+  }
+
+  async createDefaultDepartments({
+    hospital_id,
+    department_list,
+  }: {
+    hospital_id: string;
+    department_list: er_Department[];
+  }) {
+    const defaultDepartments = department_list.map((department) => ({
+      department_id: department.department_id,
+      hospital_id: hospital_id,
+      status: 'INACTIVE' as Status,
+    }));
+
+    await this.prismaService.er_HospitalDepartment.createMany({
+      data: defaultDepartments,
+    });
+  }
+
+  async updateHospitalDepartment({ user, update_departmet_list, er_id }: ErDepartment.UpdateHospitalDepartmentDto) {
+    if (er_id !== user.emergency_center_id) return typia.random<AUTH_ERROR.FORBIDDEN>();
+
+    const departmentIds = update_departmet_list.map((v) => v.department_id);
+    const departments = await this.prismaService.er_Department.findMany({
+      where: { department_id: { in: departmentIds } },
+      include: {
+        sub_departments: true,
+        parent_department: true,
+      },
+    });
+    if (departmentIds.length !== departments.length) return typia.random<ER_DEPARTMENT_ERROR.DEPARTMENT_INVALID>();
+    // 부모 자식 상태는 3가지
+    // 부모가 INACTIVE -> 자식모두 INACTIVE
+    // 부모가 ACTIVE -> 자식모두 ACTIV / 자식일부 ACTIVE
+
+    const parentDepartment = departments.filter((department) => department.sub_departments.length);
+    const subDepartment = departments.filter((department) => !department.sub_departments.length);
+
+    // 부모가 INACTIVE -> 자식모두 INACTIVE
+    // 부모가 ACTIVE -> 자식모두 ACTIV
+    const subDepartmentUpdateInfo = parentDepartment
+      .map((department) => {
+        const { department_id } = department;
+        const updateInfo = update_departmet_list.find((v) => v.department_id === department_id);
+        if (!updateInfo) return [];
+        const { status } = updateInfo;
+        const subDepartmentUpdateInfo = department.sub_departments.map((department) => ({
+          department_id: department.department_id,
+          status,
+        }));
+        return subDepartmentUpdateInfo;
+      })
+      .flat();
+
+    // 자식이 ACTIVE -> 부모 ACTIVE
+    const parentDepartmentUpdateInfo = subDepartment
+      .map((department) => {
+        const { department_id, parent_department } = department;
+        const updateInfo = update_departmet_list.find((v) => v.department_id === department_id);
+        if (!updateInfo || !parent_department) return [];
+        const { status } = updateInfo;
+        if (status === 'ACTIVE') {
+          return [
+            {
+              department_id: parent_department.department_id,
+              status,
+            },
+          ];
+        }
+        return [];
+      })
+      .flat();
+
+    const updateInfoArray = [...subDepartmentUpdateInfo, ...update_departmet_list, ...parentDepartmentUpdateInfo];
+    const uniqueDepartmentIds = [...new Set(updateInfoArray.map((info) => info.department_id))];
+    const update = uniqueDepartmentIds.map((departmentId) => {
+      const infosWithSameDepartmentId = updateInfoArray.filter((info) => info.department_id === departmentId);
+      const lastInfo = infosWithSameDepartmentId[infosWithSameDepartmentId.length - 1]; // 마지막 요소 선택
+      console.log(infosWithSameDepartmentId);
+      return this.prismaService.er_HospitalDepartment.update({
+        where: { hospital_id_department_id: { hospital_id: user.hospital_id, department_id: departmentId } },
+        data: { status: lastInfo.status },
+      });
+    });
+
+    await this.prismaService.$transaction(update);
+    return 'SUCCESS';
   }
 }
