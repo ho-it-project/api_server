@@ -150,6 +150,39 @@ export class ErDepartmentService {
     });
     return departmentList;
   }
+  async getDepartmentByIdWithQuery({
+    department_id,
+    query,
+  }: {
+    department_id: number;
+    query: ErDepartmentRequest.GetDepartmetQuery;
+  }): Promise<ErDepartment.GetDepartment | ER_DEPARTMENT_ERROR.DEPARTMENT_NOT_EXIST> {
+    const { include = [] } = query;
+
+    const department = await this.prismaService.er_Department.findUnique({
+      where: {
+        department_id,
+      },
+      include: {
+        hospital_departments: include.includes('hospital')
+          ? {
+              include: {
+                hospital: true,
+              },
+              where: {
+                status: 'ACTIVE',
+              },
+            }
+          : undefined,
+        parent_department: include.includes('parent') ? true : undefined,
+        sub_departments: include.includes('sub') ? true : undefined,
+        doctor_specializations: include.includes('doctor_specializations') ? true : undefined,
+      },
+    });
+
+    if (!department) return typia.random<ER_DEPARTMENT_ERROR.DEPARTMENT_NOT_EXIST>();
+    return department;
+  }
 
   async getErDepartmentListByErIdWithQuery({
     er_id,

@@ -246,6 +246,10 @@ export namespace ErDepartmentRequest {
     }[] &
       tags.MinItems<1>;
   };
+
+  export type GetDepartmetQuery = {
+    include?: ('hospital' | 'doctor_specializations' | 'parent' | 'sub')[];
+  };
 }
 
 export namespace ErEquipmentRequest {

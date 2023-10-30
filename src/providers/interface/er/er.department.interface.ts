@@ -1,5 +1,5 @@
 import { ER_DEPARTMENT_ERROR } from '@config/errors';
-import { Status, er_Department } from '@prisma/client';
+import { Status, er_Department, er_DoctorSpecialization, er_Hospital, er_HospitalDepartment } from '@prisma/client';
 import { ErAuth } from '@src/auth/interface';
 import { ErDepartmentRequest, Extract_, HttpStatusKey } from '@src/types';
 
@@ -50,6 +50,14 @@ export namespace ErDepartment {
       parent_department_id: number | null;
     };
   }[];
+  export type GetDepartment = er_Department & {
+    parent_department?: er_Department | null;
+    sub_departments?: er_Department[];
+    doctor_specializations?: er_DoctorSpecialization[];
+    hospital_departments?: (er_HospitalDepartment & {
+      hospital?: er_Hospital;
+    })[];
+  };
 
   export type UpdateHospitalDepartmentDto = {
     update_departmet_list: {

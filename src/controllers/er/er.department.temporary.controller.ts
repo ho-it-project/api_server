@@ -1,6 +1,6 @@
 import { CurrentUser } from '@common/decorators/CurrentUser';
 import { createResponse } from '@common/interceptor/createResponse';
-import { ER_ERROR, isError, throwError } from '@config/errors';
+import { AUTH_ERROR, ER_DEPARTMENT_ERROR, ER_ERROR, isError, throwError } from '@config/errors';
 import { TypedBody, TypedException, TypedParam, TypedQuery, TypedRoute } from '@nestia/core';
 import { Controller, UseGuards } from '@nestjs/common';
 import { ErJwtAccessAuthGuard } from '@src/auth/guard/er.jwt.access.guard';
@@ -38,8 +38,17 @@ export class ErDepartmentTemporaryController {
    * @summary 2023-10-30 - 진료과 조회 API
    */
   @TypedRoute.Get('/departments/:department_id')
-  async getDepartment() {
-    const result = await this.erDepartmentService.getDepartmentList();
+  @TypedException<ER_DEPARTMENT_ERROR.DEPARTMENT_NOT_EXIST>(404, 'ER_DEPARTMENT_ERROR.DEPARTMENT_NOT_EXIST')
+  async getDepartment(
+    @TypedParam('department_id') department_id: number,
+    @TypedQuery() query: ErDepartmentRequest.GetDepartmetQuery,
+  ): Promise<TryCatch<ErDepartmentResponse.GetDepartment, ER_DEPARTMENT_ERROR.DEPARTMENT_NOT_EXIST>> {
+    const result = await this.erDepartmentService.getDepartmentByIdWithQuery({
+      department_id,
+      query,
+    });
+    if (isError(result)) return throwError(result);
+
     return createResponse(result);
   }
   /**
@@ -69,9 +78,17 @@ export class ErDepartmentTemporaryController {
    *
    * 병원의 진료과를 업데이트한다. (상태변경)
    *
+   * 상위 진료과가 INACTIVE인 경우, 하위 진료과는 모두 INACTIVE로 변경된다.
+   * 상위 진료과가 ACTIVE인 경우, 하위 진료과는 모두 ACTIVE로 변경된다.
+   * 하위 진료과가 ACTIVE인 경우, 상위 진료과는 ACTIVE로 변경된다.
    *
+   *
+   * @author de-novo
+   * @tag er_department
+   * @summary 2023-10-31 - 병원 진료과 업데이트 API
    */
   @TypedRoute.Patch('/:er_id/departments')
+  @TypedException<AUTH_ERROR.FORBIDDEN>(403, 'AUTH_ERROR.FORBIDDEN')
   @UseGuards(ErJwtAccessAuthGuard)
   async updateDepartmentListByErId(
     @CurrentUser() user: ErAuth.AccessTokenSignPayload,
