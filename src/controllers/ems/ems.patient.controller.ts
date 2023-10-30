@@ -16,7 +16,7 @@ import { EmsPatientService } from '@src/providers/ems/ems.patient.service';
 import { Try, TryCatch } from '@src/types';
 import { EmsPatientRequest } from '@src/types/ems.request.dto';
 import { EmsPatientResponse } from '@src/types/ems.response.dto';
-@Controller('/ems/patient')
+@Controller('/ems/patients')
 export class EmsPatientController {
   constructor(private readonly emsPatientService: EmsPatientService) {}
 

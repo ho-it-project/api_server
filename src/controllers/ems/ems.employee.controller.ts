@@ -12,7 +12,7 @@ import { EmsEmployeeRequest } from '@src/types/ems.request.dto';
 import { EmsEmployeeResponse } from '@src/types/ems.response.dto';
 import { assertPrune } from 'typia/lib/misc';
 
-@Controller('/ems/employee')
+@Controller('/ems/employees')
 export class EmsEmployeeController {
   constructor(private readonly emsEmployeeService: EmsEmployeeService) {}
 

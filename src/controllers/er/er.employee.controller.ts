@@ -11,7 +11,7 @@ import { ErAuth } from '@src/auth/interface/er.auth.interface';
 import { ErEmployeeService } from '@src/providers/er/er.employee.service';
 import { ErEmployeeRequest, ErEmployeeResponse, Try, TryCatch } from '@src/types';
 
-@Controller('/er/employee')
+@Controller('/er/employees')
 export class ErEmployeeController {
   constructor(private readonly erEmployeeService: ErEmployeeService) {}
 
