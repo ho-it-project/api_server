@@ -257,4 +257,9 @@ export class ErEmployeeService {
 
     return { employee_list: employees, count: employee_count };
   }
+
+  async getNurseSpecialization() {
+    const nurseSpecializationList = await this.prismaService.er_NurseSpecialization.findMany();
+    return nurseSpecializationList;
+  }
 }

@@ -241,7 +241,19 @@ export namespace ErDepartmentRequest {
 
   export type UpdateHospitalDepartmentDto = {
     update_departmet_list: {
+      /**
+       * 변경할 진료과 id
+       * @type number
+       * @title 진료과 id
+       * @description 직원의 진료과 id
+       */
       department_id: number;
+      /**
+       * 변경할 진료과 상태
+       * @type string
+       * @title 진료과 상태
+       * @description 진료과 상태
+       */
       status: Status;
     }[] &
       tags.MinItems<1>;

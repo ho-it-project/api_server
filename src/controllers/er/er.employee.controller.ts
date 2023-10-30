@@ -173,4 +173,26 @@ export class ErEmployeeController {
     });
     return createResponse(result);
   }
+
+  /**
+   * 간호사 전문분야 조회 API
+   * 간호사 전문분야를 조회한다.
+   * - 간호사 전문분야는 ER에서만 사용한다.
+   *
+   * 직원[간호사] 생성시 사용한다.
+   *
+   * 의사 생성시에는 department조회를 통해 전문분야를 조회한다.
+   *
+   *
+   * @author de-novo
+   * @tag er_employee
+   * @summary 2023-10-31 - 간호사 전문분야 조회 API
+   *
+   * @returns 간호사 전문분야 리스트
+   */
+  @TypedRoute.Get('/specializations/nurse')
+  async getNurseSpecilizationList(): Promise<Try<ErEmployeeResponse.GetNurseSpecilizationList>> {
+    const result = await this.erEmployeeService.getNurseSpecialization();
+    return createResponse(result);
+  }
 }

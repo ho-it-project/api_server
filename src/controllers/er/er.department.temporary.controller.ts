@@ -20,6 +20,8 @@ export class ErDepartmentTemporaryController {
    * @author de-novo
    * @tag er_department
    * @summary 2023-10-30 - 진료과 목록 조회 API
+   *
+   * @returns 진료과 목록
    */
   @TypedRoute.Get('/departments')
   async getDepartmentList() {
@@ -36,6 +38,8 @@ export class ErDepartmentTemporaryController {
    * @author de-novo
    * @tag er_department
    * @summary 2023-10-30 - 진료과 조회 API
+   *
+   * @returns 진료과
    */
   @TypedRoute.Get('/departments/:department_id')
   @TypedException<ER_DEPARTMENT_ERROR.DEPARTMENT_NOT_EXIST>(404, 'ER_DEPARTMENT_ERROR.DEPARTMENT_NOT_EXIST')
@@ -61,6 +65,8 @@ export class ErDepartmentTemporaryController {
    * @author de-novo
    * @tag er_department
    * @summary 2023-10-30 - 진료과 목록 조회 API
+   *
+   * @returns 병원 진료과 목록
    */
   @TypedRoute.Get('/:er_id/departments')
   @TypedException<ER_ERROR.ER_NOT_FOUND>(404, 'ER_NOT_FOUND')
@@ -86,6 +92,9 @@ export class ErDepartmentTemporaryController {
    * @author de-novo
    * @tag er_department
    * @summary 2023-10-31 - 병원 진료과 업데이트 API
+   *
+   * @security access_token
+   * @returns 성공여부
    */
   @TypedRoute.Patch('/:er_id/departments')
   @TypedException<AUTH_ERROR.FORBIDDEN>(403, 'AUTH_ERROR.FORBIDDEN')

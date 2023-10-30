@@ -1,4 +1,4 @@
-import { er_Employee } from '@prisma/client';
+import { er_Employee, er_NurseSpecialization } from '@prisma/client';
 import { ErDepartment } from '@src/providers/interface/er/er.department.interface';
 import { ErEmergencyCenter } from '@src/providers/interface/er/er.emergencyCenter.interface';
 import { ErEmployee } from '@src/providers/interface/er/er.employee.interface';
@@ -33,6 +33,7 @@ export namespace ErEmployeeResponse {
   export interface UpdatePassword {
     update_success: boolean;
   }
+  export type GetNurseSpecilizationList = er_NurseSpecialization[];
 }
 
 export namespace ErEmergencyCenterResponse {
