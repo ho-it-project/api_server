@@ -4,7 +4,7 @@ import { Controller } from '@nestjs/common';
 import { ErEmergencyCenterService } from '@src/providers/er/er.emergencyCenter.service';
 import { ErEmergencyCenterRequest, ErEmergencyCenterResponse, Try } from '@src/types';
 
-@Controller('/er/emergency-center')
+@Controller('/er/emergency-centers')
 export class ErEmergencyCenterController {
   constructor(private readonly erEmergencyCenterService: ErEmergencyCenterService) {}
 

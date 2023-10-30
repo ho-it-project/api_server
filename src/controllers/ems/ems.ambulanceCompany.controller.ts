@@ -7,7 +7,7 @@ import { Try, TryCatch } from '@src/types';
 import { EmsAmbulanceCompanyRequest } from '@src/types/ems.request.dto';
 import { EmsAmbulanceCompanyResponse } from '@src/types/ems.response.dto';
 
-@Controller('/ems/ambulance-company')
+@Controller('/ems/ambulance-companies')
 export class EmsAmbulanceCompanyController {
   constructor(private readonly emsAmbulanceCampanyService: EmsAmbulanceCampanyService) {}
 
