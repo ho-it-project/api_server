@@ -30,13 +30,17 @@ export class ErIllnessController {
   }
 
   /**
-   * 치료가능질환 조회
+   * 현재 로그인되어있는 유저의 병원의 질환의 진료가능여부를 조회합니다.
+   * query로 진료가능 질환, 진료 불가능 질환을 조회할 수 있습니다.
+   * `/current/illnesses?status=ACTIVE`: 진료 가능한질환만 조회
+   * `/current/illnesses?status=INACTIVE`: 진료 불가능한질환만 조회
    *
    * @author anthony
    * @tag er_Illness
    * @summary 2023-10-16 치료가능질환 조회
    *
    * @param user
+   * @param query
    * @security access_token
    * @returns 치료가능질환
    */
@@ -48,6 +52,30 @@ export class ErIllnessController {
   ): Promise<Try<ErIllnessResponse.GetServableIllnessesStatus>> {
     const { hospital_id } = user;
     const result = await this.illnessService.getServableIllnessStatusById({ hospital_id, query });
+    if (isError(result)) return throwError(result);
+    return createResponse(result);
+  }
+
+  /**
+   * 특정 병원의 질환의 진료가능여부를 조회합니다.
+   * query로 진료가능 질환, 진료 불가능 질환을 조회할 수 있습니다.
+   * `/:er_id/illnesses?status=ACTIVE`: 진료 가능한질환만 조회
+   * `/:er_id/illnesses?status=INACTIVE`: 진료 불가능한질환만 조회
+   *
+   * @author anthony
+   * @tag er_Illness
+   * @summary 2023-11-01 특정 병원의 치료가능질환 조회
+   *
+   * @param er_id
+   * @param query
+   * @returns 요청한 병원의 진료가능질환 목록
+   */
+  @TypedRoute.Get('/:er_id/illnesses')
+  async getSpecificServableIllnessStatus(
+    @TypedParam('er_id') er_id: string,
+    @TypedQuery() query: ErIllnessRequest.GetSepcificServableIllnessesStatusQuery,
+  ) {
+    const result = await this.illnessService.getServableIllnessStatusById({ hospital_id: er_id, query });
     if (isError(result)) return throwError(result);
     return createResponse(result);
   }
@@ -74,16 +102,6 @@ export class ErIllnessController {
     @TypedBody() document: ErIllnessRequest.UpdateServableIllnessStatusDto,
   ): Promise<Try<ErIllnessResponse.UpdateServableIllnessStatus>> {
     const result = await this.illnessService.updateCurrentServableIllnessStatus({ user, document });
-    if (isError(result)) return throwError(result);
-    return createResponse(result);
-  }
-
-  @TypedRoute.Get('/:er_id/illnesses')
-  async getSpecificServableIllnessStatus(
-    @TypedParam('er_id') er_id: string,
-    @TypedQuery() query: ErIllnessRequest.GetSepcificServableIllnessesStatusQuery,
-  ) {
-    const result = await this.illnessService.getServableIllnessStatusById({ hospital_id: er_id, query });
     if (isError(result)) return throwError(result);
     return createResponse(result);
   }
