@@ -14,6 +14,22 @@ export class ErIllnessController {
   constructor(private readonly illnessService: ErIllnessService) {}
 
   /**
+   * 질환 조회
+   *
+   * @author anthony
+   * @tag er_Illness
+   * @summary 2023-11-01 질환 목록 조회
+   *
+   * @returns 질환 목록
+   */
+  @TypedRoute.Get('/illnesses')
+  async getIllnesses(): Promise<Try<ErIllnessResponse.GetIllnesses>> {
+    const result = await this.illnessService.getIllnesses();
+    if (isError(result)) throwError(result);
+    return createResponse(result);
+  }
+
+  /**
    * 치료가능질환 조회
    *
    * @author anthony
@@ -26,10 +42,10 @@ export class ErIllnessController {
    */
   @TypedRoute.Get('/current/illnesses')
   @UseGuards(ErJwtAccessAuthGuard)
-  async getCurrentServableIllnessStatus(
+  async getCurrentServableIllnessesStatus(
     @CurrentUser() user: ErAuth.AccessTokenSignPayload,
-    @TypedQuery() query: ErIllnessRequest.GetCurrentServableIllnessStatusQuery,
-  ): Promise<Try<ErIllnessResponse.GetServableIllnessStatus>> {
+    @TypedQuery() query: ErIllnessRequest.GetCurrentServableIllnessesStatusQuery,
+  ): Promise<Try<ErIllnessResponse.GetServableIllnessesStatus>> {
     const { hospital_id } = user;
     const result = await this.illnessService.getServableIllnessStatusById({ hospital_id, query });
     if (isError(result)) return throwError(result);
@@ -65,7 +81,7 @@ export class ErIllnessController {
   @TypedRoute.Get('/:er_id/illnesses')
   async getSpecificServableIllnessStatus(
     @TypedParam('er_id') er_id: string,
-    @TypedQuery() query: ErIllnessRequest.GetSepcificServableIllnessStatusQuery,
+    @TypedQuery() query: ErIllnessRequest.GetSepcificServableIllnessesStatusQuery,
   ) {
     const result = await this.illnessService.getServableIllnessStatusById({ hospital_id: er_id, query });
     if (isError(result)) return throwError(result);

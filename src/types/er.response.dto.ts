@@ -53,6 +53,7 @@ export namespace ErEquipmentResponse {
 }
 
 export namespace ErIllnessResponse {
-  export type GetServableIllnessStatus = ErIllness.GetServableIllnessStatusReturn;
-  export type UpdateServableIllnessStatus = ErIllness.UpdateServableIllnessStatusReturn;
+  export type GetIllnesses = ErIllness.GetIllnessesReturn;
+  export type GetServableIllnessesStatus = ErIllness.GetServableIllnessesStatusReturn;
+  export type UpdateServableIllnessStatus = ErIllness.UpdateServableIllnessesStatusReturn;
 }

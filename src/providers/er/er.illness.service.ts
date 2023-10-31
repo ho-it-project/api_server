@@ -7,10 +7,20 @@ import { ErIllness } from '../interface/er/er.illness.interface';
 @Injectable()
 export class ErIllnessService {
   constructor(private readonly prismaService: PrismaService) {}
+
+  async getIllnesses(): Promise<ErIllness.GetIllnessesReturn> {
+    const illnesses = await this.prismaService.er_ServereIllness.findMany();
+    const formatted_result = illnesses.map((v) => ({
+      illness_id: v.servere_illness_id,
+      illness_name: v.servere_illness_name,
+    }));
+    return formatted_result;
+  }
+
   async getServableIllnessStatusById({
     hospital_id,
     query,
-  }: ErIllness.GetServableIllnessStatusArg): Promise<ErIllness.GetServableIllnessStatusReturn> {
+  }: ErIllness.GetServableIllnessesStatusArg): Promise<ErIllness.GetServableIllnessesStatusReturn> {
     const status = query?.status ? query.status : null;
 
     //validate hospital id
@@ -43,7 +53,7 @@ export class ErIllnessService {
   }
 
   async validatePatchDocument(
-    document: ErIllness.UpdateServableIllnessStatusArg['document'],
+    document: ErIllness.UpdateServableIllnessesStatusArg['document'],
   ): Promise<string[] | true> {
     const ids = document.map((v) => v.illness_id);
     const result = (
@@ -60,7 +70,7 @@ export class ErIllnessService {
   async updateCurrentServableIllnessStatus({
     user,
     document,
-  }: ErIllness.UpdateServableIllnessStatusArg): Promise<ErIllness.UpdateServableIllnessStatusReturn> {
+  }: ErIllness.UpdateServableIllnessesStatusArg): Promise<ErIllness.UpdateServableIllnessesStatusReturn> {
     const { hospital_id } = user;
     const isValid = await this.validatePatchDocument(document);
     if (isValid !== true) {
