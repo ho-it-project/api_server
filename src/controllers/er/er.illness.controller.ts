@@ -2,14 +2,14 @@ import { CurrentUser } from '@common/decorators/CurrentUser';
 import { AdminGuard } from '@common/guard/admin.guard';
 import { createResponse } from '@common/interceptor/createResponse';
 import { isError, throwError } from '@config/errors';
-import { TypedBody, TypedRoute } from '@nestia/core';
+import { TypedBody, TypedParam, TypedQuery, TypedRoute } from '@nestia/core';
 import { Controller, UseGuards } from '@nestjs/common';
 import { ErJwtAccessAuthGuard } from '@src/auth/guard/er.jwt.access.guard';
 import { ErAuth } from '@src/auth/interface';
 import { ErIllnessService } from '@src/providers/er/er.illness.service';
 import { ErIllnessRequest, ErIllnessResponse, Try } from '@src/types';
 
-@Controller('/er/hospitals/current/illness')
+@Controller('/er')
 export class ErIllnessController {
   constructor(private readonly illnessService: ErIllnessService) {}
 
@@ -24,12 +24,14 @@ export class ErIllnessController {
    * @security access_token
    * @returns 치료가능질환
    */
-  @TypedRoute.Get('/')
+  @TypedRoute.Get('/current/illnesses')
   @UseGuards(ErJwtAccessAuthGuard)
-  async getServableIllnessStatus(
+  async getCurrentServableIllnessStatus(
     @CurrentUser() user: ErAuth.AccessTokenSignPayload,
+    @TypedQuery() query: ErIllnessRequest.GetCurrentServableIllnessStatusQuery,
   ): Promise<Try<ErIllnessResponse.GetServableIllnessStatus>> {
-    const result = await this.illnessService.getServableIllnessStatus({ user });
+    const { hospital_id } = user;
+    const result = await this.illnessService.getServableIllnessStatusById({ hospital_id, query });
     if (isError(result)) return throwError(result);
     return createResponse(result);
   }
@@ -49,13 +51,23 @@ export class ErIllnessController {
    * @security access_token
    * @returns 업데이트된 치료가능질환 상태
    */
-  @TypedRoute.Patch('/')
+  @TypedRoute.Patch('/current/illnesses')
   @UseGuards(ErJwtAccessAuthGuard, AdminGuard)
   async patchServableIllnessStatus(
     @CurrentUser() user: ErAuth.AccessTokenSignPayload,
     @TypedBody() document: ErIllnessRequest.UpdateServableIllnessStatusDto,
   ): Promise<Try<ErIllnessResponse.UpdateServableIllnessStatus>> {
-    const result = await this.illnessService.upDateServableIllnessStatus({ user, document });
+    const result = await this.illnessService.updateCurrentServableIllnessStatus({ user, document });
+    if (isError(result)) return throwError(result);
+    return createResponse(result);
+  }
+
+  @TypedRoute.Get('/:er_id/illnesses')
+  async getSpecificServableIllnessStatus(
+    @TypedParam('er_id') er_id: string,
+    @TypedQuery() query: ErIllnessRequest.GetSepcificServableIllnessStatusQuery,
+  ) {
+    const result = await this.illnessService.getServableIllnessStatusById({ hospital_id: er_id, query });
     if (isError(result)) return throwError(result);
     return createResponse(result);
   }
