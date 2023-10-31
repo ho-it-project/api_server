@@ -1,9 +1,11 @@
 import { PrismaService } from '@common/prisma/prisma.service';
+import { excludeKeys } from '@common/util/excludeKeys';
 import { ER_EMPLOYEE_ERROR } from '@config/errors';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { AuthService } from '@src/auth/provider/common.auth.service';
 import typia from 'typia';
+import { v4 } from 'uuid';
 import { ErEmployee } from '../interface/er/er.employee.interface';
 
 Injectable();
@@ -15,7 +17,23 @@ export class ErEmployeeService {
     private readonly prismaService: PrismaService,
   ) {}
 
+  async createDtoValidation({ employees }: Pick<ErEmployee.CreateManyEmployee, 'employees'>) {
+    const errors = employees.filter((employee) => {
+      const { employee_doctor_specialization_list, employee_nurse_specialization_list, role } = employee;
+      return (
+        (!(role === 'NURSE') && employee_nurse_specialization_list) || // 간호사가 아닌데 간호사의 전문분야가 존재할 경우
+        (!(role === 'RESIDENT' || role === 'SPECIALIST') && employee_doctor_specialization_list) // 의사가 아닌데 의사의 전문분야가 존재할 경우
+      );
+    });
+    return errors;
+  }
+
   async createManyEmployee({ employees, user }: ErEmployee.CreateManyEmployee) {
+    const errors = await this.createDtoValidation({ employees });
+    if (errors.length > 0) {
+      return typia.random<ER_EMPLOYEE_ERROR.EMPLOYEE_ROLE_SPECIALIZATION_NOT_MATCH>();
+    }
+
     this.logger.debug('createManyEmployee');
     const { hospital_id } = user;
     const existEmployeeIdCards = await this.checkManyEmployeeExist({
@@ -25,19 +43,108 @@ export class ErEmployeeService {
     if (existEmployeeIdCards.length > 0) {
       return typia.random<ER_EMPLOYEE_ERROR.EMPLOYEE_MULTIPLE_ALREADY_EXIST>();
     }
-    const employeeInfos = await Promise.all(
-      employees.map(async (employee) => {
-        const hashedPassword = await this.authService.hashPassword({ password: employee.password });
-        return {
-          hospital_id,
-          ...employee,
-          password: hashedPassword,
-        };
-      }),
+
+    const employeeInfoWithID = employees.map((employee) => {
+      return {
+        ...employee,
+        employee_id: v4(),
+      };
+    });
+
+    const hashedPasswords = await Promise.all(
+      employeeInfoWithID.map(async (employee) => this.authService.hashPassword({ password: employee.password })),
     );
-    const newEmployees = await this.prismaService.er_Employee.createMany({
+
+    const excludes: (keyof (typeof employeeInfoWithID)[0])[] = [
+      'employee_doctor_specialization_list',
+      'employee_nurse_specialization_list',
+      'password',
+    ];
+    const employeeInfos = employeeInfoWithID.map((employee) => {
+      const info = excludeKeys(employee, excludes);
+      return {
+        hospital_id,
+        ...info,
+        password: hashedPasswords.shift() || '', // 해싱된 패스워드 할당
+      };
+    });
+
+    const newEmployeeNurseSpecializationList = employeeInfoWithID.filter(
+      (employee) => employee.employee_nurse_specialization_list,
+    );
+    const newEmployeeDoctorSpecializationList = employeeInfoWithID.filter(
+      (employee) => employee.employee_doctor_specialization_list,
+    );
+    const newEmployeeNurseSpecialization = newEmployeeNurseSpecializationList.map((employee) => {
+      if (!employee.employee_nurse_specialization_list) return []; // never
+      return employee.employee_nurse_specialization_list.map((nurse_specialization_id) => {
+        return {
+          employee_id: employee.employee_id,
+          nurse_specialization_id,
+        };
+      });
+    });
+
+    const newEmployeeDoctorSpecialization = newEmployeeDoctorSpecializationList.map((employee) => {
+      if (!employee.employee_doctor_specialization_list) return []; // never
+      return employee.employee_doctor_specialization_list.map((doctor_specialization_id) => {
+        return {
+          employee_id: employee.employee_id,
+          doctor_specialization_id,
+        };
+      });
+    });
+    const nurseSpecializationFlat = newEmployeeNurseSpecialization.flat();
+    const doctorSpecializationFlat = newEmployeeDoctorSpecialization.flat();
+    const nurseSpecializationIdList = nurseSpecializationFlat.map((nurseSpecialization) => {
+      return nurseSpecialization.nurse_specialization_id;
+    });
+    const doctorSpecializationIdList = doctorSpecializationFlat.map((doctorSpecialization) => {
+      return doctorSpecialization.doctor_specialization_id;
+    });
+    const uniqueNurseSpecializationIdList = [...new Set(nurseSpecializationIdList)];
+    const uniqueDoctorSpecializationIdList = [...new Set(doctorSpecializationIdList)];
+    const existNurseSpecialization = uniqueNurseSpecializationIdList.length
+      ? await this.prismaService.er_NurseSpecialization.findMany({
+          where: {
+            nurse_specialization_id: {
+              in: uniqueNurseSpecializationIdList,
+            },
+          },
+        })
+      : [];
+    const existDoctorSpecialization = uniqueDoctorSpecializationIdList.length
+      ? await this.prismaService.er_DoctorSpecialization.findMany({
+          where: {
+            doctor_specialization_id: {
+              in: uniqueDoctorSpecializationIdList,
+            },
+          },
+        })
+      : [];
+
+    if (existNurseSpecialization.length !== uniqueNurseSpecializationIdList.length) {
+      return typia.random<ER_EMPLOYEE_ERROR.EMPLOYEE_ROLE_SPECIALIZATION_NOT_MATCH>();
+    }
+    if (existDoctorSpecialization.length !== uniqueDoctorSpecializationIdList.length) {
+      return typia.random<ER_EMPLOYEE_ERROR.EMPLOYEE_ROLE_SPECIALIZATION_NOT_MATCH>();
+    }
+
+    const createEmployees = this.prismaService.er_Employee.createMany({
       data: employeeInfos,
     });
+    const createEmployeeNurseSpecialization = this.prismaService.er_EmployeeNurseSpecialization.createMany({
+      data: newEmployeeNurseSpecialization.flat(),
+    });
+    const createEmployeeDoctorSpecialization = this.prismaService.er_EmployeeDoctorSpecialization.createMany({
+      data: newEmployeeDoctorSpecialization.flat(),
+    });
+
+    const [newEmployees] = await this.prismaService.$transaction([
+      createEmployees,
+      createEmployeeNurseSpecialization,
+      createEmployeeDoctorSpecialization,
+    ]);
     return newEmployees;
   }
 
@@ -129,6 +236,19 @@ export class ErEmployeeService {
       orderBy: {
         created_at: 'desc',
       },
+      include: {
+        employee_doctor_specializations: {
+          include: {
+            doctor_specialization: true,
+          },
+        },
+        employee_nurse_specializations: {
+          include: {
+            nurse_specialization: true,
+          },
+        },
+        department: true,
+      },
     };
     const employees: ErEmployee.GetEmpoyeeWithoutPassword[] = await this.prismaService.er_Employee.findMany(arg);
     const employee_count = await this.prismaService.er_Employee.count({
@@ -136,5 +256,10 @@ export class ErEmployeeService {
     });
 
     return { employee_list: employees, count: employee_count };
+  }
+
+  async getNurseSpecialization() {
+    const nurseSpecializationList = await this.prismaService.er_NurseSpecialization.findMany();
+    return nurseSpecializationList;
   }
 }

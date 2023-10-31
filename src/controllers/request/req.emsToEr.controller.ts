@@ -14,7 +14,7 @@ import { ReqEmsToErService } from '@src/providers/req/req.emsToEr.service';
 import { ReqEmsToErRequest, Try, TryCatch } from '@src/types';
 import { ReqEmsToErResponse } from '@src/types/req.response.dto';
 
-@Controller('request/ems-to-er')
+@Controller('requests/ems-to-er')
 export class ReqEmsToErController {
   constructor(
     private readonly reqEmsToErService: ReqEmsToErService,

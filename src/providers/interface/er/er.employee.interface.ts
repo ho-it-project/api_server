@@ -1,4 +1,11 @@
-import { er_Employee } from '@prisma/client';
+import {
+  er_Department,
+  er_DoctorSpecialization,
+  er_Employee,
+  er_EmployeeDoctorSpecialization,
+  er_EmployeeNurseSpecialization,
+  er_NurseSpecialization,
+} from '@prisma/client';
 import { ErAuth } from '@src/auth/interface/er.auth.interface';
 import { ErEmployeeRequest } from '@src/types';
 
@@ -12,5 +19,13 @@ export namespace ErEmployee {
   export type GetEmployeeList = { query: ErEmployeeRequest.GetEmployeeListQuery } & {
     user: ErAuth.AccessTokenSignPayload;
   };
-  export type GetEmpoyeeWithoutPassword = Omit<er_Employee, 'password'>;
+  export type GetEmpoyeeWithoutPassword = Omit<er_Employee, 'password'> & {
+    employee_doctor_specializations?: (er_EmployeeDoctorSpecialization & {
+      doctor_specialization: er_DoctorSpecialization;
+    })[];
+    employee_nurse_specializations?: (er_EmployeeNurseSpecialization & {
+      nurse_specialization: er_NurseSpecialization;
+    })[];
+    department?: er_Department;
+  };
 }

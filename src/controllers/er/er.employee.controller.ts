@@ -11,7 +11,7 @@ import { ErAuth } from '@src/auth/interface/er.auth.interface';
 import { ErEmployeeService } from '@src/providers/er/er.employee.service';
 import { ErEmployeeRequest, ErEmployeeResponse, Try, TryCatch } from '@src/types';
 
-@Controller('/er/employee')
+@Controller('/er/employees')
 export class ErEmployeeController {
   constructor(private readonly erEmployeeService: ErEmployeeService) {}
 
@@ -42,6 +42,10 @@ export class ErEmployeeController {
   @TypedException<ER_EMPLOYEE_ERROR.EMPLOYEE_MULTIPLE_ALREADY_EXIST>(
     400,
     'ER_EMPLOYEE_ERROR.EMPLOYEE_MULTIPLE_ALREADY_EXIST_RETURN',
+  )
+  @TypedException<ER_EMPLOYEE_ERROR.EMPLOYEE_ROLE_SPECIALIZATION_NOT_MATCH>(
+    400,
+    'ER_EMPLOYEE_ERROR.EMPLOYEE_ROLE_SPECIALIZATION_NOT_MATCH',
   )
   @UseGuards(ErJwtAccessAuthGuard)
   async createManyEmployee(
@@ -167,6 +171,28 @@ export class ErEmployeeController {
       query,
       user,
     });
+    return createResponse(result);
+  }
+
+  /**
+   * 간호사 전문분야 조회 API
+   * 간호사 전문분야를 조회한다.
+   * - 간호사 전문분야는 ER에서만 사용한다.
+   *
+   * 직원[간호사] 생성시 사용한다.
+   *
+   * 의사 생성시에는 department조회를 통해 전문분야를 조회한다.
+   *
+   *
+   * @author de-novo
+   * @tag er_employee
+   * @summary 2023-10-31 - 간호사 전문분야 조회 API
+   *
+   * @returns 간호사 전문분야 리스트
+   */
+  @TypedRoute.Get('/specializations/nurse')
+  async getNurseSpecilizationList(): Promise<Try<ErEmployeeResponse.GetNurseSpecilizationList>> {
+    const result = await this.erEmployeeService.getNurseSpecialization();
     return createResponse(result);
   }
 }

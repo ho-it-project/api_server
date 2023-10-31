@@ -1,4 +1,5 @@
 import {
+  Status,
   er_Department,
   er_EmergencyRoomType,
   er_Employee,
@@ -57,11 +58,37 @@ export namespace ErEmployeeRequest {
     password: string;
 
     /**
-     * 직원의 ROLE - ADMIN, DOCTOR, NURSE, EMT
+     * 직원의 ROLE - ADMIN(관리자), SPECIALIST(전문의), RESIDENT(전공의), NURSE(간호사), EMT(응급구조사)
      * @title 직원의 역할
      * @type er_EmployeeRole
      */
     role: er_EmployeeRole;
+
+    /**
+     * 진료과 id
+     * null 일 경우, 직원의 진료과를 지정하지 않는다.
+     * @type number
+     * @title 진료과 id
+     * @description 직원의 진료과 id
+     */
+    department_id?: number;
+
+    /**
+     * 의사의 전문분야 id list
+     * null 일 경우, 직원의 전문분야를 지정하지 않는다.
+     * @type string[]
+     * @title 의사의 전문분야 id list - 의사일경우에만 사용
+     */
+    employee_doctor_specialization_list?: string[];
+
+    /**
+     * 간호사의 전문분야 id list
+     * null 일 경우, 직원의 전문분야를 지정하지 않는다.
+     * @type string[]
+     * @title 간호사의 전문분야 id list - 간호사일경우에만 사용
+     * @description 간호사의 전문분야 id list
+     */
+    employee_nurse_specialization_list?: string[];
   }
 
   export interface CreateManyDTO {
@@ -207,6 +234,34 @@ export namespace ErDepartmentRequest {
     department_id: er_Department['department_id'];
     status: er_HospitalDepartment['status'];
   }[];
+
+  export type GetDepartmentListQuery = {
+    status?: Status[];
+  };
+
+  export type UpdateHospitalDepartmentDto = {
+    update_departmet_list: {
+      /**
+       * 변경할 진료과 id
+       * @type number
+       * @title 진료과 id
+       * @description 직원의 진료과 id
+       */
+      department_id: number;
+      /**
+       * 변경할 진료과 상태
+       * @type string
+       * @title 진료과 상태
+       * @description 진료과 상태
+       */
+      status: Status;
+    }[] &
+      tags.MinItems<1>;
+  };
+
+  export type GetDepartmetQuery = {
+    include?: ('hospital' | 'doctor_specializations' | 'parent' | 'sub')[];
+  };
 }
 
 export namespace ErEquipmentRequest {

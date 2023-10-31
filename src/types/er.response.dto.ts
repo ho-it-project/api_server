@@ -1,6 +1,7 @@
-import { er_Employee } from '@prisma/client';
+import { er_Employee, er_NurseSpecialization } from '@prisma/client';
 import { ErDepartment } from '@src/providers/interface/er/er.department.interface';
 import { ErEmergencyCenter } from '@src/providers/interface/er/er.emergencyCenter.interface';
+import { ErEmployee } from '@src/providers/interface/er/er.employee.interface';
 import { ErEquipment } from '@src/providers/interface/er/er.equipment.interface';
 import { ErIllness } from '@src/providers/interface/er/er.illness.interface';
 import { DateToString } from '.';
@@ -25,11 +26,14 @@ export namespace ErEmployeeResponse {
   export interface CheckManyEmployeeExist {
     exists: Pick<er_Employee, 'id_card'>[];
   }
-  export type GetEmployeeList = { count: number } & { employee_list: Omit<er_Employee, 'password'>[] };
+  export type GetEmployeeList = { count: number } & {
+    employee_list: ErEmployee.GetEmpoyeeWithoutPassword[];
+  };
 
   export interface UpdatePassword {
     update_success: boolean;
   }
+  export type GetNurseSpecilizationList = er_NurseSpecialization[];
 }
 
 export namespace ErEmergencyCenterResponse {
@@ -39,6 +43,8 @@ export namespace ErEmergencyCenterResponse {
 export namespace ErDepartmentResponse {
   export type UpdateAvailableDepartment = ErDepartment.UpdateAvailableDepartmentReturn;
   export type GetDepartmentStatusListDto = ErDepartment.GetDepartmentStatusListReturn;
+  export type GetDepartmentList = ErDepartment.GetHospitalDepartmentList;
+  export type GetDepartment = ErDepartment.GetDepartment;
 }
 
 export namespace ErEquipmentResponse {

@@ -6,7 +6,7 @@ import { EmsAmbulanceService } from '@src/providers/ems/ems.ambulance.service';
 import { TryCatch } from '@src/types';
 import { EmsAmbulanceResponse } from '@src/types/ems.response.dto';
 
-@Controller('/ems/ambulance')
+@Controller('/ems/ambulances')
 export class EmsAmbulanceController {
   constructor(private readonly emsAmbulanceService: EmsAmbulanceService) {}
   /**
