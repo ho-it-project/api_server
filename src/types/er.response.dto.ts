@@ -48,7 +48,7 @@ export namespace ErDepartmentResponse {
 }
 
 export namespace ErEquipmentResponse {
-  export type GetEquipmentStatus = ErEquipment.GetEquipmentStatusReturn;
+  export type GetEquipmentStatus = ErEquipment.GetEquipmentStatusByIdReturn;
   export type UpdateEquipmentStatus = ErEquipment.UpdateEquipmentStatusReturn;
 }
 
