@@ -26,6 +26,6 @@ export namespace ErEmployee {
     employee_nurse_specializations?: (er_EmployeeNurseSpecialization & {
       nurse_specialization: er_NurseSpecialization;
     })[];
-    department?: er_Department;
+    department?: er_Department | null;
   };
 }
