@@ -5,7 +5,9 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Prisma, er_EmergencyCenter } from '@prisma/client';
 import { Cache } from 'cache-manager';
 
+import { ER_EMERGENCY_CENTER_ERROR } from '@config/errors';
 import { RedisStore } from 'cache-manager-redis-store';
+import typia from 'typia';
 import { ErEmergencyCenter } from '../interface/er/er.emergencyCenter.interface';
 @Injectable()
 export class ErEmergencyCenterService {
@@ -143,5 +145,31 @@ export class ErEmergencyCenterService {
       return sorted_emergency_center_list;
     }
     return cached;
+  }
+
+  async getEmergencyCenterById(emergency_center_id: string) {
+    const emergencyCenter = await this.prismaService.er_EmergencyCenter.findUnique({
+      where: {
+        emergency_center_id,
+      },
+      include: {
+        hospital: {
+          include: {
+            hospital_departments: { include: { department: true } },
+            hospital_medical_equipment: { include: { medical_equipment: true } },
+            hospital_servere_illness: { include: { servere_illness: true } },
+          },
+        },
+        emergency_rooms: {
+          include: {
+            emergency_room_beds: true,
+            _count: true,
+          },
+        },
+      },
+    });
+    if (!emergencyCenter) return typia.random<ER_EMERGENCY_CENTER_ERROR.EMERGENCY_CENTER_NOT_FOUND>();
+
+    return emergencyCenter;
   }
 }

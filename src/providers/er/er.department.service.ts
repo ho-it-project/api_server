@@ -262,10 +262,10 @@ export class ErDepartmentService {
     });
   }
 
-  async updateHospitalDepartment({ user, update_departmet_list, er_id }: ErDepartment.UpdateHospitalDepartmentDto) {
+  async updateHospitalDepartment({ user, update_department_list, er_id }: ErDepartment.UpdateHospitalDepartmentDto) {
     if (er_id !== user.emergency_center_id) return typia.random<AUTH_ERROR.FORBIDDEN>();
 
-    const departmentIds = update_departmet_list.map((v) => v.department_id);
+    const departmentIds = update_department_list.map((v) => v.department_id);
     const departments = await this.prismaService.er_Department.findMany({
       where: { department_id: { in: departmentIds } },
       include: {
@@ -286,7 +286,7 @@ export class ErDepartmentService {
     const subDepartmentUpdateInfo = parentDepartment
       .map((department) => {
         const { department_id } = department;
-        const updateInfo = update_departmet_list.find((v) => v.department_id === department_id);
+        const updateInfo = update_department_list.find((v) => v.department_id === department_id);
         if (!updateInfo) return [];
         const { status } = updateInfo;
         const subDepartmentUpdateInfo = department.sub_departments.map((department) => ({
@@ -301,7 +301,7 @@ export class ErDepartmentService {
     const parentDepartmentUpdateInfo = subDepartment
       .map((department) => {
         const { department_id, parent_department } = department;
-        const updateInfo = update_departmet_list.find((v) => v.department_id === department_id);
+        const updateInfo = update_department_list.find((v) => v.department_id === department_id);
         if (!updateInfo || !parent_department) return [];
         const { status } = updateInfo;
         if (status === 'ACTIVE') {
@@ -316,7 +316,7 @@ export class ErDepartmentService {
       })
       .flat();
 
-    const updateInfoArray = [...subDepartmentUpdateInfo, ...update_departmet_list, ...parentDepartmentUpdateInfo];
+    const updateInfoArray = [...subDepartmentUpdateInfo, ...update_department_list, ...parentDepartmentUpdateInfo];
     const uniqueDepartmentIds = [...new Set(updateInfoArray.map((info) => info.department_id))];
     const update = uniqueDepartmentIds.map((departmentId) => {
       const infosWithSameDepartmentId = updateInfoArray.filter((info) => info.department_id === departmentId);

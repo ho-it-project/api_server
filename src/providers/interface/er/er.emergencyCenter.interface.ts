@@ -1,4 +1,15 @@
-import { er_EmergencyCenter, er_EmergencyRoom, er_EmergencyRoomBed, er_Hospital } from '@prisma/client';
+import {
+  er_Department,
+  er_EmergencyCenter,
+  er_EmergencyRoom,
+  er_EmergencyRoomBed,
+  er_Hospital,
+  er_HospitalDepartment,
+  er_HospitalMedicalEquipment,
+  er_HospitalServereIllness,
+  er_MedicalEquipment,
+  er_ServereIllness,
+} from '@prisma/client';
 import { ErEmergencyCenterRequest } from '@src/types';
 
 export namespace ErEmergencyCenter {
@@ -39,4 +50,22 @@ export namespace ErEmergencyCenter {
     longitude: number;
     emergencyCenterList: T[];
   }) => (T & { distance: number })[];
+
+  export type GetEmergencyCenterByIdReturn = er_EmergencyCenter & {
+    hospital: er_Hospital & {
+      hospital_departments: (er_HospitalDepartment & {
+        department: er_Department;
+      })[];
+      hospital_medical_equipment: (er_HospitalMedicalEquipment & { medical_equipment: er_MedicalEquipment })[];
+      hospital_servere_illness: (er_HospitalServereIllness & {
+        servere_illness: er_ServereIllness;
+      })[];
+    };
+    emergency_rooms: (er_EmergencyRoom & {
+      emergency_room_beds: er_EmergencyRoomBed[];
+      _count: {
+        emergency_room_beds: number;
+      };
+    })[];
+  };
 }

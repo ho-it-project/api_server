@@ -60,7 +60,7 @@ export namespace ErDepartment {
   };
 
   export type UpdateHospitalDepartmentDto = {
-    update_departmet_list: {
+    update_department_list: {
       department_id: number;
       status: Status;
     }[];
