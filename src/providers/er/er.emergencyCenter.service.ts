@@ -19,7 +19,7 @@ export class ErEmergencyCenterService {
   async getEmergencyCenterListByQuery(
     query: ErEmergencyCenter.GetEmergencyCenterListQuery,
   ): Promise<ErEmergencyCenter.GetEmergencyCenterListQueryReturn> {
-    const { emergency_center_type, emergency_room_available, page = 1, limit = 10 } = query;
+    const { emergency_center_type, emergency_room_available, page = 1, limit = 10, search = '' } = query;
 
     const skip = (page - 1) * limit;
 
@@ -44,6 +44,11 @@ export class ErEmergencyCenterService {
           },
         }
       : {};
+    const search_where = {
+      emergency_center_name: {
+        contains: search,
+      },
+    };
     // // query
     const where: Prisma.er_EmergencyCenterFindManyArgs['where'] = {
       AND: [
@@ -56,6 +61,7 @@ export class ErEmergencyCenterService {
         },
         emergency_center_type_where,
         emergency_room_available_where,
+        search_where,
       ],
     };
 
