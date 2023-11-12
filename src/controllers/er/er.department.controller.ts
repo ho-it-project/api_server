@@ -1,100 +1,116 @@
 import { CurrentUser } from '@common/decorators/CurrentUser';
-import { AdminGuard } from '@common/guard/admin.guard';
 import { createResponse } from '@common/interceptor/createResponse';
-import { ER_DEPARTMENT_ERROR, isError, throwError } from '@config/errors';
-import { TypedBody, TypedException, TypedRoute } from '@nestia/core';
+import { AUTH_ERROR, ER_DEPARTMENT_ERROR, ER_ERROR, isError, throwError } from '@config/errors';
+import { TypedBody, TypedException, TypedParam, TypedQuery, TypedRoute } from '@nestia/core';
 import { Controller, UseGuards } from '@nestjs/common';
 import { ErJwtAccessAuthGuard } from '@src/auth/guard/er.jwt.access.guard';
 import { ErAuth } from '@src/auth/interface';
 import { ErDepartmentService } from '@src/providers/er/er.department.service';
-import { ErDepartmentRequest, ErDepartmentResponse } from '@src/types';
-import { Try } from './../../types/index';
+import { ErDepartmentRequest, ErDepartmentResponse, TryCatch } from '@src/types';
 
-@Controller('/er/hospitals/current/departments')
+@Controller('/er')
 export class ErDepartmentController {
   constructor(private readonly erDepartmentService: ErDepartmentService) {}
 
   /**
-   * 진료과 조회  
-   * 진료과를 모두 조회합니다. 진료가능여부는 status로 구분합니다.(ACTIVE: 진료가능)
-   * - 상태로써, 부모의 active는 모두 선택된 상태를 의미하고, inactive는 active의 여집합을 나타냅니다.(모두 inactive, 하나라도 inactive)
-   * - 업데이트 명령으로써, 부모의 active는 모두 active로 만들라는 것을 의미하고, inactive는 모두 inactive로 만달라는 것을 의미합니다.
+   * 진료과 목록 조회 API
+   * 진료과 목록을 조회한다.
    *
-   * @author anthony
+   * 의사의 전문분야와 함께 조회한다.
+   * @author de-novo
    * @tag er_department
-   * @summary 2023-10-09 - 병원별 진료과 호출 API
+   * @summary 2023-10-30 - 진료과 목록 조회 API
    *
-   * @param user
-
-   * @security access_token
-   * @returns 진료가능과
+   * @returns 진료과 목록
    */
-  @TypedRoute.Get('/')
-  @UseGuards(ErJwtAccessAuthGuard)
-  async getDepartmentStatusList(
-    @CurrentUser() user: ErAuth.AccessTokenSignPayload,
-  ): Promise<Try<ErDepartmentResponse.GetDepartmentStatusListDto>> {
-    const DepartmentStatusList = await this.erDepartmentService.getDepartmentStatusList({ user });
-    return createResponse(DepartmentStatusList);
+  @TypedRoute.Get('/departments')
+  async getDepartmentList() {
+    const result = await this.erDepartmentService.getDepartmentList();
+    return createResponse(result);
   }
 
   /**
-   * 병원 진료과의 상태를 업데이트합니다.
-   * - 상태로써, 부모의 active는 모두 선택된 상태를 의미하고, inactive는 active의 여집합을 나타냅니다.(모두 inactive, 하나라도 inactive)
-   * - 업데이트 명령으로써, 부모의 active는 모두 active로 만들라는 것을 의미하고, inactive는 모두 inactive로 만달라는 것을 의미합니다.
-   * - 부모와 자식에 대한 업데이트 명령이 모두 있는 경우, 자식이 우선순위를 가집니다.
-   * - 업데이트 항목에 대하여, 업데이트 이후 상태를 리턴합니다.
-   * | 업데이트가 필요한 것에 대해서만 보내주세요.
-   * 
-   * - 예제
-   *    - eg. 일반예제  
-   *       ```javascript
-   *       [  
-   *       ...
-   *           {  
-                   "department_id": 4,  
-                 "department_name": "소화기내과",  
-                 "status": "INACTIVE"  
-                   //"sub_departments" // XX  
-               },  
-           ...  
-   *       ]
-           ```  
-   *       위 경우, 소회기내과의 기존 상태는 무시하고, 전달된 상태(INCATIVE)로 변경한다.
-   * 
-   *    - eg. 부모, 자식 모두 업데이트 명령이 존재하는 경우  
-   *      : 간략하게 `{id:status}`로 표현하여, `{1:active}, {2:inactive}`로 전달된 경우.
-   *      - 명령의 의미: 내과 전체를 active로 바꾸어라, 호홉기내과를 inactive로 바꾸어라.
-   *      - 명령 수행
-   *        1. 호홉기 내과를 제외한 모든 내과를 active로 업데이트하고, 
-   *        2. 호홉기 내과는 inactive로 업데이트한다.
-   *      - 응답: 명령수행 결과상태: `{1:inactive, 2:inactive, 3:active, 4: active ... 12:active}`
-   *      - 응답에 대한 설명: 내과에 대하여 active명령을 수행하였으나, 명령 수행 결과 호홉기 내과가 inactive하다.  
-   *        모든 자식 진료과가 active인 경우에만 부모가 active로 설정되기에, 부모(내과)는 inactive로 설정된다.
-   * 
-   * @author anthony
-   * @tag er_department
-   * @summary 2023-10-02 - 진료가능과 설정(추가)
+   * 진료과 조회 API
+   * 진료과를 조회한다.
    *
-   * @param body
-   * @param user
-   * @security access_token
-   * @returns 업데이트 이후 진료과 상태.(부모, 자식 계층표현x. flat하게 리턴합니다.)
+   * include 쿼리를 이용하여,
+   * 진료과가 활성화된 병원, 전문분야 등을 조회할수 있다.
+   * @author de-novo
+   * @tag er_department
+   * @summary 2023-10-30 - 진료과 조회 API
+   *
+   * @returns 진료과
    */
-  @TypedRoute.Patch('/')
-  @UseGuards(ErJwtAccessAuthGuard, AdminGuard)
-  @TypedException<ER_DEPARTMENT_ERROR.DEPARTMENT_NOT_EXIST>(
-    ER_DEPARTMENT_ERROR.departmentNotExist.http_status_code,
-    ER_DEPARTMENT_ERROR.departmentNotExist.message,
-  )
-  async updateAvailableDepartment(
-    @TypedBody()
-    body: ErDepartmentRequest.UpdateAvailableDepartmentDto,
+  @TypedRoute.Get('/departments/:department_id')
+  @TypedException<ER_DEPARTMENT_ERROR.DEPARTMENT_NOT_EXIST>(404, 'ER_DEPARTMENT_ERROR.DEPARTMENT_NOT_EXIST')
+  async getDepartment(
+    @TypedParam('department_id') department_id: number,
+    @TypedQuery() query: ErDepartmentRequest.GetDepartmetQuery,
+  ): Promise<TryCatch<ErDepartmentResponse.GetDepartment, ER_DEPARTMENT_ERROR.DEPARTMENT_NOT_EXIST>> {
+    const result = await this.erDepartmentService.getDepartmentByIdWithQuery({
+      department_id,
+      query,
+    });
+    if (isError(result)) return throwError(result);
+
+    return createResponse(result);
+  }
+  /**
+   * 병원 진료과 목록 조회 API
+   * 병원 진료과 목록을 조회한다.
+   *
+   * 응급실 ID를 이용하여, 병원의 진료과 목록을 조회한다.
+   *
+   * 첫조회시 해당 병원 진료과를 셋팅한다.
+   * @author de-novo
+   * @tag er_department
+   * @summary 2023-10-30 - 진료과 목록 조회 API
+   *
+   * @returns 병원 진료과 목록
+   */
+  @TypedRoute.Get('/:er_id/departments')
+  @TypedException<ER_ERROR.ER_NOT_FOUND>(404, 'ER_NOT_FOUND')
+  async getDepartmentListByErId(
+    @TypedParam('er_id') er_id: string,
+    @TypedQuery() query: ErDepartmentRequest.GetDepartmentListQuery,
+  ): Promise<TryCatch<ErDepartmentResponse.GetDepartmentList, ER_ERROR.ER_NOT_FOUND>> {
+    const result = await this.erDepartmentService.getErDepartmentListByErIdWithQuery({ er_id, query });
+    if (isError(result)) return throwError(result);
+    return createResponse(result);
+  }
+
+  /**
+   * 병원 진료과 업데이트 API
+   *
+   * 병원의 진료과를 업데이트한다. (상태변경)
+   *
+   * 상위 진료과가 INACTIVE인 경우, 하위 진료과는 모두 INACTIVE로 변경된다.
+   * 상위 진료과가 ACTIVE인 경우, 하위 진료과는 모두 ACTIVE로 변경된다.
+   * 하위 진료과가 ACTIVE인 경우, 상위 진료과는 ACTIVE로 변경된다.
+   *
+   *
+   * @author de-novo
+   * @tag er_department
+   * @summary 2023-10-31 - 병원 진료과 업데이트 API
+   *
+   * @security access_token
+   * @returns 성공여부
+   */
+  @TypedRoute.Patch('/:er_id/departments')
+  @TypedException<AUTH_ERROR.FORBIDDEN>(403, 'AUTH_ERROR.FORBIDDEN')
+  @UseGuards(ErJwtAccessAuthGuard)
+  async updateDepartmentListByErId(
     @CurrentUser() user: ErAuth.AccessTokenSignPayload,
-  ): Promise<Try<ErDepartmentResponse.UpdateAvailableDepartment>> {
-    const result = await this.erDepartmentService.updateAvailableDepartments({ user, data: body });
+    @TypedParam('er_id') er_id: string,
+    @TypedBody() body: ErDepartmentRequest.UpdateHospitalDepartmentDto,
+  ) {
+    const { update_department_list } = body;
+    const result = await this.erDepartmentService.updateHospitalDepartment({
+      user,
+      er_id,
+      update_department_list,
+    });
     if (isError(result)) return throwError(result);
     return createResponse(result);
   }
 }
-

@@ -38,6 +38,7 @@ export namespace ErEmployeeResponse {
 
 export namespace ErEmergencyCenterResponse {
   export type GetEmergencyCenterList = DateToString<ErEmergencyCenter.GetEmergencyCenterListQueryReturn>;
+  export type GetEmergencyCenterDetail = ErEmergencyCenter.GetEmergencyCenterByIdReturn;
 }
 
 export namespace ErDepartmentResponse {

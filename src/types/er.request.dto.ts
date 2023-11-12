@@ -240,7 +240,7 @@ export namespace ErDepartmentRequest {
   };
 
   export type UpdateHospitalDepartmentDto = {
-    update_departmet_list: {
+    update_department_list: {
       /**
        * 변경할 진료과 id
        * @type number

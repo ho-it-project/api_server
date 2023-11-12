@@ -1,8 +1,9 @@
 import { createResponse } from '@common/interceptor/createResponse';
-import { TypedQuery, TypedRoute } from '@nestia/core';
-import { Controller } from '@nestjs/common';
+import { ER_EMERGENCY_CENTER_ERROR, isError, throwError } from '@config/errors';
+import { TypedException, TypedParam, TypedQuery, TypedRoute } from '@nestia/core';
+import { Controller, HttpStatus } from '@nestjs/common';
 import { ErEmergencyCenterService } from '@src/providers/er/er.emergencyCenter.service';
-import { ErEmergencyCenterRequest, ErEmergencyCenterResponse, Try } from '@src/types';
+import { ErEmergencyCenterRequest, ErEmergencyCenterResponse, Try, TryCatch } from '@src/types';
 
 @Controller('/er/emergency-centers')
 export class ErEmergencyCenterController {
@@ -40,6 +41,37 @@ export class ErEmergencyCenterController {
     query: ErEmergencyCenterRequest.GetEmergencyCenterListQuery,
   ): Promise<Try<ErEmergencyCenterResponse.GetEmergencyCenterList>> {
     const result = await this.erEmergencyCenterService.getEmergencyCenterListByQuery(query);
+    return createResponse(result);
+  }
+
+  /**
+   * 응급의료기관 상세 조회 API
+   *
+   * emergency_center_id를 이용하여 응급의료기관 상세 정보를 조회한다.
+   * 필수값 : [emergency_center_id]
+   *
+   * 병상정보, 치료가능 질환등 응급실 정보를 조회한다.
+   *
+   *
+   * @author de-novo
+   * @tag er_emergency_center
+   * @summary 2023-11-12 - 응급의료기관 상세 조회 API
+   * @param query
+   * @returns 응급의료기관 조회
+   */
+
+  @TypedRoute.Get('/:emergency_center_id')
+  @TypedException<ER_EMERGENCY_CENTER_ERROR.EMERGENCY_CENTER_NOT_FOUND>(
+    HttpStatus.NOT_FOUND,
+    'ER_EMERGENCY_CENTER_ERROR.EMERGENCY_CENTER_NOT_FOUND',
+  )
+  async getEmergencyCenter(
+    @TypedParam('emergency_center_id') emergency_center_id: string,
+  ): Promise<
+    TryCatch<ErEmergencyCenterResponse.GetEmergencyCenterDetail, ER_EMERGENCY_CENTER_ERROR.EMERGENCY_CENTER_NOT_FOUND>
+  > {
+    const result = await this.erEmergencyCenterService.getEmergencyCenterById(emergency_center_id);
+    if (isError(result)) return throwError(result);
     return createResponse(result);
   }
 }

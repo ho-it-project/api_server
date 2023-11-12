@@ -26,6 +26,8 @@ export namespace ER_DEPARTMENT_ERROR {
 export namespace ER_EMERGENCY_CENTER_ERROR {
   export interface EMERGENCY_CENTER_QUERY_INVAILD
     extends ERROR<'hospital_id or (latitude, longitude) is required', HttpStatus.BAD_REQUEST> {}
+
+  export interface EMERGENCY_CENTER_NOT_FOUND extends ERROR<"Emergency center doesn't exist", HttpStatus.NOT_FOUND> {}
 }
 
 export namespace ER_EQUIPMENT_ERROR {
