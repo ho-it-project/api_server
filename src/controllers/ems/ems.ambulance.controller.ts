@@ -41,9 +41,9 @@ export class EmsAmbulanceController {
   }
 
   /**
-   * 구급차 직원 등록 API
+   * 구급차 직원 설정 API
    *
-   * 구급차 - 직원 관계를 등록하는 API입니다 (담당기사, 응급구조사, 간호사 등..)
+   * 구급차 - 직원 관계를 설정하는 API입니다 (담당기사, 응급구조사, 간호사 등..)
    * 직원은 한대의 구급차에만 등록될 수 있습니다.
    *
    * ## 사용자 권한
@@ -62,20 +62,32 @@ export class EmsAmbulanceController {
    *
    * @author de-novo
    * @tag ems_ambulance
-   * @summary 2023-11-13 구급차 직원 등록 API
+   * @summary 2023-11-13 구급차 직원 설정 API
    *
    * @security access_token
    * @returns 성공 여부
    */
   @TypedRoute.Post('/:ambulance_id')
   @UseGuards(EmsJwtAccessAuthGuard, AdminGuard)
-  @TypedException<EMS_AMBULANCE_ERROR.AMBULANCE_NOT_FOUND>(404, '구급차량을 찾을 수 없습니다.')
   @TypedException<AUTH_ERROR.FORBIDDEN>(403, '권한이 없습니다.')
+  @TypedException<EMS_AMBULANCE_ERROR.AMBULANCE_NOT_FOUND>(404.1, '구급차량을 찾을 수 없습니다.')
+  @TypedException<EMS_AMBULANCE_ERROR.EMPLOYEE_NOT_FOUND>(404.2, '직원을 찾을 수 없습니다.')
+  @TypedException<EMS_AMBULANCE_ERROR.EMPLOYEE_ALREADY_ASSIGNED>(409.1, '이미 해당 구급차에 등록된 직원입니다.')
+  @TypedException<EMS_AMBULANCE_ERROR.EMPLOYEE_NOT_ASSIGNED>(409.2, '해당 구급차에 등록되지 않은 직원입니다.')
   async setAmbulanceEmployee(
     @TypedBody() body: EmsAmbulanceRequest.SetAmbulanceEmployeesDTO,
     @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
     @TypedParam('ambulance_id') ambulance_id: string,
-  ) {
+  ): Promise<
+    TryCatch<
+      'SUCCESS',
+      | EMS_AMBULANCE_ERROR.AMBULANCE_NOT_FOUND
+      | AUTH_ERROR.FORBIDDEN
+      | EMS_AMBULANCE_ERROR.EMPLOYEE_NOT_FOUND
+      | EMS_AMBULANCE_ERROR.EMPLOYEE_ALREADY_ASSIGNED
+      | EMS_AMBULANCE_ERROR.EMPLOYEE_NOT_ASSIGNED
+    >
+  > {
     const { employee_list } = body;
     const result = await this.emsAmbulanceService.setAmbulanceEmployees({
       ambulance_id,
