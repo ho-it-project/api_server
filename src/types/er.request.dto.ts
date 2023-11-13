@@ -276,4 +276,8 @@ export namespace ErIllnessRequest {
     illness_id: er_ServereIllness['servere_illness_id'];
     illness_status: er_HospitalServereIllness['status'];
   }[];
+  export type GetCurrentServableIllnessesStatusQuery = {
+    status?: er_HospitalServereIllness['status'];
+  };
+  export type GetSepcificServableIllnessesStatusQuery = GetCurrentServableIllnessesStatusQuery;
 }
