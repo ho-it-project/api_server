@@ -178,6 +178,21 @@ export namespace EmsAmbulanceCompanyRequest {
   }
 }
 
+export namespace EmsAmbulanceRequest {
+  export interface SetAmbulanceEmployeesDTO {
+    /**
+     * 구급차량에 등록할 직원들의 고유 아이디 리스트
+     *
+     * 해당 id는 로그인에 사용되는 id_card와 다름
+     * @title 직원의 고유 아이디 리스트
+     */
+    employee_list: {
+      employee_id: string;
+      action: 'ADD' | 'REMOVE';
+    }[];
+  }
+}
+
 export namespace EmsPatientRequest {
   export interface CreatePatientDTO {
     /**

@@ -1,4 +1,4 @@
-import { ems_Ambulance, ems_AmbulanceCompany, ems_Employee } from '@prisma/client';
+import { ems_Ambulance, ems_AmbulanceCompany, ems_AmbulanceEmployee, ems_Employee } from '@prisma/client';
 import { EmsAuth } from '@src/auth/interface';
 import { EmsPatient } from '@src/providers/interface/ems/ems.patient.interface';
 
@@ -79,6 +79,9 @@ export namespace EmsAmbulanceCompanyResponse {
 export namespace EmsAmbulanceResponse {
   export interface GetAmbulanceDetail extends ems_Ambulance {
     ambulance_company: ems_AmbulanceCompany;
+    employees: (ems_AmbulanceEmployee & {
+      employee: Pick<ems_Employee, 'employee_id' | 'employee_name' | 'id_card' | 'role'>;
+    })[];
   }
 }
 
