@@ -8,8 +8,12 @@ import { ErEquipment } from '../interface/er/er.equipment.interface';
 export class ErEquipmentService {
   constructor(private readonly prisamService: PrismaService) {}
 
-  async getEquipmentStatus({ user }: ErEquipment.GetEquipmentStatusArg): Promise<ErEquipment.GetEquipmentStatusReturn> {
-    const { hospital_id } = user;
+  async getEquipmentStatusById({
+    hospital_id,
+  }: ErEquipment.GetEquipmentStatusByIdArg): Promise<ErEquipment.GetEquipmentStatusByIdReturn> {
+    const hospitalValid = await this.prisamService.er_Hospital.findFirst({ where: { hospital_id } });
+    if (hospitalValid === null) return ER_EQUIPMENT_ERROR.hospitalInvalid;
+
     const equipmentStatus = await this.prisamService.er_MedicalEquipment.findMany({
       include: {
         hospital_medical_equipment: {
