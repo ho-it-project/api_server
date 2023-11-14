@@ -486,7 +486,7 @@ model ems_Ambulance {
 
   ///relation
   ambulance_company ems_AmbulanceCompany @relation(fields: [ambulance_company_id], references: [ambulance_company_id])
-
+  employees          ems_AmbulanceEmployee[]
   @@map("ambulance")
   @@schema("ems")
 }
@@ -507,9 +507,29 @@ model ems_Employee {
   /// relation
   ambulance_company ems_AmbulanceCompany @relation(fields: [ambulance_company_id], references: [ambulance_company_id])
   patients          ems_Patient[]
-
+  ambulances         ems_AmbulanceEmployee[]
   @@unique([id_card, ambulance_company_id])
   @@map("employee")
+  @@schema("ems")
+}
+
+model ems_AmbulanceEmployee{
+  ambulance_id String @db.VarChar(50)
+  employee_id  String @db.VarChar(50)
+
+  /// default
+  created_at DateTime @default(now()) @db.Timestamptz /// @format date-time
+  status     Status   @default(ACTIVE)
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamptz /// @format date-time
+
+
+  /// relation
+  ambulance ems_Ambulance @relation(fields: [ambulance_id], references: [ambulance_id])
+  employee  ems_Employee  @relation(fields: [employee_id], references: [employee_id])
+
+  @@id([ambulance_id, employee_id])
+  @@unique([employee_id]) /// 직원은 한 팀에만 소속될 수 있음 
+  @@map("ambulance_employee")
   @@schema("ems")
 }
 
