@@ -174,7 +174,10 @@ export class ErEmergencyCenterService {
     return emergencyCenter;
   }
 
-  async getEmergencyRoomById(emergency_room_id: string, user?: Auth.CommonPayload) {
+  async getEmergencyRoomById(
+    emergency_room_id: string,
+    user?: Auth.CommonPayload,
+  ): Promise<ErEmergencyCenter.GetEmergencyRoomByIdReturn | ER_EMERGENCY_CENTER_ERROR.EMERGENCY_ROOM_NOT_FOUND> {
     const emergencyRoom = await this.prismaService.er_EmergencyRoom.findUnique({
       where: {
         emergency_room_id,
@@ -183,6 +186,10 @@ export class ErEmergencyCenterService {
         emergency_room_beds: {
           include: {
             emergency_room_bed_logs: {
+              take: 1,
+              orderBy: {
+                created_at: 'desc',
+              },
               include: {
                 patient: true,
               },
@@ -192,33 +199,33 @@ export class ErEmergencyCenterService {
             },
           },
         },
-        _count: true,
       },
     });
     if (!emergencyRoom) return typia.random<ER_EMERGENCY_CENTER_ERROR.EMERGENCY_ROOM_NOT_FOUND>();
-
-    if (user && user._type === 'ER' && user.emergency_center_id === emergencyRoom.emergency_center_id)
-      return emergencyRoom;
-
-    const format: typeof emergencyRoom = {
-      ...emergencyRoom,
-      emergency_room_beds: emergencyRoom.emergency_room_beds.map((bed) => {
-        return {
-          ...bed,
-          emergency_room_bed_logs: bed.emergency_room_bed_logs.map((log) => {
-            return {
-              ...log,
-              patient: {
-                ...log.patient,
-                patient_name: log.patient.patient_name[0] + '**',
-              },
-            };
-          }),
-        };
-      }),
-    };
-
-    return format;
+    const { emergency_room_beds, ...emergencyRoom_info } = emergencyRoom;
+    const emergency_room_beds_format = emergency_room_beds.map((bed) => {
+      const { emergency_room_bed_logs, ...bed_info } = bed;
+      const emergency_room_bed_patient = emergency_room_bed_logs
+        .filter((log) => log.emergency_room_bed_status === 'OCCUPIED')
+        .map((log) => {
+          return {
+            ...log,
+            patient: {
+              ...log.patient,
+              patient_name:
+                user && user._type === 'ER' && user.emergency_center_id === emergencyRoom.emergency_center_id
+                  ? log.patient.patient_name
+                  : log.patient.patient_name[0] + '**',
+            },
+          };
+        });
+      return {
+        ...bed_info,
+        emergency_room_bed_patient: emergency_room_bed_patient.length > 0 ? emergency_room_bed_patient[0] : null,
+      };
+    });
+    const result = { ...emergencyRoom_info, emergency_room_beds: emergency_room_beds_format };
+    return result;
   }
 
   async getEmergencyRoomBedByIdandNum(emergency_room_id: string, emergency_room_bed_num: number) {

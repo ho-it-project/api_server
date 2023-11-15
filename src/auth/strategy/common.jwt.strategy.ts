@@ -19,12 +19,12 @@ export class CommonJwtStrategy extends PassportStrategy(Strategy, COMMON_AUTH_GU
 
   async validate(payload: Auth.AccessTokenSignPayload) {
     this.logger.debug('CommonJwtStrategy.validate');
-    if ((payload as EmsAuth.AccessTokenSignPayload).ambulance_company_id !== undefined) {
+    if ((payload as EmsAuth.AccessTokenSignPayload).ambulance_company_id) {
       return { ...payload, _type: 'EMS' } as EmsAuth.AccessTokenSignPayload & {
         _type: 'EMS';
       };
     }
-    if ((payload as EmsAuth.AccessTokenSignPayload).ambulance_company_id !== undefined) {
+    if ((payload as ErAuth.AccessTokenSignPayload).emergency_center_id) {
       return { ...payload, _type: 'ER' } as ErAuth.AccessTokenSignPayload & {
         _type: 'ER';
       };

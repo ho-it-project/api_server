@@ -7,6 +7,7 @@ import { ErAuthController } from './controller/er.auth.controller';
 import { AuthService } from './provider/common.auth.service';
 import { EmsAuthService } from './provider/ems.auth.service';
 import { ErAuthService } from './provider/er.auth.service';
+import { CommonJwtStrategy } from './strategy/common.jwt.strategy';
 import { EmsJwtAccessStrategy } from './strategy/ems.jwt.access.strategy';
 import { EmsJwtRefreshStrategy } from './strategy/ems.jwt.refresh.strategy';
 import { ErJwtAccessStrategy } from './strategy/er.jwt.access.strategy';
@@ -26,8 +27,9 @@ import { ErJwtRefreshStrategy } from './strategy/er.jwt.refresh.strategy';
     ErJwtRefreshStrategy,
     EmsJwtAccessStrategy,
     EmsJwtRefreshStrategy,
+    CommonJwtStrategy,
   ],
   controllers: [ErAuthController, EmsAuthController],
-  exports: [ErAuthService, ErJwtAccessStrategy, EmsJwtAccessStrategy, AuthService],
+  exports: [ErAuthService, ErJwtAccessStrategy, EmsJwtAccessStrategy, AuthService, CommonJwtStrategy],
 })
 export class AuthModule {}

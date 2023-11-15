@@ -49,6 +49,36 @@ export class ErEmergencyCenterController {
   }
 
   /**
+   * 응급실 정보(병상) 조회 API
+   *
+   * 응급실 정보(병상)를 조회한다.
+   * 필수값 : [emergency_room_id]
+   * 응급실의 병상과 환자정보를 응답한다.
+   * 만약, 병상에 환자정보가 없다면 null을 응답한다.
+   *
+   * @author de-novo
+   * @tag er_emergency_center
+   * @summary 2023-11-15 - 응급실 정보(병상) 조회 API
+   * @param query
+   * @returns 응급실 정보
+   */
+  @TypedRoute.Get('/emergency-room/:emergency_room_id')
+  @UseGuards(CommonAuthGuard)
+  @TypedException<ER_EMERGENCY_CENTER_ERROR.EMERGENCY_ROOM_NOT_FOUND>(
+    HttpStatus.NOT_FOUND,
+    'ER_EMERGENCY_CENTER_ERROR.EMERGENCY_ROOM_NOT_FOUND',
+  )
+  async getEmergencyRoom(
+    @TypedParam('emergency_room_id') emergency_room_id: string,
+    @CurrentUser() user?: Auth.CommonPayload,
+  ): Promise<TryCatch<ErEmergencyCenterResponse.GetEmergencyRoom, ER_EMERGENCY_CENTER_ERROR.EMERGENCY_ROOM_NOT_FOUND>> {
+    //user를 받는경우는 익명처리를 하냐 마냐 결정
+    const result = await this.erEmergencyCenterService.getEmergencyRoomById(emergency_room_id, user);
+    if (isError(result)) return throwError(result);
+    return createResponse(result);
+  }
+
+  /**
    * 응급의료기관 상세 조회 API
    *
    * emergency_center_id를 이용하여 응급의료기관 상세 정보를 조회한다.
@@ -63,7 +93,6 @@ export class ErEmergencyCenterController {
    * @param query
    * @returns 응급의료기관 조회
    */
-
   @TypedRoute.Get('/:emergency_center_id')
   @TypedException<ER_EMERGENCY_CENTER_ERROR.EMERGENCY_CENTER_NOT_FOUND>(
     HttpStatus.NOT_FOUND,
@@ -78,22 +107,6 @@ export class ErEmergencyCenterController {
     if (isError(result)) return throwError(result);
     return createResponse(result);
   }
-
-  @TypedRoute.Get('/emergency-room/:emergency_room_id')
-  @UseGuards(CommonAuthGuard)
-  async getEmergencyRoom(
-    @TypedParam('emergency_room_id') emergency_room_id: string,
-    @CurrentUser() user?: Auth.CommonPayload,
-  ) {
-    //user를 받는경우는 익명처리를 하냐 마냐 결정
-
-    const result = await this.erEmergencyCenterService.getEmergencyRoomById(emergency_room_id, user);
-    if (isError(result)) return throwError(result);
-    return createResponse(result);
-  }
-
-  @TypedRoute.Get('/emergency-room/:emergency_room_id/beds/:bed_num')
-  async getEmergencyRoomBed() {}
 
   /**
    * 환자 병상 배정 API

@@ -1,4 +1,4 @@
-import { Gender, Status, ems_GuardianRelation, er_Guardian } from '@prisma/client';
+import { Gender, Status, ems_GuardianRelation, er_Guardian, er_PatientLogType } from '@prisma/client';
 import { ErAuth } from '@src/auth/interface';
 
 export namespace ErPatient {
@@ -38,5 +38,14 @@ export namespace ErPatient {
     updated_at: Date;
     status: Status;
     guardian: er_Guardian | null;
+  }
+
+  export interface RecordPatientLog {
+    user: ErAuth.AccessTokenSignPayload;
+    patient_id: string;
+    patient_log: {
+      log_type: er_PatientLogType;
+      log_desc: string;
+    };
   }
 }

@@ -321,7 +321,7 @@ model er_PatientHospital{
 model er_PatientLog {
   patient_id String   @db.VarChar(50)
   log_date   DateTime @default(now()) @db.Timestamptz /// @format date-time
-  log_type   String   @db.VarChar(50)
+  log_type   er_PatientLogType   /// 진단, 처치, 약물처방, 이송, 퇴원, 사망, 상담
   log_desc   String   @db.VarChar(255) 
   employee_id String  @db.VarChar(50)
   /// default 
@@ -509,6 +509,18 @@ enum er_ResponseType {
 
   @@schema("er")
 }
+
+enum er_PatientLogType {
+  DIAGNOSIS /// 진단
+  TREATMENT /// 처치
+  MEDICATION /// 약물처방
+  TRANSFER /// 이송
+  DISCHARGE /// 퇴원
+  DEATH /// 사망
+  CONSULTATION /// 상담
+  @@schema("er")
+}
+
 
 /// 
 /// ems schema
