@@ -10,6 +10,7 @@ import {
   er_MedicalEquipment,
   er_ServereIllness,
 } from '@prisma/client';
+import { ErAuth } from '@src/auth/interface';
 import { ErEmergencyCenterRequest } from '@src/types';
 
 export namespace ErEmergencyCenter {
@@ -68,4 +69,19 @@ export namespace ErEmergencyCenter {
       };
     })[];
   };
+
+  export interface AssignPatientToBed {
+    user: ErAuth.AccessTokenSignPayload;
+    patient_id: string;
+    emergency_room_id: string;
+    emergency_room_bed_num: number;
+  }
+
+  export interface ChangePatientToBed {
+    user: ErAuth.AccessTokenSignPayload;
+    emergency_room_id: string;
+    emergency_room_bed_num: number;
+    target_emergency_room_id: string;
+    target_emergency_room_bed_num: number;
+  }
 }

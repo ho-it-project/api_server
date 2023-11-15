@@ -1,5 +1,7 @@
 import {
+  Gender,
   Status,
+  ems_GuardianRelation,
   er_Department,
   er_EmergencyRoomType,
   er_Employee,
@@ -227,6 +229,30 @@ export namespace ErEmergencyCenterRequest {
   export type GetEmergencyCenterListQuery = GetEmergencyCenterListQueryDefault &
     GetEmergencyCenterListByCityQuery &
     GetEmergencyCenterListByLocationQuery;
+
+  export type AssignPatientToBedDto = {
+    /**
+     * 병상에 배정할 환자의 고유 아이디
+     * @type string
+     * @title 환자의 고유 아이디
+     */
+    patient_id: string;
+  };
+
+  export type ChangePatientToBedDto = {
+    /**
+     * 이동할 응급실 id
+     * @type string
+     * @title 응급실 id
+     */
+    target_emergency_room_id: string;
+    /**
+     * 이동할 병상 number
+     * @type string
+     * @title 병상 number
+     */
+    target_emergency_room_bed_num: number;
+  };
 }
 
 export namespace ErDepartmentRequest {
@@ -280,4 +306,25 @@ export namespace ErIllnessRequest {
     status?: er_HospitalServereIllness['status'];
   };
   export type GetSepcificServableIllnessesStatusQuery = GetCurrentServableIllnessesStatusQuery;
+}
+
+export namespace ErPatientRequest {
+  export type CreatePatientDto = {
+    patient_name: string;
+    patient_gender: Gender;
+    patient_birth: string;
+    patient_identity_number: string;
+    patient_phone: string;
+    patient_address: string;
+
+    guardian?: {
+      guardian_name: string;
+      guardian_phone: string;
+      guardian_address: string;
+      guardian_relation: ems_GuardianRelation;
+    };
+
+    doctor_id: string;
+    nurse_id: string;
+  };
 }

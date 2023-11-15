@@ -35,7 +35,7 @@ model er_Hospital {
   hospital_departments       er_HospitalDepartment[]
   hospital_medical_equipment er_HospitalMedicalEquipment[]
   hospital_servere_illness   er_HospitalServereIllness[]
-
+  patient_hospitals          er_PatientHospital[]
   @@map("hospital")
   @@schema("er")
 }
@@ -59,7 +59,9 @@ model er_Employee {
   department                     er_Department?                    @relation(fields: [department_id], references: [department_id])
   employee_doctor_specializations er_EmployeeDoctorSpecialization[]
   employee_nurse_specializations  er_EmployeeNurseSpecialization[]
-
+  nurse_patient                         er_Patient[] @relation("NursePatient")
+  doctor_patient                        er_Patient[] @relation("DoctorPatient")
+  patient_logs                          er_PatientLog[]
   @@unique([id_card, hospital_id])
   @@map("employee")
   @@schema("er")
@@ -262,6 +264,9 @@ model er_Patient {
   patient_gender          Gender
   patient_phone           String @db.VarChar(50)
   patient_address         String @db.VarChar(50)
+  guardian_id            String? @unique() @db.VarChar(50)
+  doctor_id               String @db.VarChar(50)
+  nurse_id                String @db.VarChar(50)
 
   /// default 
   created_at DateTime @default(now()) @db.Timestamptz /// @format date-time
@@ -271,18 +276,20 @@ model er_Patient {
   /// relation
   emergency_room_bed_logs er_EmergencyRoomBedLog[]
   patient_logs            er_PatientLog[]
-
+  guardian                er_Guardian?
+  doctor                  er_Employee @relation("DoctorPatient",fields: [doctor_id], references: [employee_id]) /// 관계테이블 분리 필요해보임  ///DOCTOR_PATIENT   ///현재는 1인 1의사만 관리
+  nurse                   er_Employee @relation("NursePatient",fields: [nurse_id], references: [employee_id])   /// 관계테이블 분리 필요해보임  ///NURSE_PATIENT    ///현재는 1인 1간호사만 관리
+  patient_hospitals       er_PatientHospital[]
+  patient_salt           er_PatientSalt?
   @@map("patient")
   @@schema("er")
 }
 
-model er_PatientLog {
-  patient_id String   @db.VarChar(50)
-  log_date   DateTime @default(now()) @db.Timestamptz /// @format date-time
-  log_type   String   @db.VarChar(50)
-  log_desc   String   @db.VarChar(255)
+model er_PatientSalt {
+  patient_id String @id @db.VarChar(50)
+  salt       String @db.VarChar(255)
 
-  /// default 
+  /// default
   created_at DateTime @default(now()) @db.Timestamptz /// @format date-time
   updated_at DateTime @default(now()) @updatedAt @db.Timestamptz /// @format date-time
   status     Status   @default(ACTIVE)
@@ -290,8 +297,62 @@ model er_PatientLog {
   /// relation
   patient er_Patient @relation(fields: [patient_id], references: [patient_id])
 
+  @@map("patient_salt")
+  @@schema("er")
+}
+model er_PatientHospital{
+ patient_id String @db.VarChar(50)
+  hospital_id String @db.VarChar(255)
+
+  /// default
+  created_at DateTime @default(now()) @db.Timestamptz /// @format date-time
+  status     Status   @default(ACTIVE)
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamptz /// @format date-time
+ 
+  /// relation
+  patient er_Patient @relation(fields: [patient_id], references: [patient_id])
+  hospital er_Hospital @relation(fields: [hospital_id], references: [hospital_id])
+
+
+  @@id([patient_id, hospital_id])
+  @@map("patient_hospital")
+  @@schema("er")
+}
+model er_PatientLog {
+  patient_id String   @db.VarChar(50)
+  log_date   DateTime @default(now()) @db.Timestamptz /// @format date-time
+  log_type   String   @db.VarChar(50)
+  log_desc   String   @db.VarChar(255) 
+  employee_id String  @db.VarChar(50)
+  /// default 
+  created_at DateTime @default(now()) @db.Timestamptz /// @format date-time
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamptz /// @format date-time
+  status     Status   @default(ACTIVE)
+
+  /// relation
+  patient er_Patient @relation(fields: [patient_id], references: [patient_id])
+  employee er_Employee @relation(fields: [employee_id], references: [employee_id])
   @@id([patient_id, log_date])
   @@map("patient_log")
+  @@schema("er")
+}
+
+model er_Guardian {
+  guardian_id       String               @id @default(uuid())
+  guardian_name     String               @db.VarChar(50)
+  guardian_phone    String               @db.VarChar(50)
+  guardian_address  String               @db.VarChar(200)
+  guardian_relation ems_GuardianRelation /// 환자와의 관계
+
+  /// default 
+  created_at DateTime @default(now()) @db.Timestamptz /// @format date-time
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamptz /// @format date-time
+  status     Status   @default(ACTIVE)
+
+  /// relation
+  patient er_Patient @relation(fields: [guardian_id], references: [guardian_id])
+
+  @@map("guardian")
   @@schema("er")
 }
 

@@ -5,6 +5,7 @@ import { ErEmergencyCenterModule } from './er/emergencyCenter.module';
 import { ErEmployeeModule } from './er/employee.module';
 import { ErEquipmentModule } from './er/equipment.module';
 import { ErIllnessModule } from './er/illness.module';
+import { ErPatientModule } from './er/patient.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ErIllnessModule } from './er/illness.module';
     ErDepartmentModule,
     ErEquipmentModule,
     ErIllnessModule,
+    ErPatientModule,
   ],
 })
 export class ErModule {}
