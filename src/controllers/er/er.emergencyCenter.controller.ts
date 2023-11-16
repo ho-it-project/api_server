@@ -122,7 +122,7 @@ export class ErEmergencyCenterController {
    * @tag er_emergency_center
    * @summary 2023-11-15 - 환자 병상 배정 API
    *
-   * @security access-token
+   * @security access_token
    * @returns 성공여부
    */
   @TypedRoute.Post('/emergency-room/:emergency_room_id/beds/:emergency_room_bed_num')
@@ -191,7 +191,7 @@ export class ErEmergencyCenterController {
    * @tag er_emergency_center
    * @summary 2023-11-15 - 환자 병상 이동 API
    *
-   * @security access-token
+   * @security access_token
    * @returns 성공여부
    */
   @TypedRoute.Patch('/emergency-room/:emergency_room_id/beds/:emergency_room_bed_num')

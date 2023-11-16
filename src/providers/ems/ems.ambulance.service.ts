@@ -72,8 +72,8 @@ export class EmsAmbulanceService {
       return addEmployeeManyWithAmbulance;
     }
     if (
-      addEmployeeManyWithAmbulance.some(
-        (employee) => employee.ambulances.length && employee.ambulances[0].ambulance_id === ambulance_id,
+      addEmployeeManyWithAmbulance.some((employee) =>
+        employee.ambulances.find((ambulance) => ambulance.ambulance_id === ambulance_id),
       )
     ) {
       return typia.random<EMS_AMBULANCE_ERROR.EMPLOYEE_ALREADY_ASSIGNED>();
@@ -85,7 +85,7 @@ export class EmsAmbulanceService {
     }
     if (
       removeEmployeeManyWithAmbulance.some(
-        (employee) => !employee.ambulances.length || employee.ambulances[0].ambulance_id !== ambulance_id,
+        (employee) => employee.ambulances.find((ambulance) => ambulance.ambulance_id === ambulance_id) === undefined,
       )
     ) {
       return typia.random<EMS_AMBULANCE_ERROR.EMPLOYEE_NOT_ASSIGNED>();
