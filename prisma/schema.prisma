@@ -599,9 +599,8 @@ model ems_AmbulanceEmployee{
   /// relation
   ambulance ems_Ambulance @relation(fields: [ambulance_id], references: [ambulance_id])
   employee  ems_Employee  @relation(fields: [employee_id], references: [employee_id])
-
+  
   @@id([ambulance_id, employee_id])
-  @@unique([employee_id]) /// 직원은 한 팀에만 소속될 수 있음 
   @@map("ambulance_employee")
   @@schema("ems")
 }
