@@ -6,6 +6,7 @@ import { Prisma, er_EmergencyCenter } from '@prisma/client';
 import { Cache } from 'cache-manager';
 
 import { ER_EMERGENCY_CENTER_ERROR } from '@config/errors';
+import { Auth } from '@src/auth/interface';
 import { RedisStore } from 'cache-manager-redis-store';
 import typia from 'typia';
 import { ErEmergencyCenter } from '../interface/er/er.emergencyCenter.interface';
@@ -171,5 +172,264 @@ export class ErEmergencyCenterService {
     if (!emergencyCenter) return typia.random<ER_EMERGENCY_CENTER_ERROR.EMERGENCY_CENTER_NOT_FOUND>();
 
     return emergencyCenter;
+  }
+
+  async getEmergencyRoomById(
+    emergency_room_id: string,
+    user?: Auth.CommonPayload,
+  ): Promise<ErEmergencyCenter.GetEmergencyRoomByIdReturn | ER_EMERGENCY_CENTER_ERROR.EMERGENCY_ROOM_NOT_FOUND> {
+    const emergencyRoom = await this.prismaService.er_EmergencyRoom.findUnique({
+      where: {
+        emergency_room_id,
+      },
+      include: {
+        emergency_room_beds: {
+          include: {
+            emergency_room_bed_logs: {
+              take: 1,
+              orderBy: {
+                created_at: 'desc',
+              },
+              include: {
+                patient: true,
+              },
+              where: {
+                status: 'ACTIVE',
+              },
+            },
+          },
+        },
+      },
+    });
+    if (!emergencyRoom) return typia.random<ER_EMERGENCY_CENTER_ERROR.EMERGENCY_ROOM_NOT_FOUND>();
+    const { emergency_room_beds, ...emergencyRoom_info } = emergencyRoom;
+    const emergency_room_beds_format = emergency_room_beds.map((bed) => {
+      const { emergency_room_bed_logs, ...bed_info } = bed;
+      const emergency_room_bed_patient = emergency_room_bed_logs
+        .filter((log) => log.emergency_room_bed_status === 'OCCUPIED')
+        .map((log) => {
+          return {
+            ...log,
+            patient: {
+              ...log.patient,
+              patient_name:
+                user && user._type === 'ER' && user.emergency_center_id === emergencyRoom.emergency_center_id
+                  ? log.patient.patient_name
+                  : log.patient.patient_name[0] + '**',
+            },
+          };
+        });
+      return {
+        ...bed_info,
+        emergency_room_bed_patient: emergency_room_bed_patient.length > 0 ? emergency_room_bed_patient[0] : null,
+      };
+    });
+    const result = { ...emergencyRoom_info, emergency_room_beds: emergency_room_beds_format };
+    return result;
+  }
+
+  async getEmergencyRoomBedByIdandNum(emergency_room_id: string, emergency_room_bed_num: number) {
+    const bed = await this.prismaService.er_EmergencyRoomBed.findUnique({
+      where: {
+        emergency_room_id_emergency_room_bed_num: {
+          emergency_room_id,
+          emergency_room_bed_num,
+        },
+      },
+      include: {
+        emergency_room_bed_logs: {
+          include: {
+            patient: {
+              include: {
+                patient_logs: true,
+              },
+            },
+          },
+          where: {
+            status: 'ACTIVE',
+          },
+        },
+      },
+    });
+    if (!bed) return typia.random<ER_EMERGENCY_CENTER_ERROR.EMERGENCY_ROOM_NOT_FOUND>();
+    return bed;
+  }
+
+  async assignPatientToBed({
+    user,
+    emergency_room_bed_num,
+    emergency_room_id,
+    patient_id,
+  }: ErEmergencyCenter.AssignPatientToBed) {
+    const { emergency_center_id, hospital_id } = user;
+    const emergency_room = await this.prismaService.er_EmergencyRoom.findUnique({
+      where: {
+        emergency_room_id,
+      },
+      include: {
+        emergency_room_beds: {
+          where: {
+            emergency_room_bed_num,
+          },
+        },
+      },
+    });
+    if (!emergency_room) return typia.random<ER_EMERGENCY_CENTER_ERROR.EMERGENCY_ROOM_NOT_FOUND>();
+    if (!emergency_room.emergency_room_beds[0])
+      return typia.random<ER_EMERGENCY_CENTER_ERROR.EMERGENCY_BED_NOT_FOUND>();
+    if (emergency_room.emergency_center_id !== emergency_center_id)
+      return typia.random<ER_EMERGENCY_CENTER_ERROR.EMERGENCY_ROOM_NOT_FOUND>();
+    if (emergency_room.emergency_room_beds[0].emergency_room_bed_status !== 'AVAILABLE')
+      return typia.random<ER_EMERGENCY_CENTER_ERROR.EMERGENCY_ROOM_BED_NOT_AVAILABLE>();
+
+    const existPatient = await this.prismaService.er_PatientHospital.findUnique({
+      where: {
+        patient_id_hospital_id: {
+          patient_id,
+          hospital_id,
+        },
+      },
+    });
+    if (!existPatient) return typia.random<ER_EMERGENCY_CENTER_ERROR.PATIENT_NOT_EXIST>();
+    const assingedPatient = await this.prismaService.er_EmergencyRoomBedLog.findFirst({
+      where: {
+        patient_id,
+        emergency_room_bed_status: 'OCCUPIED',
+      },
+    });
+    if (assingedPatient) return typia.random<ER_EMERGENCY_CENTER_ERROR.PATIENT_ALREADY_ASSIGNED>();
+
+    const assign = this.prismaService.er_EmergencyRoomBed.update({
+      where: {
+        emergency_room_id_emergency_room_bed_num: {
+          emergency_room_bed_num,
+          emergency_room_id,
+        },
+      },
+      data: {
+        emergency_room_bed_status: 'OCCUPIED',
+      },
+    });
+    const log = this.prismaService.er_EmergencyRoomBedLog.create({
+      data: {
+        emergency_room_id: emergency_room_id,
+        emergency_room_bed_num: emergency_room_bed_num,
+        emergency_room_bed_status: 'OCCUPIED',
+        patient_id,
+      },
+    });
+    await this.prismaService.$transaction([assign, log]);
+    return 'SUCCESS';
+  }
+
+  async changePatientToBed({
+    user,
+    emergency_room_bed_num,
+    emergency_room_id,
+    target_emergency_room_bed_num,
+    target_emergency_room_id,
+  }: ErEmergencyCenter.ChangePatientToBed) {
+    const { hospital_id, emergency_center_id } = user;
+    const emergency_room = await this.prismaService.er_EmergencyRoom.findUnique({
+      where: {
+        emergency_room_id,
+      },
+      include: {
+        emergency_room_beds: {
+          where: {
+            emergency_room_bed_num,
+          },
+          include: {
+            emergency_room_bed_logs: {
+              where: {
+                emergency_room_bed_status: 'OCCUPIED',
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!emergency_room) return typia.random<ER_EMERGENCY_CENTER_ERROR.EMERGENCY_ROOM_NOT_FOUND>();
+    if (!emergency_room.emergency_room_beds[0])
+      return typia.random<ER_EMERGENCY_CENTER_ERROR.EMERGENCY_BED_NOT_FOUND>();
+    if (emergency_room.emergency_center_id !== emergency_center_id)
+      return typia.random<ER_EMERGENCY_CENTER_ERROR.EMERGENCY_ROOM_NOT_FOUND>();
+    if (emergency_room.emergency_room_beds[0].emergency_room_bed_status !== 'OCCUPIED')
+      // 사용중이지않으면 현재 환자가 없다는 뜻
+      return typia.random<ER_EMERGENCY_CENTER_ERROR.EMERGENCY_ROOM_BED_NOT_AVAILABLE>();
+
+    const target_emergency_room = await this.prismaService.er_EmergencyRoom.findUnique({
+      where: {
+        emergency_room_id: target_emergency_room_id,
+      },
+      include: {
+        emergency_room_beds: {
+          where: {
+            emergency_room_bed_num: target_emergency_room_bed_num,
+          },
+        },
+      },
+    });
+    if (!target_emergency_room) return typia.random<ER_EMERGENCY_CENTER_ERROR.EMERGENCY_ROOM_NOT_FOUND>();
+    if (!target_emergency_room.emergency_room_beds[0])
+      return typia.random<ER_EMERGENCY_CENTER_ERROR.EMERGENCY_BED_NOT_FOUND>();
+
+    if (target_emergency_room.emergency_center_id !== emergency_center_id)
+      return typia.random<ER_EMERGENCY_CENTER_ERROR.EMERGENCY_ROOM_NOT_FOUND>();
+
+    if (target_emergency_room.emergency_room_beds[0].emergency_room_bed_status !== 'AVAILABLE')
+      return typia.random<ER_EMERGENCY_CENTER_ERROR.EMERGENCY_ROOM_BED_NOT_AVAILABLE>();
+
+    const existPatient = await this.prismaService.er_PatientHospital.findUnique({
+      where: {
+        patient_id_hospital_id: {
+          patient_id: emergency_room.emergency_room_beds[0].emergency_room_bed_logs[0].patient_id,
+          hospital_id,
+        },
+      },
+    });
+    if (!existPatient) return typia.random<ER_EMERGENCY_CENTER_ERROR.PATIENT_NOT_EXIST>();
+
+    const chnageBeforeBed = this.prismaService.er_EmergencyRoomBed.update({
+      where: {
+        emergency_room_id_emergency_room_bed_num: {
+          emergency_room_bed_num,
+          emergency_room_id,
+        },
+      },
+      data: {
+        emergency_room_bed_status: 'AVAILABLE',
+      },
+    });
+    const assign = this.prismaService.er_EmergencyRoomBed.update({
+      where: {
+        emergency_room_id_emergency_room_bed_num: {
+          emergency_room_bed_num: target_emergency_room_bed_num,
+          emergency_room_id: target_emergency_room_id,
+        },
+      },
+      data: {
+        emergency_room_bed_status: 'OCCUPIED',
+      },
+    });
+    const log = this.prismaService.er_EmergencyRoomBedLog.create({
+      data: {
+        emergency_room_id: target_emergency_room_id,
+        emergency_room_bed_num: target_emergency_room_bed_num,
+        emergency_room_bed_status: 'OCCUPIED',
+        patient_id: emergency_room.emergency_room_beds[0].emergency_room_bed_logs[0].patient_id,
+      },
+    });
+    const availableLog = this.prismaService.er_EmergencyRoomBedLog.create({
+      data: {
+        emergency_room_id: emergency_room_id,
+        emergency_room_bed_num: emergency_room_bed_num,
+        emergency_room_bed_status: 'AVAILABLE',
+        patient_id: emergency_room.emergency_room_beds[0].emergency_room_bed_logs[0].patient_id,
+      },
+    });
+    await this.prismaService.$transaction([chnageBeforeBed, assign, log, availableLog]);
+    return 'SUCCESS';
   }
 }

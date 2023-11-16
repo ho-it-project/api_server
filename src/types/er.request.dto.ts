@@ -1,5 +1,7 @@
 import {
+  Gender,
   Status,
+  ems_GuardianRelation,
   er_Department,
   er_EmergencyRoomType,
   er_Employee,
@@ -9,6 +11,7 @@ import {
   er_HospitalServereIllness,
   er_MedicalEquipment,
   er_MedicalInstitutionType,
+  er_PatientLogType,
   er_ServereIllness,
 } from '@prisma/client';
 import { tags } from 'typia';
@@ -227,6 +230,30 @@ export namespace ErEmergencyCenterRequest {
   export type GetEmergencyCenterListQuery = GetEmergencyCenterListQueryDefault &
     GetEmergencyCenterListByCityQuery &
     GetEmergencyCenterListByLocationQuery;
+
+  export type AssignPatientToBedDto = {
+    /**
+     * 병상에 배정할 환자의 고유 아이디
+     * @type string
+     * @title 환자의 고유 아이디
+     */
+    patient_id: string;
+  };
+
+  export type ChangePatientToBedDto = {
+    /**
+     * 이동할 응급실 id
+     * @type string
+     * @title 응급실 id
+     */
+    target_emergency_room_id: string;
+    /**
+     * 이동할 병상 number
+     * @type string
+     * @title 병상 number
+     */
+    target_emergency_room_bed_num: number;
+  };
 }
 
 export namespace ErDepartmentRequest {
@@ -280,4 +307,105 @@ export namespace ErIllnessRequest {
     status?: er_HospitalServereIllness['status'];
   };
   export type GetSepcificServableIllnessesStatusQuery = GetCurrentServableIllnessesStatusQuery;
+}
+
+export namespace ErPatientRequest {
+  export type CreatePatientDto = {
+    /**
+     * 환자의 이름
+     * @type string
+     * @title 환자의 이름
+     */
+    patient_name: string;
+    /**
+     * 환자의 성별
+     * @type string
+     * @title 환자의 성별
+     */
+    patient_gender: Gender;
+    /**
+     * 환자의 생년월일
+     * @type string
+     * @title 환자의 생년월일
+     */
+    patient_birth: string;
+    /**
+     * 환자의 주민등록번호 뒷자리
+     * @type string
+     * @title 환자의 주민등록번호 뒷자리
+     */
+    patient_identity_number: string;
+    /**
+     * 환자의 전화번호
+     * @type string
+     * @title 환자의 전화번호
+     */
+    patient_phone: string;
+    /**
+     * 환자의 주소
+     * @type string
+     * @title 환자의 주소
+     */
+    patient_address: string;
+
+    /**
+     * 환자의 보호자 정보
+     * @type object
+     * @title 환자의 보호자 정보
+     */
+    guardian?: {
+      /**
+       * 보호자의 이름
+       * @type string
+       * @title 보호자의 이름
+       */
+      guardian_name: string;
+      /**
+       * 보호자의 전화번호
+       * @type string
+       * @title 보호자의 전화번호
+       */
+      guardian_phone: string;
+      /**
+       * 보호자의 주소
+       * @type string
+       * @title 보호자의 주소
+       */
+      guardian_address: string;
+      /**
+       * 보호자의 관계
+       * @type string
+       * @title 보호자의 관계
+       */
+      guardian_relation: ems_GuardianRelation;
+    };
+    /**
+     * 환자의 담당 의사 고유 아이디
+     * @type string
+     * @title 환자의 담당 의사 고유 아이디
+     */
+    doctor_id: string;
+    /**
+     * 환자의 담당 간호사 고유 아이디
+     * @type string
+     * @title 환자의 담당 간호사 고유 아이디
+     */
+    nurse_id: string;
+  };
+
+  export type RecordPatientLogDto = {
+    /**
+     * 진단 타입
+     * @type string
+     * @title 진단 타입
+     *
+     */
+    log_type: er_PatientLogType;
+    /**
+     * 진단 내용
+     * @type string
+     * @title 진단 내용
+     */
+    log_desc: string;
+  };
 }

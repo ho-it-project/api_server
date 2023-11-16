@@ -4,6 +4,7 @@ import { ErEmergencyCenter } from '@src/providers/interface/er/er.emergencyCente
 import { ErEmployee } from '@src/providers/interface/er/er.employee.interface';
 import { ErEquipment } from '@src/providers/interface/er/er.equipment.interface';
 import { ErIllness } from '@src/providers/interface/er/er.illness.interface';
+import { ErPatient } from '@src/providers/interface/er/er.patient.interface';
 import { DateToString } from '.';
 import { ErAuth } from '../auth/interface/er.auth.interface';
 export namespace ErAuthResponse {
@@ -39,6 +40,7 @@ export namespace ErEmployeeResponse {
 export namespace ErEmergencyCenterResponse {
   export type GetEmergencyCenterList = DateToString<ErEmergencyCenter.GetEmergencyCenterListQueryReturn>;
   export type GetEmergencyCenterDetail = ErEmergencyCenter.GetEmergencyCenterByIdReturn;
+  export type GetEmergencyRoom = ErEmergencyCenter.GetEmergencyRoomByIdReturn;
 }
 
 export namespace ErDepartmentResponse {
@@ -57,4 +59,8 @@ export namespace ErIllnessResponse {
   export type GetIllnesses = ErIllness.GetIllnessesReturn;
   export type GetServableIllnessesStatus = ErIllness.GetServableIllnessesStatusReturn;
   export type UpdateServableIllnessStatus = ErIllness.UpdateServableIllnessesStatusReturn;
+}
+
+export namespace ErPatientResponse {
+  export type CreatePatient = ErPatient.CreatePatientReturn;
 }

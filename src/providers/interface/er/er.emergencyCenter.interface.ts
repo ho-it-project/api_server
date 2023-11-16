@@ -1,8 +1,12 @@
 import {
+  Gender,
+  Status,
   er_Department,
   er_EmergencyCenter,
   er_EmergencyRoom,
   er_EmergencyRoomBed,
+  er_EmergencyRoomBedStatus,
+  er_EmergencyRoomType,
   er_Hospital,
   er_HospitalDepartment,
   er_HospitalMedicalEquipment,
@@ -10,6 +14,7 @@ import {
   er_MedicalEquipment,
   er_ServereIllness,
 } from '@prisma/client';
+import { ErAuth } from '@src/auth/interface';
 import { ErEmergencyCenterRequest } from '@src/types';
 
 export namespace ErEmergencyCenter {
@@ -68,4 +73,62 @@ export namespace ErEmergencyCenter {
       };
     })[];
   };
+
+  export interface AssignPatientToBed {
+    user: ErAuth.AccessTokenSignPayload;
+    patient_id: string;
+    emergency_room_id: string;
+    emergency_room_bed_num: number;
+  }
+
+  export interface ChangePatientToBed {
+    user: ErAuth.AccessTokenSignPayload;
+    emergency_room_id: string;
+    emergency_room_bed_num: number;
+    target_emergency_room_id: string;
+    target_emergency_room_bed_num: number;
+  }
+
+  export interface GetEmergencyRoomByIdReturn {
+    emergency_room_beds: {
+      emergency_room_bed_patient: {
+        patient: {
+          patient_name: string;
+          patient_id: string;
+          patient_birth: string;
+          patient_identity_number: string;
+          patient_gender: Gender;
+          patient_phone: string;
+          patient_address: string;
+          guardian_id: string | null;
+          doctor_id: string;
+          nurse_id: string;
+          created_at: Date;
+          updated_at: Date;
+          status: Status;
+        };
+        emergency_room_id: string;
+        emergency_room_bed_num: number;
+        emergency_room_bed_status: er_EmergencyRoomBedStatus;
+        log_date: Date;
+        patient_id: string;
+        created_at: Date;
+        updated_at: Date;
+        status: Status;
+      } | null;
+      emergency_room_id: string;
+      emergency_room_bed_num: number;
+      emergency_room_bed_status: er_EmergencyRoomBedStatus;
+      created_at: Date;
+      updated_at: Date;
+      status: Status;
+    }[];
+    emergency_room_id: string;
+    emergency_center_id: string;
+    emergency_room_type: er_EmergencyRoomType;
+    emergency_room_name: string;
+    created_at: Date;
+    updated_at: Date;
+    status: Status;
+  }
 }
