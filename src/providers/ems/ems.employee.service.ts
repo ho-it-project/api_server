@@ -1,6 +1,7 @@
 import { PrismaService } from '@common/prisma/prisma.service';
 import { EMS_EMPLOYEE_ERROR } from '@config/errors';
 import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Status } from '@prisma/client';
 import { AuthService } from '@src/auth/provider/common.auth.service';
 import typia from 'typia';
 import { EmsEmployee } from '../interface/ems/ems.employee.interface';
@@ -64,6 +65,7 @@ export class EmsEmployeeService {
       ambulance_company_id: user.ambulance_company_id,
       ...(role && { role: { in: role } }),
       ...(search && search_type && { [search_type]: { contains: search } }),
+      status: 'ACTIVE' as Status,
     };
     const arg = {
       where,
@@ -116,5 +118,34 @@ export class EmsEmployeeService {
       },
     });
     return updatedEmployee;
+  }
+
+  async delete({ employee_id, user }: EmsEmployee.DeleteEmployee) {
+    const deleted_at = new Date().getTime().toString();
+
+    const employee = await this.prismaService.ems_Employee.findFirst({
+      where: {
+        employee_id,
+        ambulance_company_id: user.ambulance_company_id,
+      },
+    });
+    if (!employee) {
+      return typia.random<EMS_EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND>();
+    }
+    if (employee.id_card === 'admin') {
+      return typia.random<EMS_EMPLOYEE_ERROR.EMPLOYEE_ADMIN_NOT_DELETE>();
+    }
+
+    await this.prismaService.ems_Employee.update({
+      where: {
+        employee_id,
+      },
+      data: {
+        id_card: deleted_at,
+        status: 'DELETED',
+      },
+    });
+
+    return 'SUCCESS';
   }
 }

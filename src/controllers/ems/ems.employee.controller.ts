@@ -2,7 +2,7 @@ import { CurrentUser } from '@common/decorators/CurrentUser';
 import { AdminGuard } from '@common/guard/admin.guard';
 import { createResponse } from '@common/interceptor/createResponse';
 import { AUTH_ERROR, EMS_EMPLOYEE_ERROR, isError, throwError } from '@config/errors';
-import { TypedBody, TypedException, TypedQuery, TypedRoute } from '@nestia/core';
+import { TypedBody, TypedException, TypedParam, TypedQuery, TypedRoute } from '@nestia/core';
 import { Controller, UseGuards } from '@nestjs/common';
 import { EmsJwtAccessAuthGuard } from '@src/auth/guard/ems.jwt.access.guard';
 import { EmsAuth } from '@src/auth/interface';
@@ -174,5 +174,44 @@ export class EmsEmployeeController {
     }
 
     return createResponse({ update_success: true });
+  }
+
+  /**
+   * 직원 삭제 API
+   *
+   * 직원을 삭제하는 API입니다.
+   * ADMIN 권한이 필요합니다.
+   *
+   * 필수값 : [employee_id]
+   * employee_id는 삭제할 직원의 id입니다. (id_card가 아닙니다.)
+   * ADMIN 권한이 있어야 삭제할 수 있습니다.
+   *
+   * 삭제된 직원은 복구할 수 없습니다.
+   * admin은 삭제할 수 없습니다. (초기관리자)
+   *
+   *
+   * @author de-novo
+   * @tag ems_employee
+   * @summary 2023-11-18 직원삭제 API
+   *
+   * @security access_token
+   * @returns 직원 삭제 성공 여부
+   */
+  @TypedRoute.Put('/:employee_id')
+  @UseGuards(EmsJwtAccessAuthGuard, AdminGuard)
+  @TypedException<AUTH_ERROR.FORBIDDEN>(403, 'AUTH_ERROR.FORBIDDEN')
+  @TypedException<EMS_EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND>(404, 'EMS_EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND')
+  @TypedException<EMS_EMPLOYEE_ERROR.EMPLOYEE_ADMIN_NOT_DELETE>(400, 'EMS_EMPLOYEE_ERROR.EMPLOYEE_ADMIN_NOT_DELETE')
+  async deletePatient(
+    @TypedParam('employee_id') employee_id: string,
+    @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
+  ): Promise<
+    TryCatch<'SUCCESS', EMS_EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND | EMS_EMPLOYEE_ERROR.EMPLOYEE_ADMIN_NOT_DELETE>
+  > {
+    const result = await this.emsEmployeeService.delete({ employee_id, user });
+    if (isError(result)) {
+      return throwError(result);
+    }
+    return createResponse(result);
   }
 }

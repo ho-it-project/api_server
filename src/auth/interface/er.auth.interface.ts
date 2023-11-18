@@ -4,6 +4,7 @@ export namespace ErAuth {
   export interface AccessTokenSignPayload {
     hospital_id: string;
     emergency_center_id: string;
+    employee_name: string;
     employee_id: string;
     id_card: string;
     role: er_EmployeeRole;
@@ -12,6 +13,7 @@ export namespace ErAuth {
   export interface RefreshTokenSignPayload {
     hospital_id: string;
     emergency_center_id: string;
+    employee_name: string;
     employee_id: string;
     id_card: string;
   }

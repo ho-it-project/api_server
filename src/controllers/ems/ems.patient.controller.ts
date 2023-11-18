@@ -88,10 +88,10 @@ export class EmsPatientController {
   @TypedException<AUTH_ERROR.FORBIDDEN>(403, 'AUTH_ERROR.FORBIDDEN')
   @UseGuards(EmsJwtAccessAuthGuard)
   async getPatientList(
-    @TypedQuery() query: EmsPatientRequest.GetPatientListQuery,
     @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
+    @TypedQuery() query?: EmsPatientRequest.GetPatientListQuery,
   ): Promise<Try<EmsPatientResponse.GetPatientList>> {
-    const result = await this.emsPatientService.getPatientList({ query, user });
+    const result = await this.emsPatientService.getPatientList({ query: query || {}, user });
     return createResponse(result);
   }
 

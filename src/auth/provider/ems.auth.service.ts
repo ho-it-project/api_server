@@ -33,7 +33,7 @@ export class EmsAuthService {
     if (!existEmployee) {
       return typia.random<AUTH_ERROR.EMPLOYEE_NOT_FOUND>();
     }
-    const { employee_id, role, ambulance_company_id } = existEmployee;
+    const { employee_id, role, ambulance_company_id, employee_name } = existEmployee;
     const comparePassword = await this.authService.comparePassword({
       password,
       hash: existEmployee.password,
@@ -49,6 +49,7 @@ export class EmsAuthService {
       access_token,
       refresh_token,
       employee: {
+        employee_name,
         ambulance_company_id,
         employee_id,
         id_card,

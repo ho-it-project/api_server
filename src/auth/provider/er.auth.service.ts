@@ -36,7 +36,7 @@ export class ErAuthService {
     if (!existEmployee) {
       return typia.random<AUTH_ERROR.EMPLOYEE_NOT_FOUND>();
     }
-    const { employee_id, role, hospital_id } = existEmployee;
+    const { employee_id, role, hospital_id, employee_name } = existEmployee;
     const comparePassword = await this.authService.comparePassword({
       password,
       hash: existEmployee.password,
@@ -52,6 +52,7 @@ export class ErAuthService {
       refresh_token,
       employee: {
         hospital_id,
+        employee_name,
         emergency_center_id,
         employee_id,
         id_card,

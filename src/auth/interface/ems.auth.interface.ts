@@ -3,6 +3,7 @@ import { ems_EmployeeRole } from '@prisma/client';
 export namespace EmsAuth {
   export interface AccessTokenSignPayload {
     ambulance_company_id: string;
+    employee_name: string;
     employee_id: string;
     id_card: string;
     role: ems_EmployeeRole;
@@ -10,6 +11,7 @@ export namespace EmsAuth {
 
   export interface RefreshTokenSignPayload {
     ambulance_company_id: string;
+    employee_name: string;
     employee_id: string;
     id_card: string;
   }
