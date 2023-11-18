@@ -89,7 +89,7 @@ export class EmsPatientController {
   @UseGuards(EmsJwtAccessAuthGuard)
   async getPatientList(
     @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
-    @TypedQuery() query?: EmsPatientRequest.GetPatientListQuery,
+    @TypedQuery() query: EmsPatientRequest.GetPatientListQuery,
   ): Promise<Try<EmsPatientResponse.GetPatientList>> {
     const result = await this.emsPatientService.getPatientList({ query: query || {}, user });
     return createResponse(result);
