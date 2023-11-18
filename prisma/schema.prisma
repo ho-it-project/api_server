@@ -823,7 +823,7 @@ enum ems_Severity {
   SEVERE /// 중증
   MILD /// 경증
   NONE /// 없음, 정상
-  UNKNOW /// 미상, 판단 불가한 경우
+  UNKNOWN /// 미상, 판단 불가한 경우
 
   @@schema("ems")
 }

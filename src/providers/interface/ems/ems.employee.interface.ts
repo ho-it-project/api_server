@@ -14,4 +14,8 @@ export namespace EmsEmployee {
     password: string;
     now_password: string;
   };
+  export type DeleteEmployee = {
+    user: EmsAuth.AccessTokenSignPayload;
+    employee_id: string;
+  };
 }
