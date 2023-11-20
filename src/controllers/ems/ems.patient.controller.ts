@@ -47,6 +47,7 @@ export class EmsPatientController {
     @TypedBody() createPatientDTO: EmsPatientRequest.CreatePatientDTO,
     @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
   ): Promise<TryCatch<EmsPatientResponse.CreatePatient, EMS_PATIENT_ERROR.INCHARGED_PATIENT_ALREADY_EXIST>> {
+    console.log(createPatientDTO);
     const result = await this.emsPatientService.createPatient({ patientInfo: createPatientDTO, user });
     if (isError(result)) return throwError(result);
     return createResponse(result);
@@ -91,7 +92,7 @@ export class EmsPatientController {
     @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
     @TypedQuery() query: EmsPatientRequest.GetPatientListQuery,
   ): Promise<Try<EmsPatientResponse.GetPatientList>> {
-    const result = await this.emsPatientService.getPatientList({ query: query || {}, user });
+    const result = await this.emsPatientService.getPatientList({ query: query, user });
     return createResponse(result);
   }
 

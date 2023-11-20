@@ -18,4 +18,8 @@ export namespace ReqEmsToErRequest {
     response: 'ACCEPTED' | 'REJECTED';
     reject_reason?: string;
   }
+
+  export interface CreateEmsToErRequestDto {
+    departments: string[];
+  }
 }

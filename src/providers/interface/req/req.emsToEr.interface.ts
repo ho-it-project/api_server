@@ -5,7 +5,8 @@ import { ReqEmsToErRequest } from '@src/types';
 export namespace ReqEmsToEr {
   export type CreateEmsToErRequestArg = {
     user: Pick<EmsAuth.AccessTokenSignPayload, 'ambulance_company_id' | 'employee_id'>;
-    n?: number;
+    department_list?: number[];
+    _type?: 'BATCH' | 'API';
   };
 
   export type CreateEmsToErRequestReturn = {
