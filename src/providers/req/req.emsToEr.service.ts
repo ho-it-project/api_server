@@ -284,7 +284,6 @@ export class ReqEmsToErService {
     const patient = await this.getOrCreateReqPatient({ user, department_list, _type });
     if (isError(patient)) return patient;
 
-    console.log({ patient });
     //TODO: MSA 서버 분리시 api 호출로 변경 (병원 진료과목 조회)
     const { patient_latitude, patient_longitude } = patient;
     const emergencyCenterList =
@@ -293,8 +292,6 @@ export class ReqEmsToErService {
         longitude: patient_longitude,
         distance: 100,
       });
-
-    console.log(emergencyCenterList, 'emergencyCenterList');
 
     const { patient_id, ems_to_er_request: prevRequest, request_department: targetDepartmentList } = patient;
     const filteredEmergencyCenterList = emergencyCenterList.filter((emergencyCenter) => {
@@ -317,7 +314,6 @@ export class ReqEmsToErService {
             ?.distance || 0,
       };
     });
-    console.log(_target_emergency_list, '_target_emergency_list');
     const createEmsToErRequest = this.prismaService.req_EmsToErRequest.createMany({
       data: _target_emergency_list.map((emergencyCenter) => ({
         patient_id,
