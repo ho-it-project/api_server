@@ -60,6 +60,15 @@ export class ErEmergencyCenterService {
             hospital_city: {
               contains: city,
             },
+            // hospital_departments: {
+            //   some: {
+            //     department: {
+            //       department_id: {
+            //         in: [],
+            //       },
+            //     },
+            //   },
+            // },
           },
         },
         emergency_center_type_where,
@@ -111,13 +120,24 @@ export class ErEmergencyCenterService {
     return { emergency_center_list, count: emergency_center_count };
   }
 
-  async getEmergencyCenterListAll() {
-    const cached_emergency_center_list = await this.cache.get<er_EmergencyCenter[]>('emergency_center_list');
+  async getEmergencyCenterListAllByTypes(types: er_EmergencyCenter['emergency_center_type'][] = []) {
+    const typeKey = types.join('_');
+    const cacheKey = `emergency_center_list_${typeKey}`;
+    const cached_emergency_center_list = await this.cache.get<er_EmergencyCenter[]>(cacheKey);
     const emergencyCenterList =
-      cached_emergency_center_list || (await this.prismaService.er_EmergencyCenter.findMany({}));
+      cached_emergency_center_list ||
+      (await this.prismaService.er_EmergencyCenter.findMany({
+        where: {
+          emergency_center_type: types.length
+            ? {
+                in: types,
+              }
+            : undefined,
+        },
+      }));
 
     if (!cached_emergency_center_list) {
-      await this.cache.set('emergency_center_list', emergencyCenterList, { ttl: 24 * 60 * 60 } as any); // 거의 변하지 않는 데이터 24시간
+      await this.cache.set(cacheKey, emergencyCenterList, { ttl: 24 * 60 * 60 } as any); // 거의 변하지 않는 데이터 24시간
     }
     return emergencyCenterList;
   }
@@ -126,22 +146,40 @@ export class ErEmergencyCenterService {
     latitude,
     longitude,
     ttl = 15 * 60,
+    types = [],
+    distance = 100,
   }: {
     latitude: number;
     longitude: number;
     ttl?: number;
+    types?: er_EmergencyCenter['emergency_center_type'][];
+    distance?: number;
   }) {
-    const key = `sorted_emergency_center_list_${latitude}_${longitude}`;
-    const cached = await this.cache.get<(er_EmergencyCenter & { distance: number })[]>(key);
+    const typesKey = types.join('_');
+    const key = `sorted_emergency_center_list_${latitude}_${longitude}_${typesKey}`;
+    const cached =
+      await this.cache.get<
+        (Pick<
+          er_EmergencyCenter,
+          'emergency_center_id' | 'emergency_center_latitude' | 'emergency_center_longitude'
+        > & { distance: number })[]
+      >(key);
+    console.log(cached);
     if (!cached) {
-      const emergencyCenterList = await this.getEmergencyCenterListAll();
+      const emergencyCenterList = await this.getEmergencyCenterListAllByTypes();
       const sorted_emergency_center_list = sortByDistanceFromCurrentLocation({
         latitude,
         longitude: longitude,
-        list: emergencyCenterList,
+        list: emergencyCenterList.map((emergency_center) => {
+          return {
+            emergency_center_id: emergency_center.emergency_center_id,
+            emergency_center_latitude: emergency_center.emergency_center_latitude,
+            emergency_center_longitude: emergency_center.emergency_center_longitude,
+          };
+        }),
         objLatitudeKey: 'emergency_center_latitude',
         objLongitudeKey: 'emergency_center_longitude',
-      });
+      }).filter((emergency_center) => emergency_center.distance <= distance * 1000);
       await this.cache.set(key, sorted_emergency_center_list, { ttl } as any);
       return sorted_emergency_center_list;
     }

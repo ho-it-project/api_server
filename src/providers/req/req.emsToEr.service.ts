@@ -1,14 +1,12 @@
 import { PrismaService } from '@common/prisma/prisma.service';
-import { filterByDistance } from '@common/util/filterByDistance';
-import { DEFAULT_REQUEST_DISTANCE } from '@config/constant';
-import { EMS_PATIENT_ERROR, isError } from '@config/errors';
+import { ER_DEPARTMENT_ERROR, isError } from '@config/errors';
 import { REQ_EMS_TO_ER_ERROR } from '@config/errors/req.error';
 import { Injectable, Logger } from '@nestjs/common';
 import { Prisma, RequestStatus, ems_PatientStatus } from '@prisma/client';
+import { EmsAuth } from '@src/auth/interface';
 import { ErEmergencyCenterService } from '@src/providers/er/er.emergencyCenter.service';
 import { ReqEmsToEr } from '@src/providers/interface/req/req.emsToEr.interface';
 import typia from 'typia';
-import { assertPrune } from 'typia/lib/misc';
 import { EmsPatientService } from '../ems/ems.patient.service';
 
 @Injectable()
@@ -20,143 +18,6 @@ export class ReqEmsToErService {
     private readonly erEmergencyCenterService: ErEmergencyCenterService,
     private readonly prismaService: PrismaService,
   ) {}
-
-  // TODO: 증상 요약 및 병원 상태에 따른 정리 필요
-  /**
-   * TODO: 병원 요청 횟수 및 거리 고민 필요 (현재는 5분당 10KM씩 늘려가며 요청)
-   *
-   * 현재 생기고 있는 문제점
-   * 처음 요청시 10km이내에 응급실이 없는경우, 요청이 되고 있지 않음.
-   * 이를 개선할 수 있는 방법으로는 요청횟수(N)별 거리를 늘리는 것이 아닌 병원개수를 늘리는 방법이 있음
-   * 하지만, 이경우 한번에 요청되는 병원의 수가 정해져 있어 환자와 병원의 매칭이 느려질 수 있음
-   *
-   */
-  async createEmsToErRequest({
-    user,
-    n = 1,
-  }: ReqEmsToEr.CreateEmsToErRequestArg): Promise<
-    | ReqEmsToEr.CreateEmsToErRequestReturn
-    | REQ_EMS_TO_ER_ERROR.PENDING_PATIENT_NOT_FOUND
-    | EMS_PATIENT_ERROR.PATIENT_NOT_FOUND
-  > {
-    const { employee_id } = user;
-    //TODO: MSA 서버 분리시 api 호출로 변경
-    const patient = await this.emsPatinetService.getPatientDetailwithEmsEmployee({
-      ems_employee_id: employee_id,
-      patient_status: n === 1 ? ems_PatientStatus.PENDING : ems_PatientStatus.REQUESTED,
-    });
-    if (isError(patient)) return patient;
-
-    const { patient_id, patient_latitude, patient_longitude, patient_severity, employee } = patient;
-    const { ambulance_company } = employee;
-
-    const emergencyCenterList =
-      await this.erEmergencyCenterService.getSortedEmergencyCenterListByDistanceFromCurrentLocation({
-        latitude: patient_latitude,
-        longitude: patient_longitude,
-      });
-    const targetEmergencyCenterList = filterByDistance(emergencyCenterList, n, DEFAULT_REQUEST_DISTANCE);
-
-    const createManyRequestInput = targetEmergencyCenterList.map((emergencyCenter) => {
-      const {
-        emergency_center_id,
-        emergency_center_name,
-        emergency_center_latitude,
-        emergency_center_longitude,
-        distance,
-      } = emergencyCenter;
-      return {
-        patient_id,
-        emergency_center_id,
-        emergency_center_name,
-        emergency_center_latitude,
-        emergency_center_longitude,
-        distance,
-      };
-    });
-
-    console.log(createManyRequestInput);
-    // TODO: 증상 요약 적용 필요
-    const createReqPatientInput = {
-      patient_id,
-      patient_name: patient.patient_name,
-      patient_birth: patient.patient_birth,
-      patient_gender: patient.patient_gender,
-      patient_symptom_summary: '',
-      patient_severity: patient_severity,
-      patient_latitude: patient.patient_latitude,
-      patient_longitude: patient.patient_longitude,
-      ambulance_company_id: ambulance_company.ambulance_company_id,
-      ambulance_company_name: ambulance_company.ambulance_company_name,
-      ems_employee_id: employee_id,
-      ems_employee_name: patient.employee.employee_name,
-    };
-
-    if (n === 1) {
-      //첫번째 요청의 경우 req_patient 생성
-      const createReqPatient = this.prismaService.req_Patient.create({
-        data: {
-          ...createReqPatientInput,
-          ems_to_er_request: {
-            createMany: {
-              data: assertPrune<Prisma.req_EmsToErRequestCreateManyPatientInput[]>(createManyRequestInput),
-            },
-          },
-        },
-        include: {
-          ems_to_er_request: true,
-        },
-      });
-      const updateEmsPatient = this.prismaService.ems_Patient.update({
-        where: {
-          patient_id: patient.patient_id,
-        },
-        data: {
-          patient_status: ems_PatientStatus.REQUESTED,
-        },
-      });
-      const [patientInfo] = await this.prismaService.$transaction([createReqPatient, updateEmsPatient]);
-      if (!patientInfo) {
-        return typia.random<EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>();
-      }
-      const { ems_to_er_request, ...patient_info } = patientInfo;
-      const target_emergency_center_list = filterByDistance(ems_to_er_request, n, DEFAULT_REQUEST_DISTANCE);
-
-      return { target_emergency_center_list, patient: patient_info };
-    }
-
-    const findReqPatient = this.prismaService.req_Patient.findFirst({
-      where: {
-        patient_id,
-      },
-      include: {
-        ems_to_er_request: true,
-      },
-    });
-
-    const createReuest = this.prismaService.req_EmsToErRequest.createMany({
-      data: createManyRequestInput,
-    });
-
-    const updateEmsPatient = this.prismaService.ems_Patient.update({
-      where: {
-        patient_id: patient.patient_id,
-      },
-      data: {
-        patient_status: ems_PatientStatus.REQUESTED,
-      },
-    });
-
-    const transactionResult = await this.prismaService.$transaction([createReuest, findReqPatient, updateEmsPatient]);
-    const [, patientInfo] = transactionResult;
-    if (!patientInfo) {
-      return typia.random<EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>();
-    }
-
-    const { ems_to_er_request, ...patient_info } = patientInfo;
-    const target_emergency_center_list = filterByDistance(ems_to_er_request, n, DEFAULT_REQUEST_DISTANCE);
-    return { target_emergency_center_list, patient: patient_info };
-  }
 
   async getEmsToErRequestList({
     user,
@@ -376,21 +237,21 @@ export class ReqEmsToErService {
     const filteredLastredRequestAfter5Min: ReqEmsToEr.CreateEmsToErRequestArg[] = requested_patient
       .map((patient) => {
         const { ems_to_er_request, ems_employee_id, ambulance_company_id } = patient;
+        const arg = {
+          user: {
+            employee_id: ems_employee_id,
+            ambulance_company_id,
+          },
+          _type: 'BATCH',
+        };
+        if (!ems_to_er_request.length) return arg;
         const sorted_emergency_center_list_by_distance = ems_to_er_request.sort((a, b) => b.distance - a.distance);
         const last_request = sorted_emergency_center_list_by_distance[0];
-        const { request_date, distance } = last_request;
+        const { request_date } = last_request;
         const diff = now.getTime() - new Date(request_date).getTime();
         const diffMin = Math.floor(diff / 60000);
-        const request_n = Math.floor(distance / DEFAULT_REQUEST_DISTANCE) + 1;
         if (diffMin > 5) {
-          return {
-            user: {
-              employee_id: ems_employee_id,
-              ambulance_company_id,
-            },
-            n: request_n + 1,
-            type: 'batch',
-          };
+          return arg;
         }
         return undefined;
       })
@@ -401,5 +262,249 @@ export class ReqEmsToErService {
       }),
     );
     return newRequest;
+  }
+
+  /**
+   * # 요청관련 로직 개선
+   *
+   * ## 최대 100km 까지 요청을 보낼 수 있도록 변경
+   * 이유: 100km거리는 최소 한시간~한시간 반 정도의 시간이 소요되는 거리이기 때문에
+   * 응급상황에서 이보다 더 먼 거리는 의미없다고 판단
+   * 이로써 불필요한 요청을 줄일 수 있음, (리소스 절약)
+   *
+   * ## 10km단위가 아닌 개수 기반으로 변경
+   * 의료 낙후 지역의 경우 10km이내에 응급실이 없을 수 있음
+   * 이를 해결하기 위해 10km단위가 아닌 개수 기반으로 변경
+   *
+   *
+   *
+   */
+  async createEmsToErRequest({ user, department_list = [], _type = 'API' }: ReqEmsToEr.CreateEmsToErRequestArg) {
+    //TODO: MSA 서버 분리시 api 호출로 변경
+    const patient = await this.getOrCreateReqPatient({ user, department_list, _type });
+    if (isError(patient)) return patient;
+
+    //TODO: MSA 서버 분리시 api 호출로 변경 (병원 진료과목 조회)
+    const { patient_latitude, patient_longitude } = patient;
+    const emergencyCenterList =
+      await this.erEmergencyCenterService.getSortedEmergencyCenterListByDistanceFromCurrentLocation({
+        latitude: patient_latitude,
+        longitude: patient_longitude,
+        distance: 100,
+      });
+
+    const { patient_id, ems_to_er_request: prevRequest, request_department: targetDepartmentList } = patient;
+    const filteredEmergencyCenterList = emergencyCenterList.filter((emergencyCenter) => {
+      const exist = prevRequest.find((request) => request.emergency_center_id === emergencyCenter.emergency_center_id);
+      return !exist;
+    });
+
+    const _target_emergency_list = (
+      await this.getEmergencyCenterByTakeNumberAndActiveDepartments({
+        emergency_center: filteredEmergencyCenterList,
+        take: 10,
+        department_list: targetDepartmentList.map((department) => department.department_id),
+      })
+    ).map((emergencyCenter) => {
+      return {
+        ...emergencyCenter,
+        patient_id,
+        distance:
+          filteredEmergencyCenterList.find((e) => e.emergency_center_id === emergencyCenter.emergency_center_id)
+            ?.distance || 0,
+      };
+    });
+    const createEmsToErRequest = this.prismaService.req_EmsToErRequest.createMany({
+      data: _target_emergency_list.map((emergencyCenter) => ({
+        patient_id,
+        emergency_center_id: emergencyCenter.emergency_center_id,
+        emergency_center_name: emergencyCenter.emergency_center_name,
+        emergency_center_latitude: emergencyCenter.emergency_center_latitude,
+        emergency_center_longitude: emergencyCenter.emergency_center_longitude,
+        distance: emergencyCenter.distance,
+      })),
+    });
+    const getNewRmsToErRequest = this.prismaService.req_EmsToErRequest.findMany({
+      where: {
+        patient_id,
+        emergency_center_id: {
+          in: _target_emergency_list.map((emergencyCenter) => emergencyCenter.emergency_center_id),
+        },
+      },
+    });
+    const [, target_emergency_center_list] = await this.prismaService.$transaction([
+      createEmsToErRequest,
+      getNewRmsToErRequest,
+    ]);
+    return { target_emergency_center_list, patient };
+  }
+
+  async getOrCreateReqPatient({
+    user,
+    department_list = [],
+    _type,
+  }: {
+    user: Pick<EmsAuth.AccessTokenSignPayload, 'employee_id' | 'ambulance_company_id'>;
+    department_list?: number[];
+    _type?: 'BATCH' | 'API';
+  }) {
+    const emsPatient = await this.emsPatinetService.getPatientDetailwithEmsEmployee({
+      ems_employee_id: user.employee_id,
+      patient_status: {
+        in: [ems_PatientStatus.PENDING, ems_PatientStatus.REQUESTED, ems_PatientStatus.ACCEPTED],
+      },
+    });
+    if (isError(emsPatient)) return emsPatient;
+
+    const exist = await this.prismaService.req_Patient.findUnique({
+      where: {
+        ems_employee_id: user.employee_id,
+        patient_id: emsPatient.patient_id,
+      },
+      include: {
+        ems_to_er_request: true,
+        request_department: true,
+      },
+    });
+
+    if (_type === 'API' && exist) {
+      return typia.random<REQ_EMS_TO_ER_ERROR.REQUEST_ALREADY_PROCESSED>();
+    }
+    if (exist) {
+      return exist;
+    }
+
+    // TODO: MSA 서버 분리시 api 호출로 변경 (병원 진료과목 조회)
+
+    const existDepartment = await this.prismaService.er_Department.findMany({
+      where: {
+        department_id: department_list.length
+          ? {
+              in: department_list,
+            }
+          : undefined,
+      },
+    });
+    if (existDepartment.length !== department_list.length) {
+      return typia.random<ER_DEPARTMENT_ERROR.DEPARTMENT_NOT_EXIST>();
+    }
+
+    const {
+      patient_gender,
+      patient_id: ems_patinet_id,
+      patient_latitude,
+      patient_longitude,
+      patient_severity,
+      patient_birth,
+      patient_name,
+      patient_emergency_cause,
+    } = emsPatient;
+
+    const updatedEmsPatinet = this.prismaService.ems_Patient.update({
+      where: {
+        patient_id: ems_patinet_id,
+      },
+      data: {
+        patient_status: ems_PatientStatus.REQUESTED,
+      },
+    });
+
+    const createdPatient = this.prismaService.req_Patient.create({
+      data: {
+        patient_id: ems_patinet_id,
+        patient_name,
+        patient_birth,
+        patient_gender,
+        patient_severity,
+        patient_symptom_summary: patient_emergency_cause,
+        patient_latitude,
+        patient_longitude,
+        ambulance_company_id: user.ambulance_company_id,
+        ambulance_company_name: emsPatient.employee.ambulance_company.ambulance_company_name,
+        ems_employee_id: user.employee_id,
+        ems_employee_name: emsPatient.employee.employee_name,
+        request_department: {
+          createMany: {
+            data: department_list.map((department_id) => ({
+              department_id,
+            })),
+          },
+        },
+      },
+      include: {
+        ems_to_er_request: true,
+        request_department: true,
+      },
+    });
+    const [result] = await this.prismaService.$transaction([createdPatient, updatedEmsPatinet]);
+
+    return result;
+  }
+
+  async getEmergencyCenterByTakeNumberAndActiveDepartments({
+    take,
+    department_list,
+    emergency_center,
+  }: {
+    emergency_center: ({
+      emergency_center_id: string;
+      emergency_center_latitude: number;
+      emergency_center_longitude: number;
+    } & {
+      distance: number;
+    })[];
+    take: number;
+    department_list: number[];
+  }) {
+    const emergencyCenterList = await this.prismaService.er_EmergencyCenter.findMany({
+      where: {
+        // hospital: {
+        //   hospital_departments: {
+        //     some: {
+        //       department_id: department_list.length
+        //         ? {
+        //             in: department_list,
+        //           }
+        //         : undefined,
+        //     },
+        //   },
+        // },
+        hospital: department_list.length
+          ? {
+              hospital_departments: {
+                some: {
+                  department_id: {
+                    in: department_list,
+                  },
+                },
+              },
+            }
+          : undefined,
+        emergency_center_id: {
+          in: emergency_center.map((emergencyCenter) => emergencyCenter.emergency_center_id),
+        },
+        emergency_rooms: {
+          some: {
+            emergency_room_beds: {
+              some: {
+                emergency_room_bed_status: 'AVAILABLE',
+              },
+            },
+          },
+        },
+      },
+    });
+    const result = emergencyCenterList
+      .map((emergencyCenter) => {
+        return {
+          ...emergencyCenter,
+          distance:
+            emergency_center.find((e) => e.emergency_center_id === emergencyCenter.emergency_center_id)?.distance || 0,
+        };
+      })
+      .sort((a, b) => a.distance - b.distance)
+      .slice(0, take);
+
+    return result;
   }
 }

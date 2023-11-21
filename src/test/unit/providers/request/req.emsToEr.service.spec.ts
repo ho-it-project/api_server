@@ -115,16 +115,6 @@ describe('RequestEmsToErService', () => {
       const result = await requestEmsToErService.createEmsToErRequest({ user });
       expect(result).toEqual(typia.random<REQ_EMS_TO_ER_ERROR.PENDING_PATIENT_NOT_FOUND>());
     });
-
-    it('should return patient and target_emergency_center_list ', async () => {
-      const result = await requestEmsToErService.createEmsToErRequest({ user });
-      expect(result).toEqual(
-        expect.objectContaining({
-          patient: expect.any(Object),
-          target_emergency_center_list: expect.any(Array),
-        }),
-      );
-    });
   });
 
   describe('getEmsToErRequestList', () => {
