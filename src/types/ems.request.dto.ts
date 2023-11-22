@@ -1,4 +1,5 @@
 import {
+  Enum_Bool,
   Gender,
   ems_AffectedArea,
   ems_AirwayStatus,
@@ -304,6 +305,12 @@ export namespace EmsPatientRequest {
      * @description 보호자 정보
      */
     patient_guardian?: PatientGuardianDTO;
+
+    rapid_evaluation?: {
+      trauma: Enum_Bool;
+      clear: Enum_Bool;
+      conscious: Enum_Bool;
+    };
   }
 
   export interface PatientGuardianDTO {

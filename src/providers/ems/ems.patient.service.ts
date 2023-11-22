@@ -19,7 +19,7 @@ export class EmsPatientService {
     createPatientDTO: EmsPatient.CreatePatientDTO,
   ): Promise<Pick<ems_Patient, 'patient_id'> | EMS_PATIENT_ERROR.INCHARGED_PATIENT_ALREADY_EXIST> {
     const { patientInfo, user } = createPatientDTO;
-    const { patient_identity_number, patient_guardian, ...patient } = patientInfo;
+    const { patient_identity_number, patient_guardian, rapid_evaluation, ...patient } = patientInfo;
     const salt = v4();
 
     // 주민등록번호 뒷자리 암호화
@@ -58,6 +58,11 @@ export class EmsPatientService {
             create: { ...patient_guardian },
           },
         }),
+        ...(rapid_evaluation && {
+          rapid: {
+            create: { ...rapid_evaluation },
+          },
+        }),
       },
     });
     const { patient_id } = newPatient;
@@ -77,6 +82,7 @@ export class EmsPatientService {
         sample: true,
         opqrst: true,
         patient_salt: true,
+        rapid: true,
       },
     });
     if (!patient) return typia.random<EMS_PATIENT_ERROR.PATIENT_NOT_FOUND>();
@@ -311,6 +317,4 @@ export class EmsPatientService {
     }
     return patient;
   }
-
-  
 }

@@ -78,6 +78,9 @@ export class ReqEmsToErService {
       include: {
         patient: true,
       },
+      orderBy: {
+        distance: 'asc',
+      },
     });
     const getCount = this.prismaService.req_EmsToErRequest.count({
       where,
@@ -378,11 +381,9 @@ export class ReqEmsToErService {
 
     const existDepartment = await this.prismaService.er_Department.findMany({
       where: {
-        department_id: department_list.length
-          ? {
-              in: department_list,
-            }
-          : undefined,
+        department_id: {
+          in: department_list,
+        },
       },
     });
     if (existDepartment.length !== department_list.length) {

@@ -321,7 +321,6 @@ export class ErDepartmentService {
     const update = uniqueDepartmentIds.map((departmentId) => {
       const infosWithSameDepartmentId = updateInfoArray.filter((info) => info.department_id === departmentId);
       const lastInfo = infosWithSameDepartmentId[infosWithSameDepartmentId.length - 1]; // 마지막 요소 선택
-      console.log(infosWithSameDepartmentId);
       return this.prismaService.er_HospitalDepartment.update({
         where: { hospital_id_department_id: { hospital_id: user.hospital_id, department_id: departmentId } },
         data: { status: lastInfo.status },

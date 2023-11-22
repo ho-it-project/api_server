@@ -164,7 +164,6 @@ export class ErEmergencyCenterService {
           'emergency_center_id' | 'emergency_center_latitude' | 'emergency_center_longitude'
         > & { distance: number })[]
       >(key);
-    console.log(cached);
     if (!cached) {
       const emergencyCenterList = await this.getEmergencyCenterListAllByTypes();
       const sorted_emergency_center_list = sortByDistanceFromCurrentLocation({

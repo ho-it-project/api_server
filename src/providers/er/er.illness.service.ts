@@ -43,7 +43,6 @@ export class ErIllnessService {
         },
       },
     });
-    console.log(result);
     const formatted_result = result.map((v) => ({
       servable_illness_id: v.servere_illness_id,
       servable_illness_name: v.servere_illness_name,

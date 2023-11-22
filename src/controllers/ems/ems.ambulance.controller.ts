@@ -31,7 +31,6 @@ export class EmsAmbulanceController {
   async getAmbulanceCompanyList(
     @TypedParam('ambulance_id') ambulanceId: string,
   ): Promise<TryCatch<EmsAmbulanceResponse.GetAmbulanceDetail, EMS_AMBULANCE_ERROR.AMBULANCE_NOT_FOUND>> {
-    console.log(ambulanceId);
     const result = await this.emsAmbulanceService.getAmbulanceDetail(ambulanceId);
     if (isError(result)) {
       return throwError(result);
