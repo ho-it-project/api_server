@@ -357,7 +357,6 @@ export class ReqEmsToErService {
         in: [ems_PatientStatus.PENDING, ems_PatientStatus.REQUESTED, ems_PatientStatus.ACCEPTED],
       },
     });
-    console.log(emsPatient);
     if (isError(emsPatient)) return emsPatient;
 
     const exist = await this.prismaService.req_Patient.findUnique({
