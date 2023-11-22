@@ -78,6 +78,9 @@ export class ReqEmsToErService {
       include: {
         patient: true,
       },
+      orderBy: {
+        distance: 'asc',
+      },
     });
     const getCount = this.prismaService.req_EmsToErRequest.count({
       where,
