@@ -357,6 +357,7 @@ export class ReqEmsToErService {
         in: [ems_PatientStatus.PENDING, ems_PatientStatus.REQUESTED, ems_PatientStatus.ACCEPTED],
       },
     });
+    console.log(emsPatient);
     if (isError(emsPatient)) return emsPatient;
 
     const exist = await this.prismaService.req_Patient.findUnique({
@@ -381,11 +382,9 @@ export class ReqEmsToErService {
 
     const existDepartment = await this.prismaService.er_Department.findMany({
       where: {
-        department_id: department_list.length
-          ? {
-              in: department_list,
-            }
-          : undefined,
+        department_id: {
+          in: department_list,
+        },
       },
     });
     if (existDepartment.length !== department_list.length) {
