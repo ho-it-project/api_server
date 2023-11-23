@@ -76,16 +76,10 @@ describe('authController', () => {
           secure: expect.any(Boolean),
         }),
       );
-      expect(res.cookie).toHaveBeenCalledWith(
-        'access_token',
-        expect.any(String),
-        expect.objectContaining({
-          sameSite: 'lax',
-          httpOnly: true,
-          secure: expect.any(Boolean),
-        }),
+
+      expect(result).toEqual(
+        createResponse({ is_login: true, employee: user, access_token: result.result.access_token }),
       );
-      expect(result).toEqual(createResponse({ is_login: true, employee: user }));
       // expect(result).toEqual({ is_login: true, employee: user });
     });
 
@@ -98,8 +92,7 @@ describe('authController', () => {
       res.clearCookie = jest.fn().mockReturnValue(res);
       const result = await authController.checkAuthStatus(user, res);
       expect(res.clearCookie).toHaveBeenCalledWith('refresh_token');
-      expect(res.clearCookie).toHaveBeenCalledWith('access_token');
-      expect(result).toEqual(createResponse({ is_login: false, employee: null }));
+      expect(result).toEqual(createResponse({ is_login: false, employee: null, access_token: null }));
     });
   });
 
@@ -138,15 +131,7 @@ describe('authController', () => {
           secure: expect.any(Boolean),
         }),
       );
-      expect(res.cookie).toHaveBeenCalledWith(
-        'access_token',
-        expect.any(String),
-        expect.objectContaining({
-          sameSite: 'lax',
-          httpOnly: true,
-          secure: expect.any(Boolean),
-        }),
-      );
+
       if (isError(result)) {
         throw Error('test fail');
       }
@@ -189,7 +174,6 @@ describe('authController', () => {
       res.clearCookie = jest.fn().mockReturnValue(res);
       const result = await authController.logout(res);
       expect(res.clearCookie).toHaveBeenCalledWith('refresh_token');
-      expect(res.clearCookie).toHaveBeenCalledWith('access_token');
       expect(result).toEqual(createResponse({ is_login: false }));
     });
   });
