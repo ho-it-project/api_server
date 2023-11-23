@@ -16,6 +16,12 @@ export namespace EmsAuthResponse {
      * @title 로그인한 직원 정보
      */
     employee: EmsAuth.AccessTokenSignPayload;
+    /**
+     * access_token
+     * @type string
+     * @title access_token
+     */
+    access_token: string;
   }
   export interface Logout {
     is_login: false;
@@ -24,6 +30,7 @@ export namespace EmsAuthResponse {
   export interface CheckAuthStatus {
     is_login: boolean;
     employee: EmsAuth.AccessTokenSignPayload | null;
+    access_token: string | null;
   }
 }
 

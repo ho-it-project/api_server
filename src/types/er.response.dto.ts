@@ -11,11 +11,13 @@ export namespace ErAuthResponse {
   export interface Login {
     is_login: boolean;
     employee: ErAuth.AccessTokenSignPayload;
+    access_token: string;
   }
 
   export interface CheckAuthStatus {
     is_login: boolean;
     employee: ErAuth.AccessTokenSignPayload | null;
+    access_token: string | null;
   }
 
   export interface Logout {
