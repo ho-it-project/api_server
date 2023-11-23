@@ -51,24 +51,26 @@ export class EmsAuthController {
         maxAge: 1000 * 60 * 60 * 24 * 7,
         // domain: `.${process.env.DOMAIN}` || undefined,
       });
-      response.cookie('access_token', access_token, {
-        sameSite: 'lax',
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production' ? true : false, //htt
-        maxAge: 1000 * 60 * 60 * 24,
-        // domain: `.${process.env.DOMAIN}` || undefined,
-      });
+      // response.cookie('access_token', access_token, {
+      //   sameSite: 'lax',
+      //   httpOnly: true,
+      //   secure: process.env.NODE_ENV === 'production' ? true : false, //htt
+      //   maxAge: 1000 * 60 * 60 * 24,
+      //   // domain: `.${process.env.DOMAIN}` || undefined,
+      // });
       const employee = assertPrune<EmsAuth.AccessTokenSignPayload>(user);
       return createResponse({
         is_login: true,
         employee,
+        access_token,
       });
     } else {
       response.clearCookie('refresh_token');
-      response.clearCookie('access_token');
+      // response.clearCookie('access_token');
       return createResponse({
         is_login: false,
         employee: null,
+        access_token: null,
       });
     }
   }
@@ -112,16 +114,17 @@ export class EmsAuthController {
       maxAge: 1000 * 60 * 60 * 24 * 7,
       // domain: `.${process.env.DOMAIN}` || undefined,
     });
-    response.cookie('access_token', access_token, {
-      sameSite: 'lax',
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production' ? true : false, //htt
-      maxAge: 1000 * 60 * 60 * 24,
-      // domain: `.${process.env.DOMAIN}` || undefined,
-    });
+    // response.cookie('access_token', access_token, {
+    //   sameSite: 'lax',
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === 'production' ? true : false, //htt
+    //   maxAge: 1000 * 60 * 60 * 24,
+    //   // domain: `.${process.env.DOMAIN}` || undefined,
+    // });
     return createResponse({
       is_login: true,
       employee,
+      access_token,
     });
   }
   /**
@@ -139,7 +142,7 @@ export class EmsAuthController {
   @TypedRoute.Post('/logout')
   async logout(@Res({ passthrough: true }) response: Response): Promise<Try<EmsAuthResponse.Logout>> {
     response.clearCookie('refresh_token');
-    response.clearCookie('access_token');
+    // response.clearCookie('access_token');
     return createResponse({
       is_login: false,
     });

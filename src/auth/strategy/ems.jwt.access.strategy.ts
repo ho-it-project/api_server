@@ -8,7 +8,6 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import typia from 'typia';
 import { EmsAuth } from '../interface';
-import { accessTokenExtractorFromCookeis } from '../util/jwtExtractorFromCookeis';
 
 @Injectable()
 export class EmsJwtAccessStrategy extends PassportStrategy(Strategy, EMS_JWT_AUTH_ACCESS_GUARD) {
@@ -18,7 +17,7 @@ export class EmsJwtAccessStrategy extends PassportStrategy(Strategy, EMS_JWT_AUT
     private readonly prismaService: PrismaService,
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromExtractors([accessTokenExtractorFromCookeis]),
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: configService.get('JWT_ACCESS_SECRET'),
     });
   }
