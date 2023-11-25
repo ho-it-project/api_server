@@ -65,6 +65,8 @@ export namespace ErIllnessResponse {
 }
 
 export namespace ErPatientResponse {
+  export type GetPatientList = ErPatient.GetPatientListReturn;
+  export type GetPatientDetail = ErPatient.GetPatientDetailReturn;
   export type CreatePatient = ErPatient.CreatePatientReturn;
 }
 

@@ -222,16 +222,16 @@ export class ErEmergencyCenterService {
       include: {
         emergency_room_beds: {
           include: {
-            emergency_room_bed_logs: {
-              take: 1,
-              orderBy: {
-                created_at: 'desc',
-              },
+            patient: {
               include: {
-                patient: true,
-              },
-              where: {
-                status: 'ACTIVE',
+                patient_logs: {
+                  where: {
+                    log_type: {
+                      in: ['CONSULTATION', 'EMS_LOG'],
+                    },
+                  },
+                  take: 1,
+                },
               },
             },
           },
@@ -241,24 +241,19 @@ export class ErEmergencyCenterService {
     if (!emergencyRoom) return typia.random<ER_EMERGENCY_CENTER_ERROR.EMERGENCY_ROOM_NOT_FOUND>();
     const { emergency_room_beds, ...emergencyRoom_info } = emergencyRoom;
     const emergency_room_beds_format = emergency_room_beds.map((bed) => {
-      const { emergency_room_bed_logs, ...bed_info } = bed;
-      const emergency_room_bed_patient = emergency_room_bed_logs
-        .filter((log) => log.emergency_room_bed_status === 'OCCUPIED')
-        .map((log) => {
-          return {
-            ...log,
-            patient: {
-              ...log.patient,
-              patient_name:
-                user && user._type === 'ER' && user.emergency_center_id === emergencyRoom.emergency_center_id
-                  ? log.patient.patient_name
-                  : log.patient.patient_name[0] + '**',
-            },
-          };
-        });
+      const { patient, ...bed_info } = bed;
+
       return {
         ...bed_info,
-        emergency_room_bed_patient: emergency_room_bed_patient.length > 0 ? emergency_room_bed_patient[0] : null,
+        patient: patient
+          ? {
+              ...patient,
+              patient_name:
+                user && user._type === 'ER' && user.emergency_center_id === emergencyRoom.emergency_center_id
+                  ? patient.patient_name
+                  : patient.patient_name[0] + '**',
+            }
+          : null,
       };
     });
     const result = { ...emergencyRoom_info, emergency_room_beds: emergency_room_beds_format };
@@ -345,6 +340,7 @@ export class ErEmergencyCenterService {
       },
       data: {
         emergency_room_bed_status: 'OCCUPIED',
+        patient_id,
       },
     });
     const log = this.prismaService.er_EmergencyRoomBedLog.create({
@@ -355,7 +351,19 @@ export class ErEmergencyCenterService {
         patient_id,
       },
     });
-    await this.prismaService.$transaction([assign, log]);
+    const updatePatientStatus = this.prismaService.er_PatientHospital.update({
+      where: {
+        patient_id_hospital_id: {
+          patient_id,
+          hospital_id,
+        },
+      },
+      data: {
+        patient_status: 'ADMISSION',
+      },
+    });
+
+    await this.prismaService.$transaction([assign, log, updatePatientStatus]);
     return 'SUCCESS';
   }
 
@@ -375,6 +383,9 @@ export class ErEmergencyCenterService {
         emergency_room_beds: {
           where: {
             emergency_room_bed_num,
+            patient_id: {
+              not: null,
+            },
           },
           include: {
             emergency_room_bed_logs: {
@@ -404,6 +415,7 @@ export class ErEmergencyCenterService {
         emergency_room_beds: {
           where: {
             emergency_room_bed_num: target_emergency_room_bed_num,
+            patient_id: null,
           },
         },
       },
@@ -437,6 +449,7 @@ export class ErEmergencyCenterService {
       },
       data: {
         emergency_room_bed_status: 'AVAILABLE',
+        patient_id: null,
       },
     });
     const assign = this.prismaService.er_EmergencyRoomBed.update({
@@ -448,6 +461,7 @@ export class ErEmergencyCenterService {
       },
       data: {
         emergency_room_bed_status: 'OCCUPIED',
+        patient_id: emergency_room.emergency_room_beds[0].patient_id,
       },
     });
     const log = this.prismaService.er_EmergencyRoomBedLog.create({

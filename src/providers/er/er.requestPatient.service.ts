@@ -61,7 +61,7 @@ export class ErRequestPatientService {
     doctor_id,
     nurse_id,
   }: ErRequestPatient.AssignRequestPatientArg) {
-    const { emergency_center_id } = user;
+    const { emergency_center_id, hospital_id } = user;
     const reqPatient = await this.prismaService.req_Patient.findUnique({
       where: {
         patient_id,
@@ -120,6 +120,12 @@ export class ErRequestPatientService {
             data: logs,
           },
         },
+        patient_hospitals: {
+          create: {
+            hospital_id,
+            patient_status: 'ADMISSION',
+          },
+        },
       },
     });
     const createBadLog = this.prismaService.er_EmergencyRoomBedLog.create({
@@ -138,6 +144,7 @@ export class ErRequestPatientService {
         },
       },
       data: {
+        patient_id,
         emergency_room_bed_status: 'OCCUPIED',
       },
     });

@@ -1,16 +1,69 @@
 import { CurrentUser } from '@common/decorators/CurrentUser';
 import { createResponse } from '@common/interceptor/createResponse';
 import { ER_PATIENT_ERROR, isError, throwError } from '@config/errors';
-import { TypedBody, TypedException, TypedParam } from '@nestia/core';
-import { Controller, HttpStatus, Post, UseGuards } from '@nestjs/common';
+import { TypedBody, TypedException, TypedParam, TypedQuery } from '@nestia/core';
+import { Controller, Get, HttpStatus, Post, UseGuards } from '@nestjs/common';
 import { ErJwtAccessAuthGuard } from '@src/auth/guard/er.jwt.access.guard';
 import { ErAuth } from '@src/auth/interface';
 import { ErPatientService } from '@src/providers/er/er.patient.service';
-import { ErPatientRequest, ErPatientResponse, TryCatch } from '@src/types';
+import { ErPatientRequest, ErPatientResponse, Try, TryCatch } from '@src/types';
 
 @Controller('/er/patients')
 export class ErPatientController {
   constructor(private readonly erPatientService: ErPatientService) {}
+
+  /**
+   * 병원 환자 조회 API
+   *
+   * 병원에서 환자를 조회한다.
+   *
+   * ## query
+   * - page : 페이지
+   * - limit : 페이지당 갯수
+   * - search : 환자이름 검색
+   * - patient_status[] : 환자 상태
+   *    - "PENDING" | "ADMISSION" | "DISCHARGE" | "DEATH" | "TRANSFERED"
+   *    - PENDING - 대기
+   *    - ADMISSION - 입원
+   *    - DISCHARGE - 퇴원
+   *    - DEATH - 사망
+   *    - TRANSFERED - 이송
+   *
+   *
+   * ## response
+   * - patient_list : 환자 리스트
+   * - count : 환자 갯수
+   *
+   *
+   * @author de-novo
+   * @tag er_patient
+   * @summary 2023-11-15 - 병원 환자 조회 API
+   *
+   * @security access_token
+   * @returns 환자 리스트
+   */
+
+  @Get('/')
+  @UseGuards(ErJwtAccessAuthGuard)
+  async getPatientList(
+    @TypedQuery() query: ErPatientRequest.GetPatientListQuery,
+    @CurrentUser() user: ErAuth.AccessTokenSignPayload,
+  ): Promise<Try<ErPatientResponse.GetPatientList>> {
+    const result = await this.erPatientService.getPatientList({ query, user });
+    return createResponse(result);
+  }
+
+  @Get('/:patient_id')
+  @UseGuards(ErJwtAccessAuthGuard)
+  @TypedException<ER_PATIENT_ERROR.PATIENT_NOT_EXIST>(HttpStatus.BAD_REQUEST, 'ER_PATIENT_ERROR.PATIENT_NOT_EXIST')
+  async getPatientDetail(
+    @TypedParam('patient_id') patient_id: string,
+    @CurrentUser() user: ErAuth.AccessTokenSignPayload,
+  ): Promise<TryCatch<ErPatientResponse.GetPatientDetail, ER_PATIENT_ERROR.PATIENT_NOT_EXIST>> {
+    const result = await this.erPatientService.getPatientDetail({ patient_id, user });
+    if (isError(result)) return throwError(result);
+    return createResponse(result);
+  }
 
   /**
    * 환자 생성 API

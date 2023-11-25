@@ -12,6 +12,79 @@ export class ErPatientService {
     private readonly prismaService: PrismaService,
     private readonly cryptoService: CryptoService, // private readonly eventEmitter: EventEmitter2,
   ) {}
+
+  async getPatientList({ query, user }: ErPatient.GetPatientList): Promise<ErPatient.GetPatientListReturn> {
+    const { hospital_id } = user;
+    const { page = 1, limit = 10, search, patient_status = [] } = query;
+    const skip = (page - 1) * limit;
+    const where = {
+      hospital_id,
+      ...(patient_status && {
+        patient_status: {
+          in: patient_status,
+        },
+      }),
+      ...(search && {
+        patient: {
+          patient_name: {
+            contains: search,
+          },
+        },
+      }),
+    };
+    const getPatientList = this.prismaService.er_PatientHospital.findMany({
+      where,
+      skip,
+      take: limit,
+      include: {
+        patient: {
+          include: {
+            patient_logs: {
+              take: 1,
+              where: {
+                log_type: { in: ['CONSULTATION', 'EMS_LOG'] },
+              },
+            },
+          },
+        },
+      },
+    });
+    const getCount = this.prismaService.er_PatientHospital.count({
+      where,
+    });
+
+    const [patient_list, count] = await this.prismaService.$transaction([getPatientList, getCount]);
+
+    return {
+      patient_list,
+      count,
+    };
+  }
+
+  async getPatientDetail({
+    patient_id,
+    user,
+  }: ErPatient.GetPatientDetail): Promise<ErPatient.GetPatientDetailReturn | ER_PATIENT_ERROR.PATIENT_NOT_EXIST> {
+    const { hospital_id } = user;
+    const patient = await this.prismaService.er_PatientHospital.findUnique({
+      where: { patient_id_hospital_id: { patient_id, hospital_id } },
+      include: {
+        patient: {
+          include: {
+            patient_logs: {
+              orderBy: {
+                log_date: 'desc',
+              },
+            },
+          },
+        },
+      },
+    });
+    if (!patient) return typia.random<ER_PATIENT_ERROR.PATIENT_NOT_EXIST>();
+
+    return patient;
+  }
+
   async createPatient({
     user,
     patient_info,
@@ -83,7 +156,12 @@ export class ErPatientService {
     const existPatient = await this.prismaService.er_PatientHospital.findUnique({
       where: { patient_id_hospital_id: { patient_id, hospital_id } },
     });
+
     if (!existPatient) return typia.random<ER_PATIENT_ERROR.PATIENT_NOT_EXIST>();
+    if (existPatient.patient_status === 'DEATH') return typia.random<ER_PATIENT_ERROR.PATIENT_ALREADY_DEATH>();
+    if (existPatient.patient_status === 'TRANSFERED')
+      return typia.random<ER_PATIENT_ERROR.PATIENT_ALREADY_TRANSFERED>();
+    if (existPatient.patient_status === 'DISCHARGE') return typia.random<ER_PATIENT_ERROR.PATIENT_ALREADY_DISCHARGED>();
     // if (log_type === 'DISCHARGE') {
     //   // TODO : 환자 퇴원 이벤트 onEvent
     //   this.eventEmitter.emit('DISCHARGE', { patient_id, hospital_id }); // 환자 퇴원 이벤트
@@ -101,24 +179,18 @@ export class ErPatientService {
         emergency_room_beds: {
           some: {
             emergency_room_bed_status: 'OCCUPIED',
-            emergency_room_bed_logs: {
-              some: {
-                patient_id,
-                emergency_room_bed_status: 'OCCUPIED',
-              },
-            },
+            patient_id,
           },
         },
       },
       include: {
         emergency_room_beds: {
+          where: {
+            emergency_room_bed_status: 'OCCUPIED',
+            patient_id,
+          },
           include: {
-            emergency_room_bed_logs: {
-              where: {
-                patient_id,
-                emergency_room_bed_status: 'OCCUPIED',
-              },
-            },
+            patient: true,
           },
         },
       },
@@ -131,11 +203,12 @@ export class ErPatientService {
       },
     });
 
+    console.log(emergencyBed);
     // 아래 로직을 이벤트로 처리해야함. 만약 해당 이벤트가 실패할시 주기적으로 배치작업으로 처리해야함.
     // 이유: 환자에대한 로직을 처리하는 service에서 병상에 대한 로직을 처리하는 service를 호출하면 의존성이 생기기 때문에
     // TODO: REFACOTRING 필요 (의존성 제거 및 이벤트 처리, 배치처리)
     const changeBedStatus =
-      (log_type === 'DISCHARGE' || log_type === 'TRANSFER') && emergencyBed
+      (log_type === 'DISCHARGE' || log_type === 'TRANSFER') && emergencyBed && emergencyBed.emergency_room_beds.length
         ? [
             this.prismaService.er_EmergencyRoomBed.update({
               where: {
@@ -146,6 +219,7 @@ export class ErPatientService {
               },
               data: {
                 emergency_room_bed_status: 'AVAILABLE',
+                patient_id: null,
                 emergency_room_bed_logs: {
                   create: {
                     patient_id,
@@ -157,7 +231,24 @@ export class ErPatientService {
           ]
         : [];
 
-    await this.prismaService.$transaction([...changeBedStatus, createPatientLog]);
+    const updatePatientStatus =
+      log_type === 'DISCHARGE' || log_type === 'DEATH' || log_type === 'TRANSFER'
+        ? [
+            this.prismaService.er_PatientHospital.update({
+              where: {
+                patient_id_hospital_id: {
+                  patient_id,
+                  hospital_id,
+                },
+              },
+              data: {
+                patient_status: log_type === 'TRANSFER' ? 'TRANSFERED' : log_type,
+              },
+            }),
+          ]
+        : [];
+
+    await this.prismaService.$transaction([...changeBedStatus, createPatientLog, ...updatePatientStatus]);
     return 'SUCCESS';
   }
 }
