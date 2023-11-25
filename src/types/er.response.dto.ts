@@ -5,6 +5,7 @@ import { ErEmployee } from '@src/providers/interface/er/er.employee.interface';
 import { ErEquipment } from '@src/providers/interface/er/er.equipment.interface';
 import { ErIllness } from '@src/providers/interface/er/er.illness.interface';
 import { ErPatient } from '@src/providers/interface/er/er.patient.interface';
+import { ErRequestPatient } from '@src/providers/interface/er/er.requestPatient.interface';
 import { DateToString } from '.';
 import { ErAuth } from '../auth/interface/er.auth.interface';
 export namespace ErAuthResponse {
@@ -65,4 +66,8 @@ export namespace ErIllnessResponse {
 
 export namespace ErPatientResponse {
   export type CreatePatient = ErPatient.CreatePatientReturn;
+}
+
+export namespace ErRequestPatientResponse {
+  export type GetRequestedPatient = ErRequestPatient.GetRequestedPatient;
 }
