@@ -67,4 +67,8 @@ export namespace ER_REQUEST_PATIENT_ERROR {
   export interface REQUEST_PATIENT_NOT_EXIST extends ERROR<'REQUEST_PATIENT_NOT_EXIST', HttpStatus.BAD_REQUEST> {}
   export interface REQUEST_PATIENT_ALREADY_EXIST
     extends ERROR<'REQUEST_PATIENT_ALREADY_EXIST', HttpStatus.BAD_REQUEST> {}
+  export interface EMERGENCY_BED_NOT_FOUND extends ERROR<'EMERGENCY_BED_NOT_FOUND', HttpStatus.BAD_REQUEST> {}
+  export interface ER_BED_NOT_AVAILABLE extends ERROR<'ER_BED_NOT_AVAILABLE', HttpStatus.BAD_REQUEST> {}
+  export interface DOCTOR_NOT_EXIST extends ERROR<'DOCTOR_NOT_EXIST', HttpStatus.BAD_REQUEST> {}
+  export interface NURCE_NOT_EXIST extends ERROR<'NURCE_NOT_EXIST', HttpStatus.BAD_REQUEST> {}
 }

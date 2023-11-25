@@ -409,3 +409,12 @@ export namespace ErPatientRequest {
     log_desc: string;
   };
 }
+
+export namespace ErRequestPatientRequest {
+  export type AssignRequestPatientDto = {
+    emergency_room_id: string;
+    emergency_room_bed_num: number;
+    doctor_id: string;
+    nurse_id: string;
+  };
+}

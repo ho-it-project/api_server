@@ -8,6 +8,7 @@ import {
   ems_SAMPLE_Assessment,
   ems_VS_Assessment,
 } from '@prisma/client';
+import { ErAuth } from '@src/auth/interface';
 
 export namespace ErRequestPatient {
   export interface GetRequestedPatient {
@@ -29,5 +30,14 @@ export namespace ErRequestPatient {
         };
       };
     };
+  }
+
+  export interface AssignRequestPatientArg {
+    user: ErAuth.AccessTokenSignPayload;
+    patient_id: string;
+    emergency_room_id: string;
+    emergency_room_bed_num: number;
+    doctor_id: string;
+    nurse_id: string;
   }
 }
