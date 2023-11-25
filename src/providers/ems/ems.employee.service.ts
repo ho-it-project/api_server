@@ -34,6 +34,7 @@ export class EmsEmployeeService {
         };
       }),
     );
+    console.log(employeeInfos);
     const newEmployees = await this.prismaService.ems_Employee.createMany({
       data: employeeInfos,
     });
