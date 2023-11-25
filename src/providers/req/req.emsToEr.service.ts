@@ -161,7 +161,7 @@ export class ReqEmsToErService {
                 },
               },
               data: {
-                request_status: RequestStatus.COMPLETED,
+                request_status: RequestStatus.CANCELED,
               },
             }),
             //환자 상태 변경
@@ -199,7 +199,7 @@ export class ReqEmsToErService {
         ? await this.prismaService.req_EmsToErRequest.findMany({
             where: {
               patient_id,
-              request_status: RequestStatus.COMPLETED,
+              request_status: RequestStatus.CANCELED,
             },
           })
         : [];
@@ -224,19 +224,24 @@ export class ReqEmsToErService {
 
     const requested_patient = await this.prismaService.req_Patient.findMany({
       where: {
-        ems_to_er_request: {
-          every: {
-            request_status: {
-              in: ['REQUESTED', 'VIEWED', 'REJECTED'], // 응답을 받지 못한 요청, 완료되지 않은 요청
+        OR: [
+          {
+            ems_to_er_request: {
+              every: {
+                NOT: {
+                  request_status: {
+                    in: ['COMPLETED', 'ACCEPTED', 'CANCELED'], // 응답을 받지 못한 요청, 완료되지 않은 요청
+                  },
+                },
+              },
             },
           },
-        },
+        ],
       },
       include: {
         ems_to_er_request: true,
       },
     });
-
     const filteredLastredRequestAfter5Min: ReqEmsToEr.CreateEmsToErRequestArg[] = requested_patient
       .map((patient) => {
         const { ems_to_er_request, ems_employee_id, ambulance_company_id } = patient;

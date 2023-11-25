@@ -2,7 +2,7 @@ import { CryptoService } from '@common/crypto/crypto.service';
 import { PrismaService } from '@common/prisma/prisma.service';
 import { EMS_PATIENT_ERROR, isError } from '@config/errors';
 import { Injectable } from '@nestjs/common';
-import { Prisma, ems_Patient } from '@prisma/client';
+import { Prisma, RequestStatus, ems_Patient } from '@prisma/client';
 import typia from 'typia';
 import { assertPrune } from 'typia/lib/misc';
 import { v4 } from 'uuid';
@@ -286,12 +286,24 @@ export class EmsPatientService {
       }),
     };
 
-    await this.prismaService.ems_Patient.update({
+    const emsPatientUpdate = this.prismaService.ems_Patient.update({
       where: {
         patient_id,
       },
       data: updateData,
     });
+
+    const reqEmsToErRequestUpdata = this.prismaService.req_EmsToErRequest.updateMany({
+      where: {
+        patient_id,
+        request_status: 'ACCEPTED' as RequestStatus,
+      },
+      data: {
+        request_status: 'COMPLETED' as RequestStatus,
+      },
+    });
+
+    await this.prismaService.$transaction([emsPatientUpdate, reqEmsToErRequestUpdata]);
 
     return true;
   }

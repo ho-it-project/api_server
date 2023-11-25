@@ -195,7 +195,7 @@ export class ReqEmsToErController {
    *
    *  - ER이 요청에 대한 응답을 하면 해당 요청은 ACCEPTED/REJECTED 상태로 변경됩니다.
    *  - 요청을 응답하면 해당 요청은 ACCEPTED/REJECTED 상태로 변경됩니다.
-   *  - 만약 응답이 ACCEPTED라면 해당 요청의 다른 요청은 COMPLETED 상태로 변경됩니다.
+   *  - 만약 응답이 ACCEPTED라면 해당 요청의 다른 요청은 CANCEL 상태로 변경됩니다.
    *
    * ## body
    *    - response: 'ACCEPTED' | 'REJECTED';
@@ -256,6 +256,7 @@ export class ReqEmsToErController {
   @Cron('0 * * * * *')
   async batchNewEmsToErRequest() {
     const result = await this.reqEmsToErService.batchNewEmsToErRequest();
+
     await Promise.all(
       result.map(async (r) => {
         if (isError(r)) {
