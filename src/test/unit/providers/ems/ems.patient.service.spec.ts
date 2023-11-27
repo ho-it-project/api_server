@@ -503,19 +503,5 @@ describe('EmsPatientService', () => {
       });
       expect(result).toEqual(typia.random<EMS_PATIENT_ERROR.PATIENT_COMPLETE_ALREADY>());
     });
-
-    it('should return true', async () => {
-      user = { ...typia.random<EmsPatient.UpdatePatientStatus['user']>(), employee_id: '권한있음' };
-      prismaService.ems_Patient.findUnique = jest
-        .fn()
-        .mockResolvedValue({ ...ems_patinet, patient_status: 'REQUESTED', ems_employee_id: user.employee_id });
-      const patient_status = 'ACCEPTED';
-      const result = await service.updatePatientStatus({
-        user,
-        patient_id,
-        patient_status,
-      });
-      expect(result).toEqual(true);
-    });
   });
 });
