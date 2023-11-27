@@ -54,6 +54,7 @@ model er_Employee {
   updated_at     DateTime @default(now()) @updatedAt @db.Timestamptz /// @format date-time
   status         Status   @default(ACTIVE)
 
+
   /// relation
   hospital                       er_Hospital                       @relation(fields: [hospital_id], references: [hospital_id])
   department                     er_Department?                    @relation(fields: [department_id], references: [department_id])
@@ -220,7 +221,7 @@ model er_EmergencyRoomBed {
   emergency_room_id         String                    @db.VarChar(50)
   emergency_room_bed_num    Int
   emergency_room_bed_status er_EmergencyRoomBedStatus @default(AVAILABLE)
-
+  patient_id                String?                  @db.VarChar(50) @unique()
   /// default 
   created_at DateTime @default(now()) @db.Timestamptz /// @format date-time
   updated_at DateTime @default(now()) @updatedAt @db.Timestamptz /// @format date-time
@@ -229,7 +230,7 @@ model er_EmergencyRoomBed {
   /// relation
   emergency_room          er_EmergencyRoom         @relation(fields: [emergency_room_id], references: [emergency_room_id])
   emergency_room_bed_logs er_EmergencyRoomBedLog[]
-
+  patient                 er_Patient?               @relation(fields: [patient_id], references: [patient_id])
   @@id([emergency_room_id, emergency_room_bed_num])
   @@map("emergency_room_bed")
   @@schema("er")
@@ -268,6 +269,8 @@ model er_Patient {
   doctor_id               String @db.VarChar(50)
   nurse_id                String @db.VarChar(50)
 
+
+
   /// default 
   created_at DateTime @default(now()) @db.Timestamptz /// @format date-time
   updated_at DateTime @default(now()) @updatedAt @db.Timestamptz /// @format date-time
@@ -281,6 +284,7 @@ model er_Patient {
   nurse                   er_Employee @relation("NursePatient",fields: [nurse_id], references: [employee_id])   /// 관계테이블 분리 필요해보임  ///NURSE_PATIENT    ///현재는 1인 1간호사만 관리
   patient_hospitals       er_PatientHospital[]
   patient_salt           er_PatientSalt?
+  emergency_room_bed      er_EmergencyRoomBed?
   @@map("patient")
   @@schema("er")
 }
@@ -301,9 +305,9 @@ model er_PatientSalt {
   @@schema("er")
 }
 model er_PatientHospital{
- patient_id String @db.VarChar(50)
+  patient_id String @db.VarChar(50)
   hospital_id String @db.VarChar(255)
-
+  patient_status          er_PatientStatus @default(PENDING) /// 대기중 // 진료대기중 // 입원중 // 퇴원 // 사망
   /// default
   created_at DateTime @default(now()) @db.Timestamptz /// @format date-time
   status     Status   @default(ACTIVE)
@@ -319,10 +323,11 @@ model er_PatientHospital{
   @@schema("er")
 }
 model er_PatientLog {
+  patient_log_id String @id @default(uuid())
   patient_id String   @db.VarChar(50)
   log_date   DateTime @default(now()) @db.Timestamptz /// @format date-time
   log_type   er_PatientLogType   /// 진단, 처치, 약물처방, 이송, 퇴원, 사망, 상담
-  log_desc   String   @db.VarChar(255) 
+  log_desc   String   @db.Text() 
   employee_id String  @db.VarChar(50)
   /// default 
   created_at DateTime @default(now()) @db.Timestamptz /// @format date-time
@@ -332,7 +337,6 @@ model er_PatientLog {
   /// relation
   patient er_Patient @relation(fields: [patient_id], references: [patient_id])
   employee er_Employee @relation(fields: [employee_id], references: [employee_id])
-  @@id([patient_id, log_date])
   @@map("patient_log")
   @@schema("er")
 }
@@ -518,6 +522,16 @@ enum er_PatientLogType {
   DISCHARGE /// 퇴원
   DEATH /// 사망
   CONSULTATION /// 상담
+  EMS_LOG /// EMS 로그
+  @@schema("er")
+}
+
+enum er_PatientStatus {
+  PENDING /// 대기중
+  ADMISSION /// 입원중
+  DISCHARGE /// 퇴원
+  DEATH /// 사망
+  TRANSFERED /// 전원
   @@schema("er")
 }
 

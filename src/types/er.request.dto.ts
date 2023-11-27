@@ -12,6 +12,7 @@ import {
   er_MedicalEquipment,
   er_MedicalInstitutionType,
   er_PatientLogType,
+  er_PatientStatus,
   er_ServereIllness,
 } from '@prisma/client';
 import { tags } from 'typia';
@@ -310,6 +311,13 @@ export namespace ErIllnessRequest {
 }
 
 export namespace ErPatientRequest {
+  export type GetPatientListQuery = {
+    page?: number;
+    limit?: number;
+    search?: string;
+    patient_status: er_PatientStatus[];
+  };
+
   export type CreatePatientDto = {
     /**
      * 환자의 이름
@@ -407,5 +415,14 @@ export namespace ErPatientRequest {
      * @title 진단 내용
      */
     log_desc: string;
+  };
+}
+
+export namespace ErRequestPatientRequest {
+  export type AssignRequestPatientDto = {
+    emergency_room_id: string;
+    emergency_room_bed_num: number;
+    doctor_id: string;
+    nurse_id: string;
   };
 }
