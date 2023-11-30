@@ -934,8 +934,9 @@ enum RequestStatus {
   ACCEPTED /// 수락됨
   REJECTED /// 거절됨
   CANCELED /// 취소됨
+  TRANSFER  ///이송중
+  TRANSFER_COMPLETED /// 이송완료
   COMPLETED /// 완료됨
-
   @@schema("request")
 }
 

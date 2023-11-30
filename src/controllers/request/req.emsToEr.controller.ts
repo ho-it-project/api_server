@@ -252,6 +252,46 @@ export class ReqEmsToErController {
     return createResponse(undefined);
   }
 
+  @TypedRoute.Put('/:patient_id')
+  @UseGuards(EmsJwtAccessAuthGuard)
+  async cancelEmsToErRequest() {}
+
+  /**
+   * ems to er 요청 상태 변경 API - EMS
+   *
+   *
+   * 본 API는 EMS 시스템에서만 호출 가능합니다.
+   * EMS에서 요청 상태를 변경하는 API 입니다.
+   *
+   * 변경 가능 상태
+   * - ACCEPTED -> TRANSFER // 수락 후 환자 이송
+   * - TRANSFER -> TRANSFER_COMPLETED // 환자 이송 완료
+   *
+   * ## body
+   *   - request_status: "TRANSFER" | "TRANSFER_COMPLETED";
+   *
+   */
+  @TypedRoute.Patch('/:patient_id')
+  @TypedException<AUTH_ERROR.FORBIDDEN>(403, 'AUTH_ERROR.FORBIDDEN')
+  @TypedException<REQ_EMS_TO_ER_ERROR.REQUEST_NOT_FOUND>(404.1, 'REQUEST_NOT_FOUND')
+  @UseGuards(EmsJwtAccessAuthGuard)
+  async updateEmsToErRequest(
+    @TypedParam('patient_id') patient_id: string,
+    @TypedBody() body: ReqEmsToErRequest.UpdateEmsToErRequestDto,
+    @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
+  ): Promise<TryCatch<'SUCCESS', REQ_EMS_TO_ER_ERROR.REQUEST_NOT_FOUND>> {
+    const { request_status } = body;
+    const result = await this.reqEmsToErService.updateEmsToErRequest({ patient_id, request_status, user });
+
+    if (isError(result)) {
+      return throwError(result);
+    }
+
+    const { ems_to_er_request, ...patient } = result;
+    await this.reqEmsToErProducer.sendEmsToErUpdate({ patient, updated_list: ems_to_er_request });
+    return createResponse('SUCCESS');
+  }
+
   //1분마다 실행
   @Cron('0 * * * * *')
   async batchNewEmsToErRequest() {
