@@ -252,9 +252,9 @@ export class ReqEmsToErController {
     return createResponse(undefined);
   }
 
-  @TypedRoute.Put('/:patient_id')
-  @UseGuards(EmsJwtAccessAuthGuard)
-  async cancelEmsToErRequest() {}
+  // @TypedRoute.Put('/:patient_id')
+  // @UseGuards(EmsJwtAccessAuthGuard)
+  // async cancelEmsToErRequest() {}
 
   /**
    * ems to er 요청 상태 변경 API - EMS
