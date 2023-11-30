@@ -562,4 +562,60 @@ export class ReqEmsToErService {
 
     return patient;
   }
+
+  async cancelEmsToErRequest({ user, patient_id }: { user: EmsAuth.AccessTokenSignPayload; patient_id: string }) {
+    const patient = await this.prismaService.req_Patient.findUnique({
+      where: {
+        patient_id,
+        ems_employee_id: user.employee_id,
+      },
+      include: {
+        ems_to_er_request: {
+          where: {
+            request_status: {
+              in: ['REQUESTED', 'VIEWED', 'ACCEPTED', 'REJECTED'],
+            },
+          },
+        },
+      },
+    });
+    if (!patient) return typia.random<REQ_EMS_TO_ER_ERROR.REQUEST_NOT_FOUND>();
+    const { ems_to_er_request } = patient;
+    if (!ems_to_er_request.length) {
+      return typia.random<REQ_EMS_TO_ER_ERROR.REQUEST_NOT_FOUND>();
+    }
+
+    const updateEmsToErRequest = this.prismaService.req_EmsToErRequest.updateMany({
+      where: {
+        patient_id,
+        emergency_center_id: {
+          in: ems_to_er_request.map((r) => r.emergency_center_id),
+        },
+      },
+      data: {
+        request_status: 'CANCELED',
+      },
+    });
+
+    const getPatientWithRequest = this.prismaService.req_Patient.findUnique({
+      where: {
+        patient_id,
+      },
+      include: {
+        ems_to_er_request: {
+          where: {
+            emergency_center_id: {
+              in: ems_to_er_request.map((r) => r.emergency_center_id),
+            },
+          },
+        },
+      },
+    });
+
+    const [, patientWithRequest] = await this.prismaService.$transaction([updateEmsToErRequest, getPatientWithRequest]);
+    console.log(patientWithRequest);
+    if (!patientWithRequest) return typia.random<REQ_EMS_TO_ER_ERROR.REQUEST_NOT_FOUND>(); // 이럴일은 없지만, 타입 처리를 위해
+
+    return patientWithRequest;
+  }
 }
