@@ -6,11 +6,15 @@ import { Controller, HttpStatus, UseGuards } from '@nestjs/common';
 import { ErJwtAccessAuthGuard } from '@src/auth/guard/er.jwt.access.guard';
 import { ErAuth } from '@src/auth/interface';
 import { ErRequestPatientService } from '@src/providers/er/er.requestPatient.service';
+import { ReqEmsToErProducer } from '@src/providers/req/req.emsToEr.producer';
 import { ErRequestPatientRequest, ErRequestPatientResponse, TryCatch } from '@src/types';
 
 @Controller('/er/request-patients')
 export class ErRequestPatientController {
-  constructor(private readonly erRequestPatientService: ErRequestPatientService) {}
+  constructor(
+    private readonly erRequestPatientService: ErRequestPatientService,
+    private readonly reqEmsToErProducer: ReqEmsToErProducer,
+  ) {}
 
   /**
    * 요청 받은 환자 상세정보 조회 API
@@ -101,7 +105,9 @@ export class ErRequestPatientController {
       nurse_id,
     });
     if (isError(result)) return throwError(result);
+    const { ems_to_er_request, ...patient } = result;
+    await this.reqEmsToErProducer.sendEmsToErUpdate({ patient, updated_list: ems_to_er_request });
 
-    return createResponse(result);
+    return createResponse('SUCCESS');
   }
 }

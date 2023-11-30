@@ -3,8 +3,10 @@ import { cleanCityName } from '@common/util/cleanCityName';
 import { EMS_AMBULANCE_COMPANY_ERROR } from '@config/errors';
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { Auth } from '@src/auth/interface';
 import { EmsAmbulanceCompanyRequest } from '@src/types/ems.request.dto';
 import typia from 'typia';
+import { EmsAmbulanceCompany } from '../interface/ems/ems.ambulanceCompany.interface';
 import { PrismaService } from './../../common/prisma/prisma.service';
 
 @Injectable()
@@ -77,19 +79,50 @@ export class EmsAmbulanceCampanyService {
     };
   }
 
-  async getAmbulanceCompanyDetail(ems_ambulance_company_id: string) {
+  async getAmbulanceCompanyDetail(
+    ems_ambulance_company_id: string,
+    user?: Auth.CommonPayload,
+  ): Promise<
+    EmsAmbulanceCompany.GetAmbulanceCompanyDetailReturn | EMS_AMBULANCE_COMPANY_ERROR.AMBULANCE_COMPANY_NOT_FOUND
+  > {
     const ambulance_company = await this.prismaService.ems_AmbulanceCompany.findUnique({
       where: {
         ambulance_company_id: ems_ambulance_company_id,
       },
       include: {
-        ambulances: true,
+        ambulances: {
+          include: {
+            employees: {
+              include: {
+                employee: {
+                  select: {
+                    employee_id: true,
+                    employee_name: true,
+                    role: true,
+                    status: true,
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     });
 
     if (!ambulance_company) {
       return typia.random<EMS_AMBULANCE_COMPANY_ERROR.AMBULANCE_COMPANY_NOT_FOUND>();
     }
-    return ambulance_company;
+
+    const result = {
+      ...ambulance_company,
+      ambulances: ambulance_company.ambulances.map((ambulance) => ({
+        ...ambulance,
+        employees:
+          user && user._type === 'EMS' && ems_ambulance_company_id === user.ambulance_company_id
+            ? ambulance.employees
+            : [],
+      })),
+    };
+    return result;
   }
 }

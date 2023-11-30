@@ -42,6 +42,12 @@ export namespace ReqEmsToEr {
     complete_req_list: req_EmsToErRequest[];
     response: req_EmsToErRequest;
   };
+
+  export type UpdateEmsToErRequestArg = {
+    user: EmsAuth.AccessTokenSignPayload;
+    patient_id: string;
+    request_status: 'TRANSFER' | 'TRANSFER_COMPLETED';
+  };
 }
 
 export namespace ReqEmsToErMessage {

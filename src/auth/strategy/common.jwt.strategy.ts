@@ -5,14 +5,13 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Auth, ErAuth } from '@src/auth/interface';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { EmsAuth } from '../interface';
-import { accessTokenExtractorFromCookeis } from '../util/jwtExtractorFromCookeis';
 
 @Injectable()
 export class CommonJwtStrategy extends PassportStrategy(Strategy, COMMON_AUTH_GUARD) {
   private readonly logger = new Logger(CommonJwtStrategy.name);
   constructor(readonly configService: ConfigService) {
     super({
-      jwtFromRequest: ExtractJwt.fromExtractors([accessTokenExtractorFromCookeis]),
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: configService.get('JWT_ACCESS_SECRET'),
     });
   }

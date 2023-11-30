@@ -22,4 +22,8 @@ export namespace ReqEmsToErRequest {
   export interface CreateEmsToErRequestDto {
     departments: string[];
   }
+
+  export interface UpdateEmsToErRequestDto {
+    request_status: 'TRANSFER' | 'TRANSFER_COMPLETED';
+  }
 }

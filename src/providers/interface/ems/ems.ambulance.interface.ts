@@ -1,5 +1,7 @@
 import { EMS_AMBULANCE_ERROR } from '@config/errors';
 import { Status, ems_EmployeeRole } from '@prisma/client';
+import { EmsAuth } from '@src/auth/interface';
+import { EmsAmbulanceRequest } from '@src/types';
 export namespace EmsAbulance {
   export type GetEmployeeManyWithAmbulance =
     | ({
@@ -22,4 +24,11 @@ export namespace EmsAbulance {
         status: Status;
       })[]
     | EMS_AMBULANCE_ERROR.EMPLOYEE_NOT_FOUND;
+
+  export type SetAmbulanceEmployees = {
+    ambulance_id: string;
+    removal_employee_list?: EmsAmbulanceRequest.RemoveEmployeeDTO[];
+    additional_employee_list?: EmsAmbulanceRequest.AddEmployeeDTO[];
+    user: EmsAuth.AccessTokenSignPayload;
+  };
 }

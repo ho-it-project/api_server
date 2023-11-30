@@ -513,4 +513,53 @@ export class ReqEmsToErService {
 
     return result;
   }
+
+  async updateEmsToErRequest({ user, patient_id, request_status }: ReqEmsToEr.UpdateEmsToErRequestArg) {
+    const { employee_id } = user;
+
+    const reqeustStatusWhere: RequestStatus = request_status === 'TRANSFER' ? 'ACCEPTED' : 'TRANSFER';
+    const reqEmsToErRequest = await this.prismaService.req_EmsToErRequest.findFirst({
+      where: {
+        patient_id,
+        patient: {
+          ems_employee_id: employee_id,
+        },
+        request_status: reqeustStatusWhere,
+      },
+    });
+
+    if (!reqEmsToErRequest) {
+      return typia.random<REQ_EMS_TO_ER_ERROR.REQUEST_NOT_FOUND>();
+    }
+
+    const patient = await this.prismaService.req_Patient.update({
+      where: {
+        patient_id,
+      },
+      data: {
+        ems_to_er_request: {
+          update: {
+            where: {
+              patient_id_emergency_center_id: {
+                patient_id,
+                emergency_center_id: reqEmsToErRequest.emergency_center_id,
+              },
+            },
+            data: {
+              request_status,
+            },
+          },
+        },
+      },
+      include: {
+        ems_to_er_request: {
+          where: {
+            emergency_center_id: reqEmsToErRequest.emergency_center_id,
+          },
+        },
+      },
+    });
+
+    return patient;
+  }
 }

@@ -68,7 +68,7 @@ export class ErRequestPatientService {
         ems_to_er_request: {
           some: {
             emergency_center_id,
-            request_status: 'ACCEPTED',
+            request_status: 'TRANSFER_COMPLETED',
           },
         },
       },
@@ -156,26 +156,43 @@ export class ErRequestPatientService {
         patient_status: 'COMPLETED',
       },
     });
-    const updateRequest = this.prismaService.req_EmsToErRequest.update({
+    const updateRequestPatient = this.prismaService.req_Patient.update({
       where: {
-        patient_id_emergency_center_id: {
-          patient_id,
-          emergency_center_id,
-        },
+        patient_id,
       },
       data: {
-        request_status: 'COMPLETED',
+        ems_to_er_request: {
+          update: {
+            where: {
+              patient_id_emergency_center_id: {
+                patient_id,
+                emergency_center_id,
+              },
+            },
+            data: {
+              request_status: 'COMPLETED',
+            },
+          },
+        },
+      },
+      include: {
+        ems_to_er_request: {
+          where: {
+            emergency_center_id,
+            patient_id,
+          },
+        },
       },
     });
-    await this.prismaService.$transaction([
+    const [reqUpdatedResult] = await this.prismaService.$transaction([
+      updateRequestPatient,
       createErPatient,
       createBadLog,
-      updateEmergencyRoomBed,
       updateEmsPatient,
-      updateRequest,
+      updateEmergencyRoomBed,
     ]);
 
-    return 'SUCCESS';
+    return reqUpdatedResult;
   }
 
   async getEmsPatientDetail(patient_id: string) {

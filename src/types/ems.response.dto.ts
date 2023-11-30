@@ -1,5 +1,6 @@
 import { ems_Ambulance, ems_AmbulanceCompany, ems_AmbulanceEmployee, ems_Employee } from '@prisma/client';
 import { EmsAuth } from '@src/auth/interface';
+import { EmsAmbulanceCompany } from '@src/providers/interface/ems/ems.ambulanceCompany.interface';
 import { EmsPatient } from '@src/providers/interface/ems/ems.patient.interface';
 
 export namespace EmsAuthResponse {
@@ -78,9 +79,7 @@ export namespace EmsAmbulanceCompanyResponse {
     count: number;
   }
 
-  export interface GetAmbulanceCompanyDetail extends ems_AmbulanceCompany {
-    ambulances: ems_Ambulance[];
-  }
+  export interface GetAmbulanceCompanyDetail extends EmsAmbulanceCompany.GetAmbulanceCompanyDetailReturn {}
 }
 
 export namespace EmsAmbulanceResponse {

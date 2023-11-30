@@ -603,7 +603,7 @@ model ems_Employee {
 model ems_AmbulanceEmployee{
   ambulance_id String @db.VarChar(50)
   employee_id  String @db.VarChar(50)
-
+  team_role ems_AmbulanceTeamRole @default(OTHER)
   /// default
   created_at DateTime @default(now()) @db.Timestamptz /// @format date-time
   status     Status   @default(ACTIVE)
@@ -839,6 +839,15 @@ enum ems_AmbulanceType {
   @@schema("ems")
 }
 
+enum ems_AmbulanceTeamRole {
+  DRIVER /// 운전자
+  EMERGENCY_MEDICAL_TECHNICIAN /// 응급구조사
+  DISPATCHER /// 상황실 
+  OTHER /// 기타
+  @@schema("ems")
+}
+
+
 enum ems_IncidentCause {
   TRAFFIC_ACCIDENT /// 교통사고
   FIRE /// 화재
@@ -925,8 +934,9 @@ enum RequestStatus {
   ACCEPTED /// 수락됨
   REJECTED /// 거절됨
   CANCELED /// 취소됨
+  TRANSFER  ///이송중
+  TRANSFER_COMPLETED /// 이송완료
   COMPLETED /// 완료됨
-
   @@schema("request")
 }
 
