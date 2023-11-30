@@ -3,6 +3,7 @@ import {
   Gender,
   ems_AffectedArea,
   ems_AirwayStatus,
+  ems_AmbulanceTeamRole,
   ems_AmbulanceType,
   ems_BreathingQuality,
   ems_DisabilityAVPU,
@@ -180,17 +181,27 @@ export namespace EmsAmbulanceCompanyRequest {
 }
 
 export namespace EmsAmbulanceRequest {
+  export type RemoveEmployeeDTO = {
+    employee_id: string;
+  };
+  export type AddEmployeeDTO = {
+    employee_id: string;
+    team_role: ems_AmbulanceTeamRole;
+  };
   export interface SetAmbulanceEmployeesDTO {
     /**
-     * 구급차량에 등록할 직원들의 고유 아이디 리스트
-     *
-     * 해당 id는 로그인에 사용되는 id_card와 다름
-     * @title 직원의 고유 아이디 리스트
+     * 제거할 직원 리스트
+     * @type RemoveEmployeeDTO[]
+     * @title 제거할 직원 리스트
      */
-    employee_list: {
-      employee_id: string;
-      action: 'ADD' | 'REMOVE';
-    }[];
+    removal_employee_list?: RemoveEmployeeDTO[];
+
+    /**
+     * 추가할 직원 리스트
+     * @type AddEmployeeDTO[]
+     * @title 추가할 직원 리스트
+     */
+    additional_employee_list?: AddEmployeeDTO[];
   }
 }
 

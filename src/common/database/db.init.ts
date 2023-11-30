@@ -20,7 +20,7 @@ export class DbInit {
   constructor(private readonly prismaService: PrismaService) {}
   private readonly logger = new Logger(DbInit.name);
   async init() {
-    if (process.env.NODE_ENV === 'production' || process.env.DATABASE_URL?.indexOf('ho-it') !== -1) return;
+    // if (process.env.NODE_ENV === 'production' || process.env.DATABASE_URL?.indexOf('ho-it') !== -1) return;
 
     this.logger.debug('init');
     this.logger.debug('delete all');
@@ -50,22 +50,25 @@ export class DbInit {
       this.prismaService.er_EmergencyRoomBed.deleteMany({ where: {} }),
       this.prismaService.er_EmergencyRoom.deleteMany({ where: {} }),
       this.prismaService.er_EmergencyCenter.deleteMany({ where: {} }),
+
+      this.prismaService.er_EmployeeNurseSpecialization.deleteMany({ where: {} }),
+      this.prismaService.er_EmployeeDoctorSpecialization.deleteMany({ where: {} }),
+      this.prismaService.er_DoctorSpecialization.deleteMany({ where: {} }),
+
       this.prismaService.er_HospitalDepartment.deleteMany({ where: {} }),
       this.prismaService.er_HospitalMedicalEquipment.deleteMany({ where: {} }),
       this.prismaService.er_HospitalServereIllness.deleteMany({ where: {} }),
-      this.prismaService.er_EmployeeDoctorSpecialization.deleteMany({ where: {} }),
-      this.prismaService.er_EmployeeNurseSpecialization.deleteMany({ where: {} }),
       this.prismaService.er_Employee.deleteMany({ where: {} }),
       this.prismaService.er_Hospital.deleteMany({ where: {} }),
       this.prismaService.er_MedicalEquipment.deleteMany({ where: {} }),
       this.prismaService.er_Department.deleteMany({ where: {} }),
-      this.prismaService.er_DoctorSpecialization.deleteMany({ where: {} }),
       this.prismaService.er_NurseSpecialization.deleteMany({ where: {} }),
       this.prismaService.ems_DCAP_BTLS_Assessment.deleteMany({ where: {} }),
       this.prismaService.ems_ABCDE_Assessment.deleteMany({ where: {} }),
       this.prismaService.ems_SAMPLE_Assessment.deleteMany({ where: {} }),
       this.prismaService.ems_VS_Assessment.deleteMany({ where: {} }),
       this.prismaService.ems_OPQRST_Assessment.deleteMany({ where: {} }),
+      this.prismaService.ems_Rapid_Asscessment.deleteMany({ where: {} }),
       this.prismaService.ems_Guardian.deleteMany({ where: {} }),
       this.prismaService.ems_PatientSalt.deleteMany({ where: {} }),
       this.prismaService.ems_Patient.deleteMany({ where: {} }),

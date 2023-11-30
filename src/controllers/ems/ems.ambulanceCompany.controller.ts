@@ -1,7 +1,10 @@
+import { CurrentUser } from '@common/decorators/CurrentUser';
 import { createResponse } from '@common/interceptor/createResponse';
 import { EMS_AMBULANCE_COMPANY_ERROR, isError, throwError } from '@config/errors';
 import { TypedException, TypedParam, TypedQuery, TypedRoute } from '@nestia/core';
-import { Controller } from '@nestjs/common';
+import { Controller, UseGuards } from '@nestjs/common';
+import { CommonAuthGuard } from '@src/auth/guard/common.guard';
+import { Auth } from '@src/auth/interface';
 import { EmsAmbulanceCampanyService } from '@src/providers/ems/ems.ambulanceCampany.service';
 import { Try, TryCatch } from '@src/types';
 import { EmsAmbulanceCompanyRequest } from '@src/types/ems.request.dto';
@@ -74,19 +77,22 @@ export class EmsAmbulanceCompanyController {
    * @returns 구급업체 상세 정보
    */
   @TypedRoute.Get('/:ems_ambulance_company_id')
+  @UseGuards(CommonAuthGuard)
   @TypedException<EMS_AMBULANCE_COMPANY_ERROR.AMBULANCE_COMPANY_NOT_FOUND>(
     400,
     'EMS_AMBULANCE_COMPANY_ERROR.AMBULANCE_COMPANY_NOT_FOUND',
   )
   async getAmbulanceCompanyDetail(
     @TypedParam('ems_ambulance_company_id') ems_ambulance_company_id: string,
+    @CurrentUser() user?: Auth.CommonPayload,
   ): Promise<
     TryCatch<
       EmsAmbulanceCompanyResponse.GetAmbulanceCompanyDetail,
       EMS_AMBULANCE_COMPANY_ERROR.AMBULANCE_COMPANY_NOT_FOUND
     >
   > {
-    const result = await this.emsAmbulanceCampanyService.getAmbulanceCompanyDetail(ems_ambulance_company_id);
+    console.log('user', user);
+    const result = await this.emsAmbulanceCampanyService.getAmbulanceCompanyDetail(ems_ambulance_company_id, user);
 
     if (isError(result)) {
       return throwError(result);
