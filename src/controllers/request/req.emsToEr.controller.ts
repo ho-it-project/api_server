@@ -252,9 +252,21 @@ export class ReqEmsToErController {
     return createResponse(undefined);
   }
 
-  // @TypedRoute.Put('/:patient_id')
-  // @UseGuards(EmsJwtAccessAuthGuard)
-  // async cancelEmsToErRequest() {}
+  @TypedRoute.Put('/:patient_id')
+  @UseGuards(EmsJwtAccessAuthGuard)
+  async cancelEmsToErRequest(
+    @TypedParam('patient_id') patient_id: string,
+    @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
+  ) {
+    const result = await this.reqEmsToErService.cancelEmsToErRequest({ user, patient_id });
+    if (isError(result)) {
+      return throwError(result);
+    }
+
+    const { ems_to_er_request, ...patient } = result;
+    await this.reqEmsToErProducer.sendEmsToErUpdate({ patient, updated_list: ems_to_er_request });
+    return createResponse('SUCCESS');
+  }
 
   /**
    * ems to er 요청 상태 변경 API - EMS
