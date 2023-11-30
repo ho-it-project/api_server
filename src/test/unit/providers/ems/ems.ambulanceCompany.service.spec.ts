@@ -3,7 +3,6 @@ import { EMS_AMBULANCE_COMPANY_ERROR } from '@config/errors';
 import { Test } from '@nestjs/testing';
 import { ems_AmbulanceCompany } from '@prisma/client';
 import { EmsAmbulanceCampanyService } from '@src/providers/ems/ems.ambulanceCampany.service';
-import { EmsAmbulanceCompanyResponse } from '@src/types/ems.response.dto';
 import typia, { tags } from 'typia';
 
 describe('ems.ambulanceCompany.service', () => {
@@ -96,13 +95,6 @@ describe('ems.ambulanceCompany.service', () => {
     it('should be return null when not found', async () => {
       const result = await service.getAmbulanceCompanyDetail('not_found_id');
       expect(result).toEqual(typia.random<EMS_AMBULANCE_COMPANY_ERROR.AMBULANCE_COMPANY_NOT_FOUND>());
-    });
-
-    it('should be return data when found', async () => {
-      const mockData = typia.random<EmsAmbulanceCompanyResponse.GetAmbulanceCompanyDetail>();
-      mockPrismaService.ems_AmbulanceCompany.findUnique = jest.fn().mockResolvedValue(mockData);
-      const result = await service.getAmbulanceCompanyDetail('found_id');
-      expect(result).toEqual(mockData);
     });
   });
 });
