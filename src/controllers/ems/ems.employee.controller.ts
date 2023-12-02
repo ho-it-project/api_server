@@ -214,4 +214,17 @@ export class EmsEmployeeController {
     }
     return createResponse(result);
   }
+
+  @TypedRoute.Get('/:employee_id')
+  @UseGuards(EmsJwtAccessAuthGuard)
+  @TypedException<AUTH_ERROR.FORBIDDEN>(403, 'AUTH_ERROR.FORBIDDEN')
+  async getEmployeeDetail(
+    @TypedParam('employee_id') employee_id: string,
+    @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
+  ): Promise<Try<EmsEmployeeResponse.GetEmployeeDetail>> {
+    const result = await this.emsEmployeeService.getEmployeeDetail({ employee_id, user });
+    if (isError(result)) return throwError(result);
+    const prune = assertPrune<EmsEmployeeResponse.GetEmployeeDetail>(result);
+    return createResponse(prune);
+  }
 }

@@ -2,6 +2,7 @@ import { ems_Ambulance, ems_AmbulanceCompany, ems_AmbulanceEmployee, ems_Employe
 import { EmsAuth } from '@src/auth/interface';
 import { EmsAmbulanceCompany } from '@src/providers/interface/ems/ems.ambulanceCompany.interface';
 import { EmsPatient } from '@src/providers/interface/ems/ems.patient.interface';
+import { EmsEmployee } from './../providers/interface/ems/ems.employee.interface';
 
 export namespace EmsAuthResponse {
   export interface Login {
@@ -71,6 +72,7 @@ export namespace EmsEmployeeResponse {
      */
     count: number;
   }
+  export interface GetEmployeeDetail extends Omit<EmsEmployee.GetEmployeeDetailReturn, 'password'> {}
 }
 
 export namespace EmsAmbulanceCompanyResponse {

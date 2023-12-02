@@ -1,3 +1,4 @@
+import { ems_AmbulanceCompany, ems_Employee } from '@prisma/client';
 import { EmsAuth } from '@src/auth/interface';
 import { EmsEmployeeRequest } from '@src/types/ems.request.dto';
 export namespace EmsEmployee {
@@ -17,5 +18,13 @@ export namespace EmsEmployee {
   export type DeleteEmployee = {
     user: EmsAuth.AccessTokenSignPayload;
     employee_id: string;
+  };
+
+  export type GetEmployeeDetailArg = {
+    user: EmsAuth.AccessTokenSignPayload;
+    employee_id: string;
+  };
+  export type GetEmployeeDetailReturn = ems_Employee & {
+    ambulance_company: ems_AmbulanceCompany;
   };
 }
