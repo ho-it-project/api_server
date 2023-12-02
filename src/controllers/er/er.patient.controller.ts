@@ -49,6 +49,7 @@ export class ErPatientController {
     @TypedQuery() query: ErPatientRequest.GetPatientListQuery,
     @CurrentUser() user: ErAuth.AccessTokenSignPayload,
   ): Promise<Try<ErPatientResponse.GetPatientList>> {
+    console.log(query);
     const result = await this.erPatientService.getPatientList({ query, user });
     return createResponse(result);
   }

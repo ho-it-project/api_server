@@ -315,7 +315,7 @@ export namespace ErPatientRequest {
     page?: number;
     limit?: number;
     search?: string;
-    patient_status: er_PatientStatus[];
+    patient_status?: er_PatientStatus[];
   };
 
   export type CreatePatientDto = {
