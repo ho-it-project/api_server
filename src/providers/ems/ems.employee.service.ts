@@ -149,4 +149,20 @@ export class EmsEmployeeService {
 
     return 'SUCCESS';
   }
+
+  async getEmployeeDetail({ employee_id, user }: EmsEmployee.GetEmployeeDetailArg) {
+    const employee = await this.prismaService.ems_Employee.findFirst({
+      where: {
+        employee_id,
+        ambulance_company_id: user.ambulance_company_id,
+      },
+      include: {
+        ambulance_company: true,
+      },
+    });
+    if (!employee) {
+      return typia.random<EMS_EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND>();
+    }
+    return employee;
+  }
 }

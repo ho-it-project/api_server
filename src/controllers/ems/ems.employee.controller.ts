@@ -214,4 +214,32 @@ export class EmsEmployeeController {
     }
     return createResponse(result);
   }
+
+  /**
+   * 직원 상세조회 API
+   *
+   * 필수값 : [employee_id]
+   *
+   *
+   *
+   * @author de-novo
+   * @tag ems_employee
+   * @summary 2023-12-02 직원상세조회 API
+   *
+   * @security access_token
+   * @returns 직원 상세정보
+   */
+  @TypedRoute.Get('/:employee_id')
+  @UseGuards(EmsJwtAccessAuthGuard)
+  @TypedException<AUTH_ERROR.FORBIDDEN>(403, 'AUTH_ERROR.FORBIDDEN')
+  @TypedException<EMS_EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND>(404, 'EMS_EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND')
+  async getEmployeeDetail(
+    @TypedParam('employee_id') employee_id: string,
+    @CurrentUser() user: EmsAuth.AccessTokenSignPayload,
+  ): Promise<TryCatch<EmsEmployeeResponse.GetEmployeeDetail, EMS_EMPLOYEE_ERROR.EMPLOYEE_NOT_FOUND>> {
+    const result = await this.emsEmployeeService.getEmployeeDetail({ employee_id, user });
+    if (isError(result)) return throwError(result);
+    const prune = assertPrune<EmsEmployeeResponse.GetEmployeeDetail>(result);
+    return createResponse(prune);
+  }
 }
