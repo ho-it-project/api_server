@@ -15,7 +15,7 @@ export class ErPatientService {
 
   async getPatientList({ query, user }: ErPatient.GetPatientList): Promise<ErPatient.GetPatientListReturn> {
     const { hospital_id } = user;
-    const { page = 1, limit = 10, search, patient_status = [] } = query;
+    const { page = 1, limit = 10, search, patient_status } = query;
     const skip = (page - 1) * limit;
     const where = {
       hospital_id,
@@ -32,6 +32,7 @@ export class ErPatientService {
         },
       }),
     };
+    console.log(where);
     const getPatientList = this.prismaService.er_PatientHospital.findMany({
       where,
       skip,
