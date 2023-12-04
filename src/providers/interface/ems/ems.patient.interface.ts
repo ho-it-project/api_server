@@ -5,6 +5,7 @@ import {
   ems_OPQRST_Assessment,
   ems_Patient,
   ems_PatientStatus,
+  ems_Rapid_Asscessment,
   ems_SAMPLE_Assessment,
   ems_VS_Assessment,
 } from '@prisma/client';
@@ -24,6 +25,7 @@ export namespace EmsPatient {
     vs: ems_VS_Assessment[];
     sample: ems_SAMPLE_Assessment[];
     opqrst: ems_OPQRST_Assessment[];
+    rapid: ems_Rapid_Asscessment[];
   }
 
   export interface GetPatientListDTO {
